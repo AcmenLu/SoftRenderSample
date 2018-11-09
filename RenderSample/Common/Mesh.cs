@@ -41,7 +41,7 @@ namespace SampleCommon
 		public Mesh()
 		{
 			mVertices = new List<Vertex>();
-			mTransform = new Matrix4X4();
+			mTransform = Matrix4X4.RotateY(2) * Matrix4X4.Translate(new Vector3D(0.0f, 0.0f, 10.0f));
 		}
 
 		/// <summary>
@@ -50,7 +50,7 @@ namespace SampleCommon
 		public Mesh(List<Vertex> vertices)
 		{
 			mVertices = vertices;
-			mTransform = new Matrix4X4();
+			mTransform = Matrix4X4.RotateY(2) * Matrix4X4.Translate(new Vector3D(0.0f, 0.0f, 10.0f));
 		}
 
 		/// <summary>
@@ -74,11 +74,75 @@ namespace SampleCommon
 		/// </summary>
 		/// <param name="renderer"></param>
 		/// <param name="vertex"></param>
-		public void VertexTransform(Renderer renderer, ref Vertex vertex)
+		public void TransformToView(Renderer renderer, ref Vertex vertex)
 		{
-			Matrix4X4 mat = renderer.Camera.GetViewMat().Identity();
-			mTransform = Matrix4X4.Translate(new Vector3(0.0f, 0.0f, 10.0f));
-			vertex.Position = vertex.Position * mTransform * mat * renderer.Projection;
+			vertex.Position = vertex.Position * mTransform * renderer.Camera.GetViewMat();
+		}
+
+		/// <summary>
+		/// 对一个定点进行mvp变换。
+		/// </summary>
+		/// <param name="renderer"></param>
+		/// <param name="vertex"></param>
+		public void TransformToProjection(Renderer renderer, ref Vertex vertex)
+		{
+			vertex.Position = vertex.Position * renderer.Projection;
+		}
+
+		/// <summary>
+		/// 转换到屏幕坐标系
+		/// </summary>
+		/// <param name="v"></param>
+		private void TransformToScreen(Renderer renderer, ref Vertex v)
+		{
+			if (v.Position.w != 0)
+			{
+				//先进行透视除法，转到cvv
+				v.Position.x *= 1 / v.Position.w;
+				v.Position.y *= 1 / v.Position.w;
+				v.Position.z *= 1 / v.Position.w;
+				v.Position.w = 1;
+				//cvv到屏幕坐标
+				v.Position.x = (v.Position.x + 1) * 0.5f * renderer.Size.x;
+				v.Position.y = (1 - v.Position.y) * 0.5f * renderer.Size.y;
+			}
+		}
+
+		/// <summary>
+		/// 摄像机空间的裁剪
+		/// </summary>
+		/// <param name="renderer"></param>
+		/// <param name="p1"></param>
+		/// <param name="p2"></param>
+		/// <param name="p3"></param>
+		/// <returns></returns>
+		private bool CameraBackCulling(Renderer renderer, Vertex p1, Vertex p2, Vertex p3)
+		{
+			// 裁剪原理：计算出这个面的法线， 然后判断法线和摄像机朝向的夹角，如果夹角是[0, 90)则需要被裁掉
+			Vector3D v1 = p2.Position - p1.Position;
+			Vector3D v2 = p3.Position - p2.Position;
+			Vector3D normal = Vector3D.Cross(v1, v2);
+			//由于在视空间中，所以相机点就是（0,0,0）
+			Vector3D viewDir = p1.Position - new Vector3D(0, 0, 0);
+			if (Vector3D.Dot(normal, viewDir) > 0)
+				return true;
+
+			return false;
+		}
+
+		/// <summary>
+		/// 检查是否裁剪这个顶点,简单的cvv裁剪,在透视除法之前
+		/// </summary>
+		/// <returns>是否通关剪裁</returns>
+		private bool VertexClip(Vertex v)
+		{
+			//cvv为 x-1,1  y-1,1  z0,1
+			if (v.Position.x >= -v.Position.w && v.Position.x <= v.Position.w &&
+				v.Position.y >= -v.Position.w && v.Position.y <= v.Position.w &&
+				v.Position.z >= 0f && v.Position.z <= v.Position.w)
+				return true;
+
+			return false;
 		}
 
 		/// <summary>
@@ -89,18 +153,36 @@ namespace SampleCommon
 			Vertex p1 = new Vertex(v1);
 			Vertex p2 = new Vertex(v2);
 			Vertex p3 = new Vertex(v3);
-			VertexTransform(renderer, ref p1);
-			VertexTransform(renderer, ref p2);
-			VertexTransform(renderer, ref p3);
+
+			// 因为要进行摄像机背面剔除，因此将mvp 分开为mv和p
+			TransformToView(renderer, ref p1);
+			TransformToView(renderer, ref p2);
+			TransformToView(renderer, ref p3);
+			// 摄像机背面剔除
+			if (CameraBackCulling(renderer, p1, p2, p3) == false)
+				return;
+
+			// 透视投影
+			TransformToProjection(renderer, ref p1);
+			TransformToProjection(renderer, ref p2);
+			TransformToProjection(renderer, ref p3);
+			// TODO： 顶点裁剪
+			//if (VertexClip(p1) == false || VertexClip(p2) == false || VertexClip(p3) == false)
+			//	return;
+
+			TransformToScreen(renderer, ref p1);
+			TransformToScreen(renderer, ref p2);
+			TransformToScreen(renderer, ref p3);
+
 			if (renderer.RenderMode == RenderMode.Wireframe)
 			{
-				DrawLine(renderer, p1, v2);
-				DrawLine(renderer, v2, v3);
-				DrawLine(renderer, v3, v1);
+				DrawLine(renderer, p1, p2);
+				DrawLine(renderer, p2, p3);
+				DrawLine(renderer, p3, p1);
 			}
 			else
 			{
-				TriangleRasterization(renderer, v1, v2, v3);
+				TriangleRasterization(renderer, p1, p2, p3);
 			}
 		}
 

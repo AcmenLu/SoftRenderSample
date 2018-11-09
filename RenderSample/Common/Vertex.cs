@@ -8,18 +8,18 @@ namespace SampleCommon
 {
 	public class Vertex
 	{
-		private Vector3	mPosition;
-		private Vector3 mNormal;
+		private Vector3D	mPosition;
+		private Vector3D mNormal;
 		private Vector2	mTexcoord;
 		private Color	mColor;
 
-		public Vector3 Position
+		public Vector3D Position
 		{
 			get { return mPosition; }
 			set { mPosition = value; }
 		}
 
-		public Vector3 Normal
+		public Vector3D Normal
 		{
 			get { return mNormal; }
 			set { mNormal = value; }
@@ -39,24 +39,24 @@ namespace SampleCommon
 
 		public Vertex()
 		{
-			mPosition = new Vector3();
-			mNormal = new Vector3();
+			mPosition = new Vector3D();
+			mNormal = new Vector3D();
 			mTexcoord = new Vector2();
 			mColor = new Color(1.0f, 1.0f, 1.0f);
 		}
 
-		public Vertex(Vector3 pos)
+		public Vertex(Vector3D pos)
 		{
-			mPosition = new Vector3(pos);
-			mNormal = new Vector3();
+			mPosition = new Vector3D(pos);
+			mNormal = new Vector3D();
 			mTexcoord = new Vector2();
 			mColor = new Color(1.0f, 1.0f, 1.0f);
 		}
 
-		public Vertex(Vector3 pos, Vector3 normal, Vector2 texcoord, Color color)
+		public Vertex(Vector3D pos, Vector3D normal, Vector2 texcoord, Color color)
 		{
-			mPosition = new Vector3(pos);
-			mNormal = new Vector3(normal);
+			mPosition = new Vector3D(pos);
+			mNormal = new Vector3D(normal);
 			mTexcoord = new Vector2(texcoord);
 			mColor = new Color(color);
 		}

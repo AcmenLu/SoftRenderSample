@@ -157,7 +157,7 @@ namespace SampleCommon
 		/// </summary>
 		/// <param name="vec3"></param>
 		/// <returns></returns>
-		public static Matrix4X4 Translate(Vector3 vec3)
+		public static Matrix4X4 Translate(Vector3D vec3)
 		{
 			return Translate(vec3.x, vec3.y, vec3.z);
 		}
@@ -182,7 +182,7 @@ namespace SampleCommon
 		/// </summary>
 		/// <param name="vec3"></param>
 		/// <returns></returns>
-		public static Matrix4X4 Scale(Vector3 vec3)
+		public static Matrix4X4 Scale(Vector3D vec3)
 		{
 			return Scale(vec3.x, vec3.y, vec3.z);
 		}

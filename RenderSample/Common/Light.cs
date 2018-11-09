@@ -12,10 +12,10 @@ namespace SampleCommon
 
 	public class Light
 	{
-		private Vector3 mDirection;
+		private Vector3D mDirection;
 		private Color mColor;
 
-		public Vector3 Direction
+		public Vector3D Direction
 		{
 			get { return mDirection; }
 			set { mDirection = value; }
@@ -27,7 +27,7 @@ namespace SampleCommon
 			set { mColor = value; }
 		}
 
-		public Light(Vector3 direction, Color color)
+		public Light(Vector3D direction, Color color)
 		{
 			mDirection = direction;
 			mColor = color;

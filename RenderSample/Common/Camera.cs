@@ -8,14 +8,14 @@ namespace SampleCommon
 {
 	public class Camera
 	{
-		private Vector3	mPosition;
-		private Vector3	mLookAtPos;
-		private Vector3	mUp;
+		private Vector3D	mPosition;
+		private Vector3D	mLookAtPos;
+		private Vector3D	mUp;
 
 		/// <summary>
 		/// mPosition的get/set
 		/// </summary>
-		public Vector3 Position
+		public Vector3D Position
 		{
 			get { return mPosition; }
 			set { mPosition = value; }
@@ -24,7 +24,7 @@ namespace SampleCommon
 		/// <summary>
 		/// mLookAtPos的get/set
 		/// </summary>
-		public Vector3 LookAt
+		public Vector3D LookAt
 		{
 			get { return mLookAtPos; }
 			set { mLookAtPos = value; }
@@ -33,7 +33,7 @@ namespace SampleCommon
 		/// <summary>
 		/// mUp的get/set
 		/// </summary>
-		public Vector3 Up
+		public Vector3D Up
 		{
 			get { return mUp; }
 			set { mUp = value; }
@@ -44,9 +44,9 @@ namespace SampleCommon
 		/// </summary>
 		public Camera()
 		{
-			mPosition = new Vector3(0.0f, 0.0f, 3.0f);
-			mLookAtPos = new Vector3(0.0f, 0.0f, 0.0f);
-			mUp = new Vector3(0.0f, 1.0f, 0.0f);
+			mPosition = new Vector3D(0, 0, 1, 1);
+			mLookAtPos = new Vector3D(0, 0, 0, 1);
+			mUp = new Vector3D(0, 1, 0, 0);
 		}
 
 		/// <summary>
@@ -55,7 +55,7 @@ namespace SampleCommon
 		/// <param name="pos"></param>
 		/// <param name="lookAt"></param>
 		/// <param name="up"></param>
-		public Camera(Vector3 pos, Vector3 lookAt, Vector3 up)
+		public Camera(Vector3D pos, Vector3D lookAt, Vector3D up)
 		{
 			mPosition = pos;
 			mLookAtPos = lookAt;
@@ -68,8 +68,8 @@ namespace SampleCommon
 		/// <returns></returns>
 		public Matrix4X4 GetViewMat()
 		{
-			Vector3 dir = mLookAtPos - mPosition;
-			Vector3 right = Vector3.Cross(mUp, dir);
+			Vector3D dir = mLookAtPos - mPosition;
+			Vector3D right = Vector3D.Cross(mUp, dir);
 			right.Normalize();
 			Matrix4X4 trans = new Matrix4X4(1.0f, 0.0f, 0.0f, 0.0f,
 										0.0f, 1.0f, 0.0f, 0.0f,
