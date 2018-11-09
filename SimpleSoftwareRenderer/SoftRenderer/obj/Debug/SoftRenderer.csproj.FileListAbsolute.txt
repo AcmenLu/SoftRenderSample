@@ -1,0 +1,9 @@
+D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\bin\Debug\SoftRenderer.exe.config
+D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\bin\Debug\SoftRenderer.exe
+D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\bin\Debug\SoftRenderer.pdb
+D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\obj\Debug\SoftRenderer.csprojResolveAssemblyReference.cache
+D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\obj\Debug\SoftRenderer.SoftRendererDemo.resources
+D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\obj\Debug\SoftRenderer.Properties.Resources.resources
+D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\obj\Debug\SoftRenderer.csproj.GenerateResource.Cache
+D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\obj\Debug\SoftRenderer.exe
+D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\obj\Debug\SoftRenderer.pdb
