@@ -672,5 +672,9 @@ namespace SoftRenderer
             }
         }
 
-    }
+		private void SoftRendererDemo_Load(object sender, EventArgs e)
+		{
+
+		}
+	}
 }

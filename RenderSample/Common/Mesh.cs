@@ -70,6 +70,24 @@ namespace SampleCommon
 		}
 
 		/// <summary>
+		/// 根据顶点信息将光照信息填充到顶点
+		/// </summary>
+		/// <param name="vertex"></param>
+		/// <returns></returns>
+		public void LightColor(Renderer renderer, ref Vertex vertex)
+		{
+			if (renderer.LightList.Count() <= 0)
+				return;
+
+			// 1. 将顶点和发现转换到世界空间中来
+			Vector3D position = vertex.Position * mTransform;
+			Vector3D normal = vertex.Normal * mTransform ;
+			//Direction
+			//	Color lightColor = renderer.LightList[0].Color;
+			//	vertex.Color = vertex.Color * lightColor;
+		}
+
+		/// <summary>
 		/// 对一个定点进行mvp变换。
 		/// </summary>
 		/// <param name="renderer"></param>
@@ -154,6 +172,13 @@ namespace SampleCommon
 			Vertex p2 = new Vertex(v2);
 			Vertex p3 = new Vertex(v3);
 
+			//计算顶点光照颜色
+			if(renderer.LightList.Count() > 0)
+			{
+				LightColor(renderer, ref p1);
+				LightColor(renderer, ref p2);
+				LightColor(renderer, ref p3);
+			}
 			// 因为要进行摄像机背面剔除，因此将mvp 分开为mv和p
 			TransformToView(renderer, ref p1);
 			TransformToView(renderer, ref p2);
@@ -473,13 +498,6 @@ namespace SampleCommon
 							float v = MathUntil.Lerp(left.TexCoord.y, right.TexCoord.y, lerpFactor);
 							vcolor = mTexture.GetPixelColor(u, v);
 						}
-					}
-
-					// 根据环境中是否有光将光照颜色加入到顶点上。
-					if (renderer.LightList.Count() > 0)
-					{
-						Color lightColor = renderer.LightList[0].Color;
-						vcolor = vcolor * lightColor;
 					}
 					renderer.FrameBuffer.SetPointColor(xIndex, yIndex, vcolor);
 				}

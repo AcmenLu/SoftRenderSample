@@ -7,3 +7,5 @@ D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-maste
 D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\obj\Debug\SoftRenderer.csproj.GenerateResource.Cache
 D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\obj\Debug\SoftRenderer.exe
 D:\谷歌下载目录\SimpleSoftwareRenderer-master\SimpleSoftwareRenderer-master\SoftRenderer\obj\Debug\SoftRenderer.pdb
+F:\OpenGL\SoftRenderSample\SimpleSoftwareRenderer\SoftRenderer\bin\Debug\SoftRenderer.exe.config
+F:\OpenGL\SoftRenderSample\SimpleSoftwareRenderer\SoftRenderer\obj\Debug\SoftRenderer.exe

@@ -9,3 +9,14 @@ F:\Sample\RenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.RenderSa
 F:\Sample\RenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.csproj.GenerateResource.Cache
 F:\Sample\RenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.exe
 F:\Sample\RenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.pdb
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\bin\Debug\RenderSample.exe.config
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.exe
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\bin\Debug\RenderSample.exe
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\bin\Debug\RenderSample.pdb
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\bin\Debug\Common.dll
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\bin\Debug\Common.pdb
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.csprojResolveAssemblyReference.cache
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.Properties.Resources.resources
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.RenderSample.resources
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.csproj.GenerateResource.Cache
+F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.pdb

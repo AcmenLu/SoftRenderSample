@@ -48,16 +48,10 @@ namespace RenderSample
 					mRenderer.RenderMode = RenderMode.Textured;
 					break;
 				case Keys.A:
-					TriangleTest();
+					AddLightToScene();
 					break;
 				case Keys.B:
-					RectangularTest();
-					break;
-				case Keys.C:
-					LightTest();
-					break;
-				case Keys.D:
-					TextureTest();
+					ClearLightFromScene();
 					break;
 				case Keys.Escape:
 					Close();
@@ -328,6 +322,23 @@ namespace RenderSample
 			RenderTexture texture = new RenderTexture("env3.bmp");
 			mCube.Texture = texture;
 			mRenderer.AddRenderObject(mCube);
+		}
+
+		/// <summary>
+		/// 给场景中增加光照
+		/// </summary>
+		public void AddLightToScene()
+		{
+			Light light = new Light(new Vector3D(0.0f, 1.0f, 0.0f), new SampleCommon.Color(0.2f, 0.2f, 0.2f));
+			mRenderer.AddLight(light);
+		}
+
+		/// <summary>
+		/// 清除场景中所有光照
+		/// </summary>
+		public void ClearLightFromScene()
+		{
+			mRenderer.ClearLight();
 		}
 	}
 }

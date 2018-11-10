@@ -183,7 +183,12 @@ namespace SampleCommon
 		public void AddLight(Light light)
 		{
 			if (mLightList.Exists(x => x == light) == false)
-				mLightList.Add(light);
+			{
+				lock (mLightList)
+				{
+					mLightList.Add(light);
+				}
+			}
 		}
 
 		/// <summary>
@@ -192,7 +197,12 @@ namespace SampleCommon
 		public void ClearLight()
 		{
 			if (mLightList.Count() > 0)
-				mLightList.Clear();
+			{
+				lock (mLightList)
+				{
+					mLightList.Clear();
+				}
+			}
 		}
 
 		/// <summary>
@@ -207,7 +217,10 @@ namespace SampleCommon
 			int index = mLightList.FindIndex(x => x == light);
 			if (index >= 0 && index < mLightList.Count())
 			{
-				mLightList.RemoveAt(index);
+				lock (mLightList)
+				{
+					mLightList.RemoveAt(index);
+				}
 			}
 		}
 

@@ -28,19 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.SuspendLayout();
-            // 
-            // SoftRendererDemo
-            // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(784, 562);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximumSize = new System.Drawing.Size(800, 600);
-            this.MinimumSize = new System.Drawing.Size(800, 600);
-            this.Name = "SoftRendererDemo";
-            this.Text = "SoftRendererDemo";
-            this.ResumeLayout(false);
+			this.SuspendLayout();
+			// 
+			// SoftRendererDemo
+			// 
+			this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 15F);
+			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+			this.ClientSize = new System.Drawing.Size(1043, 691);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+			this.MaximumSize = new System.Drawing.Size(1061, 738);
+			this.MinimumSize = new System.Drawing.Size(1061, 738);
+			this.Name = "SoftRendererDemo";
+			this.Text = "SoftRendererDemo";
+			this.Load += new System.EventHandler(this.SoftRendererDemo_Load);
+			this.ResumeLayout(false);
 
         }
 

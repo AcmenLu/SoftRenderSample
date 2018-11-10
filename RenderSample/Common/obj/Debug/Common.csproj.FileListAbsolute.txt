@@ -3,3 +3,8 @@ F:\Sample\RenderSample\RenderSample\Common\bin\Debug\Common.pdb
 F:\Sample\RenderSample\RenderSample\Common\obj\Debug\Common.dll
 F:\Sample\RenderSample\RenderSample\Common\obj\Debug\Common.pdb
 F:\Sample\RenderSample\RenderSample\Common\obj\Debug\Common.csprojResolveAssemblyReference.cache
+F:\OpenGL\SoftRenderSample\RenderSample\Common\bin\Debug\Common.dll
+F:\OpenGL\SoftRenderSample\RenderSample\Common\bin\Debug\Common.pdb
+F:\OpenGL\SoftRenderSample\RenderSample\Common\obj\Debug\Common.csprojResolveAssemblyReference.cache
+F:\OpenGL\SoftRenderSample\RenderSample\Common\obj\Debug\Common.dll
+F:\OpenGL\SoftRenderSample\RenderSample\Common\obj\Debug\Common.pdb
