@@ -21,8 +21,9 @@ namespace RenderSample
 			Height = 600;
 
 			mGraphics = CreateGraphics();
-			mRenderer = new Renderer(Width, Height, (float)System.Math.PI / 4f, 1, 500);
+			mRenderer = new Renderer(Width, Height, (float)System.Math.PI / 4f, 1f, 500f);
 			mRenderer.BindGraphics(mGraphics);
+			mRenderer.Camera = new Camera(new Vector3D(0, 0, -5, 1), new Vector3D(0, 0, 0, 1), new Vector3D(0, 1, 0, 0));
 			System.Timers.Timer mainTimer = new System.Timers.Timer(1000 / 60f);
 			mainTimer.Elapsed += new ElapsedEventHandler(OnIdle);
 			mainTimer.AutoReset = true;
@@ -39,22 +40,62 @@ namespace RenderSample
 			switch (keyData)
 			{
 				case Keys.NumPad0:
-					mRenderer.RenderMode = RenderMode.Wireframe;
+					mRenderer.RenderMode = RenderMode.WIREFRAME;
 					break;
 				case Keys.NumPad1:
-					mRenderer.RenderMode = RenderMode.VertexColor;
+					mRenderer.RenderMode = RenderMode.VERTEXCOLOR;
 					break;
 				case Keys.NumPad2:
-					mRenderer.RenderMode = RenderMode.Textured;
+					mRenderer.RenderMode = RenderMode.TEXTURED;
 					break;
-				case Keys.A:
+				case Keys.NumPad3:
+					mRenderer.RenderMode = RenderMode.CUBETEXTURED;
+					break;
+				case Keys.NumPad4:
+					mRenderer.CullMode = CullMode.CULL_NONE;
+					break;
+				case Keys.NumPad5:
+					mRenderer.CullMode = CullMode.CULL_CAMERA;
+					break;
+				case Keys.NumPad6:
+					mRenderer.CullMode = CullMode.CULL_CVV;
+					break;
+				case Keys.NumPad7:
+					mRenderer.CullMode = CullMode.CULL_ALL;
+					break;
+				case Keys.F1:
 					AddLightToScene();
 					break;
-				case Keys.B:
+				case Keys.F2:
 					ClearLightFromScene();
+					break;
+				case Keys.F3:
+					AddTexture("env3.bmp");
+					break;
+				case Keys.F4:
+					string[] names = { "env0.bmp", "env1.bmp", "env2.bmp", "env3.bmp", "env4.bmp", "env5.bmp" };
+					AddCubeTexture(names);
 					break;
 				case Keys.Escape:
 					Close();
+					break;
+				case Keys.W:
+					mRenderer.Camera.MoveForward(0.2f);
+					break;
+				case Keys.S:
+					mRenderer.Camera.MoveForward(-0.2f);
+					break;
+				case Keys.A:
+					mRenderer.Camera.MoveRight(-0.1f);
+					break;
+				case Keys.D:
+					mRenderer.Camera.MoveRight(0.1f);
+					break;
+				case Keys.E:
+					mRenderer.Camera.MovePitchAndYaw(0.1f, 0);
+					break;
+				case Keys.F:
+					mRenderer.Camera.MovePitchAndYaw(-0.1f, 0);
 					break;
 			}
 
@@ -319,8 +360,6 @@ namespace RenderSample
 				vertices.Add(vertex);
 			}
 			mCube = new Mesh(vertices);
-			RenderTexture texture = new RenderTexture("env3.bmp");
-			mCube.Texture = texture;
 			mRenderer.AddRenderObject(mCube);
 		}
 
@@ -329,8 +368,10 @@ namespace RenderSample
 		/// </summary>
 		public void AddLightToScene()
 		{
-			Light light = new Light(new Vector3D(0.0f, 1.0f, 0.0f), new SampleCommon.Color(0.2f, 0.2f, 0.2f));
+			Light light = new Light(new Vector3D(-10.0f, 0.0f, 0.0f), new SampleCommon.Color(0.8f, 0.8f, 0.8f));
 			mRenderer.AddLight(light);
+			Material mat = new Material(new SampleCommon.Color(0.4f, 0.4f, 0.4f), 0.7f, new SampleCommon.Color(0.3f, 0.3f, 0.3f), new SampleCommon.Color(1, 1, 1));
+			mCube.Material = mat;
 		}
 
 		/// <summary>
@@ -338,7 +379,42 @@ namespace RenderSample
 		/// </summary>
 		public void ClearLightFromScene()
 		{
+			mCube.Material = null;
 			mRenderer.ClearLight();
+		}
+
+		/// <summary>
+		/// 添加一个图片到模型上
+		/// </summary>
+		/// <param name="filename"></param>
+		public void AddTexture(string filename)
+		{
+			if (mCube.Texture == null)
+			{
+				RenderTexture texture = new RenderTexture(filename);
+				mCube.Texture = texture;
+			}
+			else
+			{
+				mCube.Texture = null;
+			}
+		}
+
+		/// <summary>
+		/// 添加立方体贴图
+		/// </summary>
+		/// <param name="names"></param>
+		public void AddCubeTexture(string[] names)
+		{
+			if (names.Length != 6)
+				return;
+
+			RenderTexture[] textures = new RenderTexture[names.Length];
+			for (int i = 0; i < names.Length; i ++)
+			{
+				textures[i] = new RenderTexture(names[i]);
+			}
+			mCube.CubeTexture = textures;
 		}
 	}
 }

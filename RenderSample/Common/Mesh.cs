@@ -10,6 +10,8 @@ namespace SampleCommon
 		private Matrix4X4 mTransform;
 		private Material mMaterial;
 		private RenderTexture mTexture;
+		private RenderTexture[] mCubeTextures;
+		private float mRotateY = 0;
 
 		public List<Vertex> Vertices
 		{
@@ -35,13 +37,19 @@ namespace SampleCommon
 			set { mTexture = value; }
 		}
 
+		public RenderTexture[] CubeTexture
+		{
+			get { return mCubeTextures; }
+			set { mCubeTextures = value; }
+		}
+
 		/// <summary>
 		/// 构造
 		/// </summary>
 		public Mesh()
 		{
 			mVertices = new List<Vertex>();
-			mTransform = Matrix4X4.RotateY(2) * Matrix4X4.Translate(new Vector3D(0.0f, 0.0f, 10.0f));
+			mTransform = new Matrix4X4();
 		}
 
 		/// <summary>
@@ -50,7 +58,7 @@ namespace SampleCommon
 		public Mesh(List<Vertex> vertices)
 		{
 			mVertices = vertices;
-			mTransform = Matrix4X4.RotateY(2) * Matrix4X4.Translate(new Vector3D(0.0f, 0.0f, 10.0f));
+			mTransform = new Matrix4X4();
 		}
 
 		/// <summary>
@@ -62,11 +70,9 @@ namespace SampleCommon
 			if (mVertices.Count() <= 0)
 				return;
 
+			// 每三个顶点组成一个三角形进行渲染。
 			for (int i = 0; i + 2 < mVertices.Count(); i += 3)
 				DrawTriangle(renderer, mVertices[i], mVertices[i + 1], mVertices[i + 2]);
-
-			//for (int i = 0; i < mVertices.Count(); i++)
-			//	DrawPosition(renderer, mVertices[i]);
 		}
 
 		/// <summary>
@@ -74,17 +80,33 @@ namespace SampleCommon
 		/// </summary>
 		/// <param name="vertex"></param>
 		/// <returns></returns>
-		public void LightColor(Renderer renderer, ref Vertex vertex)
+		public void UseLight(Renderer renderer, ref Vertex vertex)
 		{
+			// 光照计算：vertex color = ambient（环境光颜色） + diffuse（漫反射颜色） + specular（镜面光颜色） + emission(自发光)
+			// 如果模型没有材质或者环境中没有光源，则不受光照影响
+			if (mMaterial == null)
+				return;
+
 			if (renderer.LightList.Count() <= 0)
 				return;
 
-			// 1. 将顶点和发现转换到世界空间中来
+			// 暂时只支持第一个光源， TODO：支持多光源
+			Light light = renderer.LightList[0];
+			// 1. 将顶点和法线转换到世界空间中来
 			Vector3D position = vertex.Position * mTransform;
-			Vector3D normal = vertex.Normal * mTransform ;
-			//Direction
-			//	Color lightColor = renderer.LightList[0].Color;
-			//	vertex.Color = vertex.Color * lightColor;
+			Vector3D normal = vertex.Normal * mTransform;
+			Vector3D dir = light.Position - vertex.Position;
+			dir.Normalize();
+
+			float diffuse = Vector3D.Dot(normal, dir);
+			if (diffuse < 0)
+				diffuse = 0;
+
+			Color diffuseColor = mMaterial.Diffuse * diffuse * light.Color; // 漫反射
+			Color emission = mMaterial.Emissive;
+			Color ambient = emission * mMaterial.KA;
+
+			vertex.LightColor = ambient + emission + diffuseColor;
 		}
 
 		/// <summary>
@@ -94,7 +116,9 @@ namespace SampleCommon
 		/// <param name="vertex"></param>
 		public void TransformToView(Renderer renderer, ref Vertex vertex)
 		{
+			//mTransform = Matrix4X4.RotateX(0.3f) * Matrix4X4.RotateY(mRotateY);
 			vertex.Position = vertex.Position * mTransform * renderer.Camera.GetViewMat();
+			mRotateY += 0.001f;
 		}
 
 		/// <summary>
@@ -136,11 +160,13 @@ namespace SampleCommon
 		/// <returns></returns>
 		private bool CameraBackCulling(Renderer renderer, Vertex p1, Vertex p2, Vertex p3)
 		{
+			if ((renderer.CullMode & CullMode.CULL_CAMERA) == 0)
+				return true;
+
 			// 裁剪原理：计算出这个面的法线， 然后判断法线和摄像机朝向的夹角，如果夹角是[0, 90)则需要被裁掉
 			Vector3D v1 = p2.Position - p1.Position;
 			Vector3D v2 = p3.Position - p2.Position;
 			Vector3D normal = Vector3D.Cross(v1, v2);
-			//由于在视空间中，所以相机点就是（0,0,0）
 			Vector3D viewDir = p1.Position - new Vector3D(0, 0, 0);
 			if (Vector3D.Dot(normal, viewDir) > 0)
 				return true;
@@ -152,12 +178,18 @@ namespace SampleCommon
 		/// 检查是否裁剪这个顶点,简单的cvv裁剪,在透视除法之前
 		/// </summary>
 		/// <returns>是否通关剪裁</returns>
-		private bool VertexClip(Vertex v)
+		private bool VertexClip(Renderer renderer, Vertex v)
 		{
-			//cvv为 x-1,1  y-1,1  z0,1
-			if (v.Position.x >= -v.Position.w && v.Position.x <= v.Position.w &&
-				v.Position.y >= -v.Position.w && v.Position.y <= v.Position.w &&
-				v.Position.z >= 0f && v.Position.z <= v.Position.w)
+			if ((renderer.CullMode & CullMode.CULL_CVV) == 0)
+				return true;
+
+			// 经过齐次变换后x取值在[-1, 1], y取值在[-1, 1],z取值在[0, 1]
+			// 齐次变换为 x = x / w, y = y / w, z = z / w
+			// 所以-1 <= x / w <= 1, -1 <= y / w <= 1, 0 <= z / w <= 1
+			float x = v.Position.x / v.Position.w;
+			float y = v.Position.y / v.Position.w;
+			float z = v.Position.z / v.Position.w;
+			if (-1 <= x && x <= 1 && -1 <= y && y <= 1 && 0 <= z && z <= 1)
 				return true;
 
 			return false;
@@ -172,13 +204,38 @@ namespace SampleCommon
 			Vertex p2 = new Vertex(v2);
 			Vertex p3 = new Vertex(v3);
 
-			//计算顶点光照颜色
-			if(renderer.LightList.Count() > 0)
+			if(renderer.RenderMode == RenderMode.CUBETEXTURED && mCubeTextures != null)
 			{
-				LightColor(renderer, ref p1);
-				LightColor(renderer, ref p2);
-				LightColor(renderer, ref p3);
+				if (mCubeTextures.Length != 6)
+					return;
+				// 前面
+				if(p1.Normal.IsEqual(new Vector3D(0, 0, -1)))
+					mTexture = mCubeTextures[0];
+				// 后面
+				else if (p1.Normal.IsEqual(new Vector3D(0, 0, 1)))
+					mTexture = mCubeTextures[1];
+				// 左面
+				else if (p1.Normal.IsEqual(new Vector3D(-1, 0, 0)))
+					mTexture = mCubeTextures[2];
+				// 右面
+				else if (p1.Normal.IsEqual(new Vector3D(1, 0, 0)))
+					mTexture = mCubeTextures[3];
+				//上面
+				else if (p1.Normal.IsEqual(new Vector3D(0, 1, 0)))
+					mTexture = mCubeTextures[4];
+				// 下面
+				else if (p1.Normal.IsEqual(new Vector3D(0, -1, 0)))
+					mTexture = mCubeTextures[5];
 			}
+
+			//计算顶点光照颜色
+			if (renderer.LightList.Count() > 0)
+			{
+				UseLight(renderer, ref p1);
+				UseLight(renderer, ref p2);
+				UseLight(renderer, ref p3);
+			}
+
 			// 因为要进行摄像机背面剔除，因此将mvp 分开为mv和p
 			TransformToView(renderer, ref p1);
 			TransformToView(renderer, ref p2);
@@ -191,15 +248,16 @@ namespace SampleCommon
 			TransformToProjection(renderer, ref p1);
 			TransformToProjection(renderer, ref p2);
 			TransformToProjection(renderer, ref p3);
-			// TODO： 顶点裁剪
-			//if (VertexClip(p1) == false || VertexClip(p2) == false || VertexClip(p3) == false)
-			//	return;
+
+			// 齐次裁剪(范围裁剪)
+			if (VertexClip(renderer, p1) == false || VertexClip(renderer, p2) == false || VertexClip(renderer, p3) == false)
+				return;
 
 			TransformToScreen(renderer, ref p1);
 			TransformToScreen(renderer, ref p2);
 			TransformToScreen(renderer, ref p3);
 
-			if (renderer.RenderMode == RenderMode.Wireframe)
+			if (renderer.RenderMode == RenderMode.WIREFRAME)
 			{
 				DrawLine(renderer, p1, p2);
 				DrawLine(renderer, p2, p3);
@@ -236,7 +294,10 @@ namespace SampleCommon
 				int error = dy2 - dx;
 				for (int i = 0; i <= dx; i++)
 				{
-					renderer.FrameBuffer.SetPointColor(x, y, Color.Red);
+					float t = dx == 0 ? 0 : i / (float)dx;
+					Color vcolor = Color.Lerp(p1.Color, p2.Color, t);
+					float depth = MathUntil.Lerp(p1.Position.z, p2.Position.z, t);
+					renderer.FrameBuffer.SetPointColor(x, y, vcolor, depth);
 					if (error >= 0)
 					{
 						error -= dx2;
@@ -251,7 +312,10 @@ namespace SampleCommon
 				int error = dx2 - dy;
 				for (int i = 0; i <= dy; i++)
 				{
-					renderer.FrameBuffer.SetPointColor(x, y, Color.Red);
+					float t = dy == 0 ? 0 : i / (float)dy;
+					Color vcolor = Color.Lerp(p1.Color, p2.Color, t);
+					float depth = MathUntil.Lerp(p1.Position.z, p2.Position.z, t);
+					renderer.FrameBuffer.SetPointColor(x, y, vcolor, depth);
 					if (error >= 0)
 					{
 						error -= dy2;
@@ -261,17 +325,6 @@ namespace SampleCommon
 					y += stepy;
 				}
 			}
-		}
-
-		/// <summary>
-		/// 绘制一个点
-		/// </summary>
-		/// <param name="renderer"></param>
-		/// <param name="p"></param>
-		public void DrawPosition(Renderer renderer, Vertex p)
-		{
-			//VertexTransform(renderer, ref p);
-			renderer.FrameBuffer.SetPointColor((int)p.Position.x, (int)p.Position.y, Color.Red);
 		}
 
 		/// <summary>
@@ -374,7 +427,7 @@ namespace SampleCommon
 
 				float dy = middle.Position.y - top.Position.y;
 				float t = dy / (bottom.Position.y - top.Position.y);
-				MathUntil.LerpVertexInScreen(ref newMiddle, top, bottom, t);
+				Vertex.LerpVertexInScreen(ref newMiddle, top, bottom, t);
 
 				DrawBottomTriangle(renderer, top, newMiddle, middle);
 				DrawTopTriangle(renderer, newMiddle, middle, bottom);
@@ -404,12 +457,12 @@ namespace SampleCommon
 					Vertex new1 = new Vertex();
 					new1.Position.x = xl;
 					new1.Position.y = y;
-					MathUntil.LerpVertexInScreen(ref new1, p1, p3, t);
+					Vertex.LerpVertexInScreen(ref new1, p1, p3, t);
 					//
 					Vertex new2 = new Vertex();
 					new2.Position.x = xr;
 					new2.Position.y = y;
-					MathUntil.LerpVertexInScreen(ref new2, p2, p3, t);
+					Vertex.LerpVertexInScreen(ref new2, p2, p3, t);
 					//扫描线填充
 					if (new1.Position.x < new2.Position.x)
 						ScanlineFill(renderer, new1, new2, yIndex);
@@ -438,16 +491,15 @@ namespace SampleCommon
 
 					float dy = y - p1.Position.y;
 					float t = dy / (p2.Position.y - p1.Position.y);
-					//插值生成左右顶点
 					Vertex new1 = new Vertex();
 					new1.Position.x = xLeft;
 					new1.Position.y = y;
-					MathUntil.LerpVertexInScreen(ref new1, p1, p2, t);
+					Vertex.LerpVertexInScreen(ref new1, p1, p2, t);
 
 					Vertex new2 = new Vertex();
 					new2.Position.x = xRight;
 					new2.Position.y = y;
-					MathUntil.LerpVertexInScreen(ref new2, p1, p3, t);
+					Vertex.LerpVertexInScreen(ref new2, p1, p3, t);
 
 					//扫描行进行填充
 					if (new1.Position.x < new2.Position.x)
@@ -477,14 +529,15 @@ namespace SampleCommon
 				{
 					Color vcolor = new Color();
 
-					//根据渲染模式选择使用顶点色还是使用图片的颜色。
-					if (renderer.RenderMode == RenderMode.VertexColor)
-					{
-						float t = 0;
-						if (right.Position.x - left.Position.x > 0)
-							t = (x - left.Position.x) / (right.Position.x - left.Position.x);
+					float t = 0;
+					if (right.Position.x - left.Position.x > 0)
+						t = (x - left.Position.x) / (right.Position.x - left.Position.x);
 
-						vcolor = MathUntil.Lerp(left.Color, right.Color, t);
+					Color lightColor = Color.Lerp(left.LightColor, right.LightColor, t);
+					//根据渲染模式选择使用顶点色还是使用图片的颜色。
+					if (renderer.RenderMode == RenderMode.VERTEXCOLOR)
+					{
+						vcolor = Color.Lerp(left.Color, right.Color, t);
 					}
 					else
 					{
@@ -498,8 +551,14 @@ namespace SampleCommon
 							float v = MathUntil.Lerp(left.TexCoord.y, right.TexCoord.y, lerpFactor);
 							vcolor = mTexture.GetPixelColor(u, v);
 						}
+						else
+						{
+							vcolor = Color.Red;
+						}
 					}
-					renderer.FrameBuffer.SetPointColor(xIndex, yIndex, vcolor);
+					vcolor = vcolor * lightColor;
+					float depth = MathUntil.Lerp(left.Position.z, right.Position.z, t);
+					renderer.FrameBuffer.SetPointColor(xIndex, yIndex, vcolor, depth);
 				}
 			}
 		}

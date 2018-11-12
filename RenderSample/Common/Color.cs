@@ -146,5 +146,22 @@ namespace SampleCommon
 			float b = color.B / (float)255.0f;
 			return new Color(r, g, b);
 		}
+
+		/// <summary>
+		/// 计算两个颜色之间的插值
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <param name="t"></param>
+		/// <returns></returns>
+		public static Color Lerp(Color a, Color b, float t)
+		{
+			if (t <= 0)
+				return a;
+			else if (t >= 1)
+				return b;
+			else
+				return t * b + (1 - t) * a;
+		}
 	}
 }

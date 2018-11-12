@@ -106,6 +106,16 @@ namespace SampleCommon
 		}
 
 		/// <summary>
+		/// 判断两个位置是否相等
+		/// </summary>
+		/// <param name="vec3"></param>
+		/// <returns></returns>
+		public bool IsEqual(Vector3D vec3)
+		{
+			return mX == vec3.x && mY == vec3.y && mZ == vec3.z;
+		}
+
+		/// <summary>
 		/// 两个向量相加
 		/// </summary>
 		/// <param name="lhs"></param>
@@ -140,6 +150,22 @@ namespace SampleCommon
 			v.y = lhs.x * rhs[0, 1] + lhs.y * rhs[1, 1] + lhs.z * rhs[2, 1] + lhs.w * rhs[3, 1];
 			v.z = lhs.x * rhs[0, 2] + lhs.y * rhs[1, 2] + lhs.z * rhs[2, 2] + lhs.w * rhs[3, 2];
 			v.w = lhs.x * rhs[0, 3] + lhs.y * rhs[1, 3] + lhs.z * rhs[2, 3] + lhs.w * rhs[3, 3];
+			return v;
+		}
+
+		/// <summary>
+		/// 向量和一个数相乘
+		/// </summary>
+		/// <param name="lhs"></param>
+		/// <param name="len"></param>
+		/// <returns></returns>
+		public static Vector3D operator *(Vector3D lhs, float len)
+		{
+			Vector3D v = new Vector3D();
+			v.x = lhs.x * len;
+			v.y = lhs.y * len;
+			v.z = lhs.z * len;
+			v.w = 0;
 			return v;
 		}
 

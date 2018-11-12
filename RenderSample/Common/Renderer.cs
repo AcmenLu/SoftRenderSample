@@ -13,15 +13,27 @@ namespace SampleCommon
 		/// <summary>
 		/// 线框模式
 		/// </summary>
-		Wireframe,
-		/// <summary>
-		/// 纹理
-		/// </summary>
-		Textured,
+		WIREFRAME,
 		/// <summary>
 		/// 顶点色
 		/// </summary>
-		VertexColor
+		VERTEXCOLOR,
+		/// <summary>
+		/// 单张纹理
+		/// </summary>
+		TEXTURED,
+		/// <summary>
+		/// 多张纹理
+		/// </summary>
+		CUBETEXTURED,
+	}
+
+	public enum CullMode
+	{
+		CULL_NONE = 0,
+		CULL_CAMERA = 1,
+		CULL_CVV = 2,
+		CULL_ALL = 3
 	}
 
 	public class Renderer
@@ -39,6 +51,7 @@ namespace SampleCommon
 		private Graphics mGraphics;
 		private FrameBuffer mFrameBuffer;
 		private RenderMode mRenderMode;
+		private CullMode mCullMode;
 
 		public List<Mesh> RenderList
 		{
@@ -123,6 +136,13 @@ namespace SampleCommon
 			get { return mRenderMode; }
 			set { mRenderMode = value; }
 		}
+
+		public CullMode CullMode
+		{
+			get { return mCullMode; }
+			set { mCullMode = value; }
+		}
+
 		/// <summary>
 		/// 初始化的大小为指定大小
 		/// </summary>
@@ -135,7 +155,8 @@ namespace SampleCommon
 			mFov = fov;
 			mNear = near;
 			mFar = far;
-			mRenderMode = RenderMode.Wireframe;
+			mRenderMode = RenderMode.WIREFRAME;
+			mCullMode = CullMode.CULL_ALL;
 			mLightList = new List<Light>();
 			CreateFrameBuffer();
 			ResetProjection();

@@ -71,16 +71,73 @@ namespace SampleCommon
 			Vector3D dir = mLookAtPos - mPosition;
 			Vector3D right = Vector3D.Cross(mUp, dir);
 			right.Normalize();
-			Matrix4X4 trans = new Matrix4X4(1.0f, 0.0f, 0.0f, 0.0f,
-										0.0f, 1.0f, 0.0f, 0.0f,
-										0.0f, 0.0f, 1.0f, 0.0f,
-										-mPosition.x, -mPosition.y, -mPosition.z, 1.0f);
+			Matrix4X4 trans = new Matrix4X4(1, 0, 0, 0,
+										0, 1, 0, 0,
+										0, 0, 1, 0,
+										-mPosition.x, -mPosition.y, -mPosition.z, 1);
 
-			Matrix4X4 rotate = new Matrix4X4(right.x, mUp.x, dir.x, 0.0f,
-										right.y, mUp.y, dir.y, 0.0f,
-										right.z, mUp.z, dir.z, 0.0f,
-										0.0f, 0.0f, 0.0f, 1.0f);
+			Matrix4X4 rotate = new Matrix4X4(right.x, mUp.x, dir.x, 0,
+										right.y, mUp.y, dir.y, 0,
+										right.z, mUp.z, dir.z, 0,
+										0, 0, 0, 1);
 			return trans * rotate;
 		}
+
+		//
+		public void MovePhate()
+		{
+
+		}
+
+		/// <summary>
+		/// 前后移动摄像机
+		/// </summary>
+		/// <param name="distance">移动的距离</param>
+		public void MoveForward(float distance)
+		{
+			Vector3D dir = (mLookAtPos - mPosition);
+			float w = mPosition.w;
+			if (distance > 0 && dir.Length < 2.4f)
+				return;
+
+			if (distance < 0 && dir.Length > 200)
+				return;
+	
+			if (mLookAtPos.IsEqual(mPosition + (dir.Normalize() * distance)))
+				return;
+
+			mPosition = mPosition + (dir.Normalize() * distance);
+			mPosition.w = w;
+		}
+
+		/// <summary>
+		/// 摄像机向右边移动
+		/// </summary>
+		/// <param name="distance"></param>
+		public void MoveRight(float distance)
+		{
+			Vector3D dir = (mLookAtPos - mPosition);
+			Vector3D right = Vector3D.Cross(mUp, dir);
+			float w = mPosition.w;
+			mPosition = mPosition + (right.Normalize() * distance);
+			mPosition.w = w;
+		}
+		
+
+		public void MovePitchAndYaw(float pr, float yr)
+		{
+			Vector3D dir = (mLookAtPos - mPosition);
+			float length = dir.Length;
+
+			Vector3D front = new Vector3D();
+			front.x = (float)(-Math.Sin(yr) * Math.Cos(pr));
+			front.y = (float)Math.Sin(pr);
+			front.z = (float)(-Math.Cos(pr) * Math.Cos(yr));
+
+			mPosition.x = front.x * length;
+			mPosition.y = front.y * length;
+			mPosition.z = front.z * length;
+		}
+
 	}
 }
