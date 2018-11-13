@@ -50,7 +50,6 @@
     <Compile Include="Matrix4X4.cs" />
     <Compile Include="Mesh.cs" />
     <Compile Include="Renderer.cs" />
-    <Compile Include="RenderObject.cs" />
     <Compile Include="RenderTexture.cs" />
     <Compile Include="Vector2.cs" />
     <Compile Include="Vector3D.cs" />

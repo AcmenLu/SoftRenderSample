@@ -10,11 +10,12 @@ namespace SampleCommon
 	{
 		// 自发光颜色
 		public Color mEmissive;
+		// 环境光系数。
 		public float mKA;
 		// 漫反射颜色
 		public Color mDiffuse;
-		// 镜面光
-		public Color mSpecular;
+
+		// TODO:增加镜面高光的支持。
 
 		public Color Emissive
 		{
@@ -34,18 +35,11 @@ namespace SampleCommon
 			set { mDiffuse = value; }
 		}
 
-		public Color Specular
-		{
-			get { return mSpecular; }
-			set { mSpecular = value; }
-		}
-
-		public Material(Color emissive, float ka, Color diffuse, Color specular)
+		public Material(Color emissive, float ka, Color diffuse)
 		{
 			mEmissive = emissive;
 			mKA = ka;
 			mDiffuse = diffuse;
-			mSpecular = specular;
 		}
 	}
 }

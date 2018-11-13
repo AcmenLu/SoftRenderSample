@@ -19,11 +19,20 @@ namespace RenderSample
 			InitializeComponent();
 			Width = 800;
 			Height = 600;
+			OnInit();
+		}
 
+
+		/// <summary>
+		/// 初始化事件
+		/// </summary>
+		public void OnInit()
+		{
 			mGraphics = CreateGraphics();
 			mRenderer = new Renderer(Width, Height, (float)System.Math.PI / 4f, 1f, 500f);
 			mRenderer.BindGraphics(mGraphics);
 			mRenderer.Camera = new Camera(new Vector3D(0, 0, -5, 1), new Vector3D(0, 0, 0, 1), new Vector3D(0, 1, 0, 0));
+			mRenderer.EnableDepthTest = true;
 			System.Timers.Timer mainTimer = new System.Timers.Timer(1000 / 60f);
 			mainTimer.Elapsed += new ElapsedEventHandler(OnIdle);
 			mainTimer.AutoReset = true;
@@ -32,6 +41,12 @@ namespace RenderSample
 			CreateCube();
 		}
 
+		/// <summary>
+		/// 键盘事件
+		/// </summary>
+		/// <param name="msg"></param>
+		/// <param name="keyData"></param>
+		/// <returns></returns>
 		protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
 		{
 			if (mRenderer == null)
@@ -80,22 +95,22 @@ namespace RenderSample
 					Close();
 					break;
 				case Keys.W:
-					mRenderer.Camera.MoveForward(0.2f);
+					mRenderer.Camera.MovePitchAndYaw(0.1f, 0.0f);
 					break;
 				case Keys.S:
-					mRenderer.Camera.MoveForward(-0.2f);
+					mRenderer.Camera.MovePitchAndYaw(-0.1f, 0.0f);
 					break;
 				case Keys.A:
-					mRenderer.Camera.MoveRight(-0.1f);
+					mRenderer.Camera.MovePitchAndYaw(0.0f, 0.1f);
 					break;
 				case Keys.D:
-					mRenderer.Camera.MoveRight(0.1f);
+					mRenderer.Camera.MovePitchAndYaw(0.0f, -0.1f);
+					break;
+				case Keys.Q:
+					mRenderer.Camera.MoveForward(0.2f);
 					break;
 				case Keys.E:
-					mRenderer.Camera.MovePitchAndYaw(0.1f, 0);
-					break;
-				case Keys.F:
-					mRenderer.Camera.MovePitchAndYaw(-0.1f, 0);
+					mRenderer.Camera.MoveForward(-0.2f);
 					break;
 			}
 
@@ -207,7 +222,7 @@ namespace RenderSample
 
 		/// <summary>
 		/// 渲染图片的测试函数
-		/// </summary>1
+		/// </summary>
 		public void TextureTest()
 		{
 			List<Vertex> vertices = new List<Vertex>();
@@ -370,7 +385,7 @@ namespace RenderSample
 		{
 			Light light = new Light(new Vector3D(-10.0f, 0.0f, 0.0f), new SampleCommon.Color(0.8f, 0.8f, 0.8f));
 			mRenderer.AddLight(light);
-			Material mat = new Material(new SampleCommon.Color(0.4f, 0.4f, 0.4f), 0.7f, new SampleCommon.Color(0.3f, 0.3f, 0.3f), new SampleCommon.Color(1, 1, 1));
+			Material mat = new Material(new SampleCommon.Color(0.4f, 0.4f, 0.4f), 0.7f, new SampleCommon.Color(0.3f, 0.3f, 0.3f));
 			mCube.Material = mat;
 		}
 

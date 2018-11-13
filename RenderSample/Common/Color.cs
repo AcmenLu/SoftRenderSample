@@ -8,6 +8,9 @@ namespace SampleCommon
 {
 	public class Color
 	{
+		/// <summary>
+		/// 定义几个静态的颜色
+		/// </summary>
 		public static Color White = new Color(1.0f, 1.0f, 1.0f);
 		public static Color Black = new Color(0.0f, 0.0f, 0.0f);
 		public static Color Red = new Color(1.0f, 0.0f, 0.0f);
@@ -37,7 +40,7 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 无参构造函数，默认设置颜色为（0,0,0）
+		/// 无参构造函数，默认设置颜色为(0,0,0)
 		/// </summary>
 		public Color()
 		{
@@ -52,9 +55,9 @@ namespace SampleCommon
 		/// <param name="b"></param>
 		public Color(float r, float g, float b)
 		{
-			mR = MathUntil.Range(r, 0.0f, 1.0f);
-			mG = MathUntil.Range(g, 0.0f, 1.0f);
-			mB = MathUntil.Range(b, 0.0f, 1.0f);
+			mR = MathUntil.Range(r, 0, 1);
+			mG = MathUntil.Range(g, 0, 1);
+			mB = MathUntil.Range(b, 0, 1);
 		}
 
 		/// <summary>
@@ -69,17 +72,11 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 转换为系统的颜色
+		/// 颜色之间相乘
 		/// </summary>
+		/// <param name="a">乘数</param>
+		/// <param name="b">被乘数</param>
 		/// <returns></returns>
-		public System.Drawing.Color TransFormToSystemColor()
-		{
-			float r = mR * 255;
-			float g = mG * 255;
-			float b = mB * 255;
-			return System.Drawing.Color.FromArgb((int)r, (int)g, (int)b);
-		}
-
 		public static Color operator *(Color a, Color b)
 		{
 			Color c = new Color();
@@ -105,7 +102,7 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 颜色和数学相乘
+		/// 颜色和数字相乘
 		/// </summary>
 		/// <param name="a"></param>
 		/// <param name="b"></param>
@@ -141,10 +138,22 @@ namespace SampleCommon
 		/// <returns></returns>
 		public static Color ConvertSystemColor(System.Drawing.Color color)
 		{
-			float r = color.R / (float)255.0f;
-			float g = color.G / (float)255.0f;
-			float b = color.B / (float)255.0f;
+			float r = color.R / (float)255;
+			float g = color.G / (float)255;
+			float b = color.B / (float)255;
 			return new Color(r, g, b);
+		}
+
+		/// <summary>
+		/// 将自定义颜色转换为系统的颜色
+		/// </summary>
+		/// <returns></returns>
+		public System.Drawing.Color TransFormToSystemColor()
+		{
+			float r = mR * 255;
+			float g = mG * 255;
+			float b = mB * 255;
+			return System.Drawing.Color.FromArgb((int)r, (int)g, (int)b);
 		}
 
 		/// <summary>

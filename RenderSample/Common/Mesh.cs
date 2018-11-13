@@ -11,7 +11,6 @@ namespace SampleCommon
 		private Material mMaterial;
 		private RenderTexture mTexture;
 		private RenderTexture[] mCubeTextures;
-		private float mRotateY = 0;
 
 		public List<Vertex> Vertices
 		{
@@ -116,9 +115,7 @@ namespace SampleCommon
 		/// <param name="vertex"></param>
 		public void TransformToView(Renderer renderer, ref Vertex vertex)
 		{
-			//mTransform = Matrix4X4.RotateX(0.3f) * Matrix4X4.RotateY(mRotateY);
 			vertex.Position = vertex.Position * mTransform * renderer.Camera.GetViewMat();
-			mRotateY += 0.001f;
 		}
 
 		/// <summary>
@@ -427,7 +424,7 @@ namespace SampleCommon
 
 				float dy = middle.Position.y - top.Position.y;
 				float t = dy / (bottom.Position.y - top.Position.y);
-				Vertex.LerpVertexInScreen(ref newMiddle, top, bottom, t);
+				Vertex.LerpColor(ref newMiddle, top, bottom, t);
 
 				DrawBottomTriangle(renderer, top, newMiddle, middle);
 				DrawTopTriangle(renderer, newMiddle, middle, bottom);
@@ -453,16 +450,16 @@ namespace SampleCommon
 
 					float dy = y - p1.Position.y;
 					float t = dy / (p3.Position.y - p1.Position.y);
-					//插值生成左右顶点
+
 					Vertex new1 = new Vertex();
 					new1.Position.x = xl;
 					new1.Position.y = y;
-					Vertex.LerpVertexInScreen(ref new1, p1, p3, t);
+					Vertex.LerpColor(ref new1, p1, p3, t);
 					//
 					Vertex new2 = new Vertex();
 					new2.Position.x = xr;
 					new2.Position.y = y;
-					Vertex.LerpVertexInScreen(ref new2, p2, p3, t);
+					Vertex.LerpColor(ref new2, p2, p3, t);
 					//扫描线填充
 					if (new1.Position.x < new2.Position.x)
 						ScanlineFill(renderer, new1, new2, yIndex);
@@ -494,12 +491,12 @@ namespace SampleCommon
 					Vertex new1 = new Vertex();
 					new1.Position.x = xLeft;
 					new1.Position.y = y;
-					Vertex.LerpVertexInScreen(ref new1, p1, p2, t);
+					Vertex.LerpColor(ref new1, p1, p2, t);
 
 					Vertex new2 = new Vertex();
 					new2.Position.x = xRight;
 					new2.Position.y = y;
-					Vertex.LerpVertexInScreen(ref new2, p1, p3, t);
+					Vertex.LerpColor(ref new2, p1, p3, t);
 
 					//扫描行进行填充
 					if (new1.Position.x < new2.Position.x)

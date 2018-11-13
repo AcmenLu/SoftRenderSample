@@ -87,7 +87,7 @@ namespace SampleCommon
 		/// <param name="v2"></param>
 		/// <param name="t"></param>
 		/// <returns></returns>
-		public static void LerpVertexInScreen(ref Vertex v, Vertex v1, Vertex v2, float t)
+		public static void LerpColor(ref Vertex v, Vertex v1, Vertex v2, float t)
 		{
 			v.TexCoord.x = MathUntil.Lerp(v1.TexCoord.x, v2.TexCoord.x, t);
 			v.TexCoord.y = MathUntil.Lerp(v1.TexCoord.y, v2.TexCoord.y, t);

@@ -8,6 +8,7 @@ namespace SampleCommon
 {
 	public class MathUntil
 	{
+		public static float PIDEV2 = (float)Math.PI / 2;
 		/// <summary>
 		/// 将一个值限定在指定范围内
 		/// </summary>

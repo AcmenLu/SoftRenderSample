@@ -56,7 +56,7 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 带位置信息的构造函数
+		/// 传入x,y,z初始化
 		/// </summary>
 		/// <param name="fX"></param>
 		/// <param name="fY"></param>
@@ -69,6 +69,13 @@ namespace SampleCommon
 			mW = 0.0f;
 		}
 
+		/// <summary>
+		/// 传入x,y,z,w来初始化
+		/// </summary>
+		/// <param name="fX"></param>
+		/// <param name="fY"></param>
+		/// <param name="fZ"></param>
+		/// <param name="fW"></param>
 		public Vector3D(float fX, float fY, float fZ, float fW)
 		{
 			mX = fX;
@@ -76,6 +83,7 @@ namespace SampleCommon
 			mZ = fZ;
 			mW = fW;
 		}
+
 		/// <summary>
 		/// 复制构造
 		/// </summary>
@@ -89,7 +97,7 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 求向量的模
+		/// 归一化向量
 		/// </summary>
 		/// <returns></returns>
 		public Vector3D Normalize()

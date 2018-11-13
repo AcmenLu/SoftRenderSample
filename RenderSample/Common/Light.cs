@@ -27,6 +27,11 @@ namespace SampleCommon
 			set { mColor = value; }
 		}
 
+		/// <summary>
+		/// 指定光的方向和颜色来模拟一个方向光。
+		/// </summary>
+		/// <param name="direction"></param>
+		/// <param name="color"></param>
 		public Light(Vector3D direction, Color color)
 		{
 			mPosition = direction;

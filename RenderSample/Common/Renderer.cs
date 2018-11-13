@@ -143,6 +143,11 @@ namespace SampleCommon
 			set { mCullMode = value; }
 		}
 
+		public bool EnableDepthTest
+		{
+			get { return mFrameBuffer.EnableDepthTest; }
+			set { mFrameBuffer.EnableDepthTest = value; }
+		}
 		/// <summary>
 		/// 初始化的大小为指定大小
 		/// </summary>
@@ -227,7 +232,7 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 删除某个渲染对象
+		/// 删除某个光
 		/// </summary>
 		/// <param name="light"></param>
 		public void RemoveLight(Light light)
@@ -246,7 +251,7 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 设置透视矩阵
+		/// 设置透新的视矩阵
 		/// </summary>
 		private void ResetProjection()
 		{
@@ -254,11 +259,18 @@ namespace SampleCommon
 			mProjection = Matrix4X4.Projection(mFov, aspect, mNear, mFar);
 		}
 
+		/// <summary>
+		/// 创建一个新的FramBuffer
+		/// </summary>
 		private void CreateFrameBuffer()
 		{
 			mFrameBuffer = new FrameBuffer(mSize.x, mSize.y);
 		}
 
+		/// <summary>
+		/// 绑定渲染的画布
+		/// </summary>
+		/// <param name="graphics"></param>
 		public void BindGraphics(Graphics graphics)
 		{
 			mGraphics = graphics;

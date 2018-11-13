@@ -3,6 +3,9 @@ using System.Drawing;
 
 namespace SampleCommon
 {
+	/// <summary>
+	/// 颜色缓存和深度缓存清除时的标志
+	/// </summary>
 	enum CLEARFLAG
 	{
 		DEPTHBUFFER = 1,
@@ -11,11 +14,19 @@ namespace SampleCommon
 
 	public class FrameBuffer
 	{
+		/// <summary>
+		/// FrameBuffer中包含一个颜色缓存和一个深度缓存，暂时不考虑模板缓存。
+		/// </summary>
 		private Bitmap mColorBuffer;
 		private float[,] mDepthBuffer;
 		private Graphics mGraphicsframe;
 		private Vector2 mSize;
 		private bool mDepthTest;
+
+		public Bitmap ColorBuffer
+		{
+			get { return mColorBuffer; }
+		}
 
 		public bool EnableDepthTest
 		{
@@ -23,17 +34,20 @@ namespace SampleCommon
 			set { mDepthTest = value; }
 		}
 
-		public Bitmap ColorBuffer
-		{
-			get { return mColorBuffer; }
-		}
-
+		/// <summary>
+		/// 构造一个指定大小的缓存区
+		/// </summary>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
 		public FrameBuffer(float width, float height)
 		{
 			mSize = new Vector2(width, height);
 			CreateBuffer();
 		}
 
+		/// <summary>
+		/// 创建一个指定大小的图片作为颜色缓存，创建一个指定大小的数组作为深度缓存。
+		/// </summary>
 		private void CreateBuffer()
 		{
 			mColorBuffer = new Bitmap((int)mSize.x, (int)mSize.y);
