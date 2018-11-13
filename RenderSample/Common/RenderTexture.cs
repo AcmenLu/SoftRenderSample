@@ -58,15 +58,16 @@ namespace SampleCommon
 		/// <param name="posX"></param>
 		/// <param name="posY"></param>
 		/// <returns></returns>
-		public Color GetPixelColor(int posX, int posY)
+		public Color GetPixelColor(int posX, int posY, ref Color color)
 		{
 			posX = posX > 0 ? posX : 0;
 			posX = posX >= mWidth ? mWidth - 1 : posX;
 
 			posY = posY > 0 ? posY : 0;
 			posY = posY >= mHeight ? mHeight  - 1: posY;
-			System.Drawing.Color color = mTexture.GetPixel(posX, posY);
-			return Color.ConvertSystemColor(color);
+			System.Drawing.Color scolor = mTexture.GetPixel(posX, posY);
+			color = Color.ConvertSystemColor(scolor);
+			return color;
 		}
 
 		/// <summary>
@@ -75,11 +76,11 @@ namespace SampleCommon
 		/// <param name="factorx"></param>
 		/// <param name="factory"></param>
 		/// <returns></returns>
-		public Color GetPixelColor(float factorx, float factory)
+		public Color GetPixelColor(float factorx, float factory, ref Color color)
 		{
 			int posX = (int)Math.Round(factorx * mWidth, 0);
 			int posY = (int)Math.Round(factory * mHeight, 0);
-			return GetPixelColor(posX, posY);
+			return GetPixelColor(posX, posY, ref color);
 		}
 	}
 }

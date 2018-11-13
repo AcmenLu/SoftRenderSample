@@ -13,10 +13,22 @@ namespace RenderSample
 		private Renderer mRenderer;
 		private Graphics mGraphics;
 		private Mesh mCube;
+		private bool mIsMouseLeftDown;
+		private bool mIsMouseRightDown;
+		private Vector2 mMouseLeftPos;
+		private Vector2 mMouseRightpos;
 
 		public RenderSample()
 		{
 			InitializeComponent();
+			mIsMouseLeftDown = false;
+			mIsMouseRightDown = false;
+			mMouseLeftPos = new Vector2(0, 0);
+			mMouseRightpos = new Vector2(0, 0);
+			this.MouseWheel += new MouseEventHandler(OnMouseWheel);
+			this.MouseDown += new MouseEventHandler(OnMouseDown);
+			this.MouseUp += new MouseEventHandler(OnMouseUp);
+			this.MouseMove += new MouseEventHandler(OnMouseMove);
 			Width = 800;
 			Height = 600;
 			OnInit();
@@ -95,16 +107,16 @@ namespace RenderSample
 					Close();
 					break;
 				case Keys.W:
-					mRenderer.Camera.MovePitchAndYaw(0.1f, 0.0f);
+					mRenderer.Camera.MoveTheta(0.1f);
 					break;
 				case Keys.S:
-					mRenderer.Camera.MovePitchAndYaw(-0.1f, 0.0f);
+					mRenderer.Camera.MoveTheta(-0.1f);
 					break;
 				case Keys.A:
-					mRenderer.Camera.MovePitchAndYaw(0.0f, 0.1f);
+					mRenderer.Camera.MovePhi(0.1f);
 					break;
 				case Keys.D:
-					mRenderer.Camera.MovePitchAndYaw(0.0f, -0.1f);
+					mRenderer.Camera.MovePhi(-0.1f);
 					break;
 				case Keys.Q:
 					mRenderer.Camera.MoveForward(0.2f);
@@ -112,9 +124,108 @@ namespace RenderSample
 				case Keys.E:
 					mRenderer.Camera.MoveForward(-0.2f);
 					break;
+				case Keys.Up:
+					mCube.Transform = Matrix4X4.RotateX(0.2f) * mCube.Transform;
+					break;
+				case Keys.Down:
+					mCube.Transform = Matrix4X4.RotateX(-0.2f) * mCube.Transform;
+					break;
+				case Keys.Left:
+					mCube.Transform = Matrix4X4.RotateY(0.2f) * mCube.Transform;
+					break;
+				case Keys.Right:
+					mCube.Transform = Matrix4X4.RotateY(-0.2f) * mCube.Transform;
+					break;
 			}
 
 			return true;
+		}
+
+		/// <summary>
+		/// 鼠标事件
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnMouseWheel(object sender, System.Windows.Forms.MouseEventArgs e)
+		{
+			if (e.Delta == 0)
+				return;
+
+			mRenderer.Camera.MoveForward(e.Delta / (float)800);
+		}
+
+		/// <summary>
+		/// 鼠标按下事件
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnMouseDown(object sender, System.Windows.Forms.MouseEventArgs e)
+		{
+			if (e.Button == MouseButtons.Left)
+			{
+				mIsMouseLeftDown = true;
+				mMouseLeftPos.x = e.X;
+				mMouseLeftPos.y = e.Y;
+			}
+			else if(e.Button == MouseButtons.Right)
+			{
+				mIsMouseRightDown = true;
+				mMouseRightpos.x = e.X;
+				mMouseRightpos.y = e.Y;
+			}
+		}
+
+		/// <summary>
+		/// 鼠标抬起事件
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnMouseUp(object sender, System.Windows.Forms.MouseEventArgs e)
+		{
+			if (e.Button == MouseButtons.Left)
+			{
+				mIsMouseLeftDown = false;
+				mMouseLeftPos.x = 0;
+				mMouseLeftPos.y = 0;
+			}
+			else
+			{
+				mIsMouseRightDown = false;
+				mMouseRightpos.x = 0;
+				mMouseRightpos.y = 0;
+			}
+		}
+
+		/// <summary>
+		/// 鼠标移动事件
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void OnMouseMove(object sender, System.Windows.Forms.MouseEventArgs e)
+		{
+			if (mIsMouseLeftDown == false && mIsMouseRightDown == false)
+				return;
+
+			float x = e.X;
+			float y = e.Y;
+			if (mIsMouseLeftDown == true)
+			{
+				float dx = mMouseLeftPos.x - x;
+				float dy = mMouseLeftPos.y - y;
+				mCube.Transform = mCube.Transform * Matrix4X4.RotateY(dx / (float)300);
+				mCube.Transform = mCube.Transform * Matrix4X4.RotateX(dy / (float)300);
+				mMouseLeftPos.x = x;
+				mMouseLeftPos.y = y;
+			}
+			else if (mIsMouseRightDown == true)
+			{
+				float dx = mMouseRightpos.x - x;
+				float dy = mMouseRightpos.y - y;
+				mRenderer.Camera.MovePhi(dx / (float)300);
+				mRenderer.Camera.MoveTheta(dy / (float)300);
+				mMouseRightpos.x = x;
+				mMouseRightpos.y = y;
+			}
 		}
 
 		/// <summary>
@@ -330,7 +441,7 @@ namespace RenderSample
 				new Vector3D(0, 0, 1), new Vector3D(0, 0, 1), new Vector3D(0, 0, 1),
 				new Vector3D(0, 0, 1), new Vector3D(0, 0, 1), new Vector3D(0, 0, 1),
 				// 左面
-				new Vector3D(-1, 0, 0), new Vector3D( -1, 0, 0), new Vector3D(-1, 0, 0),
+				new Vector3D(-1, 0, 0), new Vector3D(-1, 0, 0), new Vector3D(-1, 0, 0),
 				new Vector3D(-1, 0, 0), new Vector3D(-1, 0, 0), new Vector3D(-1, 0, 0),
 				// 右面
 				new Vector3D(1, 0, 0), new Vector3D(1, 0, 0), new Vector3D(1, 0, 0),
@@ -342,36 +453,17 @@ namespace RenderSample
 				new Vector3D(0, -1, 0), new Vector3D(0, -1, 0), new Vector3D(0, -1, 0),
 				new Vector3D(0, -1, 0), new Vector3D(0, -1, 0), new Vector3D(0, -1, 0),
 			};
-			//顶点色
-			SampleCommon.Color[] vertColors = {
-				// 前面
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(0, 0, 1), new SampleCommon.Color(1, 0, 0),
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(1, 0, 0), new SampleCommon.Color(0, 0, 1),
-				// 后面
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(0, 0, 1), new SampleCommon.Color(1, 0, 0),
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(1, 0, 0), new SampleCommon.Color(0, 0, 1),
-				// 左面
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(0, 0, 1), new SampleCommon.Color(1, 0, 0),
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(1, 0, 0), new SampleCommon.Color(0, 0, 1),
-				// 右面
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(0, 0, 1), new SampleCommon.Color(1, 0, 0),
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(1, 0, 0), new SampleCommon.Color(0, 0, 1),
-				// 上面
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(0, 0, 1), new SampleCommon.Color(1, 0, 0),
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(1, 0, 0), new SampleCommon.Color(0, 0, 1),
-				// 下面
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(0, 0, 1), new SampleCommon.Color(1, 0, 0),
-				new SampleCommon.Color(0, 1, 0), new SampleCommon.Color(1, 0, 0), new SampleCommon.Color(0, 0, 1),
-			 };
+
 			List<Vertex> vertices = new List<Vertex>();
 			for(int i = 0; i < 36; i ++)
 			{
 				Vertex vertex = new Vertex();
-				vertex.Position = points[indices[i]];
+				Vector3D point = points[indices[i]];
+				vertex.Position = point;
 				vertex.Position.w = 1;
 				vertex.TexCoord = texcoords[i];
 				vertex.Normal = norlmas[i];
-				vertex.Color = vertColors[i];
+				vertex.Color = new SampleCommon.Color((point.x + 1) / 2, (point.y + 1) / 2, (point.z + 1) / 2);
 				vertices.Add(vertex);
 			}
 			mCube = new Mesh(vertices);
@@ -383,9 +475,9 @@ namespace RenderSample
 		/// </summary>
 		public void AddLightToScene()
 		{
-			Light light = new Light(new Vector3D(-10.0f, 0.0f, 0.0f), new SampleCommon.Color(0.8f, 0.8f, 0.8f));
+			Light light = new Light(new Vector3D(2, 0, 0), new SampleCommon.Color(0.0f, 0.9f, 0.2f));
 			mRenderer.AddLight(light);
-			Material mat = new Material(new SampleCommon.Color(0.4f, 0.4f, 0.4f), 0.7f, new SampleCommon.Color(0.3f, 0.3f, 0.3f));
+			Material mat = new Material(0.9f, new SampleCommon.Color(0.8f, 0.8f, 0.8f));
 			mCube.Material = mat;
 		}
 

@@ -9,6 +9,7 @@ namespace SampleCommon
 	public class MathUntil
 	{
 		public static float PIDEV2 = (float)Math.PI / 2;
+
 		/// <summary>
 		/// 将一个值限定在指定范围内
 		/// </summary>
@@ -37,17 +38,11 @@ namespace SampleCommon
 		public static float Lerp(float a, float b, float t)
 		{
 			if (t <= 0)
-			{
 				return a;
-			}
 			else if (t >= 1)
-			{
 				return b;
-			}
 			else
-			{
 				return b * t + (1 - t) * a;
-			}
 		}
 
 	}

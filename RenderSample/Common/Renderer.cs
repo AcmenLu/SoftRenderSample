@@ -286,7 +286,6 @@ namespace SampleCommon
 
 			lock (mFrameBuffer.ColorBuffer)
 			{
-
 				if (mFrameBuffer != null)
 					mFrameBuffer.ClearBuffer();
 

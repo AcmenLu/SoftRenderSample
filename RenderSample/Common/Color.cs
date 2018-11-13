@@ -172,5 +172,30 @@ namespace SampleCommon
 			else
 				return t * b + (1 - t) * a;
 		}
+
+		/// <summary>
+		/// 两个颜色之间做插值
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <param name="t"></param>
+		/// <param name="color"></param>
+		public static void Lerp(Color a, Color b, float t, ref Color color)
+		{
+			if (t <= 0)
+			{
+				color.r = a.r; color.g = a.g; color.b = a.b;
+			}
+			else if (t >= 1)
+			{
+				color.r = b.r; color.g = b.g; color.b = b.b;
+			}
+			else
+			{
+				color.r = MathUntil.Lerp(a.r, b.r, t);
+				color.g = MathUntil.Lerp(a.g, b.g, t);
+				color.b = MathUntil.Lerp(a.b, b.b, t);
+			}
+		}
 	}
 }

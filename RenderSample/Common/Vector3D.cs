@@ -43,7 +43,7 @@ namespace SampleCommon
 			get
 			{
 				float sq = mX * mX + mY * mY + mZ * mZ;
-				return (float)System.Math.Sqrt(sq);
+				return (float)Math.Sqrt(sq);
 			}
 		}
 

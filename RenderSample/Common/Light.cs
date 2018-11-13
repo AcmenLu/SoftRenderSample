@@ -6,10 +6,6 @@ using System.Threading.Tasks;
 
 namespace SampleCommon
 {
-	/// <summary>
-	/// 只支持方向光，其他的暂时不实现
-	/// </summary>
-
 	public class Light
 	{
 		private Vector3D mPosition;
@@ -32,9 +28,9 @@ namespace SampleCommon
 		/// </summary>
 		/// <param name="direction"></param>
 		/// <param name="color"></param>
-		public Light(Vector3D direction, Color color)
+		public Light(Vector3D position, Color color)
 		{
-			mPosition = direction;
+			mPosition = position;
 			mColor = color;
 		}
 	}

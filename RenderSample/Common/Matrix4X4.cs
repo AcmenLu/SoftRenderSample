@@ -196,11 +196,11 @@ namespace SampleCommon
 		{
 			Matrix4X4 mat4 = new Matrix4X4();
 			mat4.Identity();
-			mat4[1, 1] = (float)(System.Math.Cos(r));
-			mat4[1, 2] = (float)(System.Math.Sin(r));
+			mat4[1, 1] = (float)(Math.Cos(r));
+			mat4[1, 2] = (float)(Math.Sin(r));
 
-			mat4[2, 1] = (float)(-System.Math.Sin(r));
-			mat4[2, 2] = (float)(System.Math.Cos(r));
+			mat4[2, 1] = (float)(-Math.Sin(r));
+			mat4[2, 2] = (float)(Math.Cos(r));
 			return mat4;
 		}
 
@@ -213,11 +213,11 @@ namespace SampleCommon
 		{
 			Matrix4X4 mat4 = new Matrix4X4();
 			mat4.Identity();
-			mat4[0, 0] = (float)(System.Math.Cos(r));
-			mat4[0, 2] = (float)(-System.Math.Sin(r));
+			mat4[0, 0] = (float)(Math.Cos(r));
+			mat4[0, 2] = (float)(-Math.Sin(r));
 
-			mat4[2, 0] = (float)(System.Math.Sin(r));
-			mat4[2, 2] = (float)(System.Math.Cos(r));
+			mat4[2, 0] = (float)(Math.Sin(r));
+			mat4[2, 2] = (float)(Math.Cos(r));
 			return mat4;
 		}
 
@@ -230,10 +230,10 @@ namespace SampleCommon
 		{
 			Matrix4X4 mat4 = new Matrix4X4();
 			mat4.Identity();
-			mat4[0, 0] = (float)(System.Math.Cos(r));
-			mat4[0, 1] = (float)(System.Math.Sin(r));
-			mat4[1, 0] = (float)(-System.Math.Sin(r));
-			mat4[1, 1] = (float)(System.Math.Cos(r));
+			mat4[0, 0] = (float)(Math.Cos(r));
+			mat4[0, 1] = (float)(Math.Sin(r));
+			mat4[1, 0] = (float)(-Math.Sin(r));
+			mat4[1, 1] = (float)(Math.Cos(r));
 			return mat4;
 		}
 
@@ -249,8 +249,8 @@ namespace SampleCommon
 		{
 			Matrix4X4 mat4 = new Matrix4X4();
 			mat4.Zero();
-			mat4[0, 0] = (float)(1 / (System.Math.Tan(fov * 0.5f) * aspect));
-			mat4[1, 1] = (float)(1 / System.Math.Tan(fov * 0.5f));
+			mat4[0, 0] = (float)(1 / (Math.Tan(fov * 0.5f) * aspect));
+			mat4[1, 1] = (float)(1 / Math.Tan(fov * 0.5f));
 			mat4[2, 2] = zf / (zf - zn);
 			mat4[2, 3] = 1f;
 			mat4[3, 2] = (zn * zf) / (zn - zf);

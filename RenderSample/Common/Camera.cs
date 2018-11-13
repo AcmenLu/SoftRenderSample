@@ -11,8 +11,7 @@ namespace SampleCommon
 		private Vector3D	mPosition;
 		private Vector3D	mTarget;
 		private Vector3D	mUp;
-		private float		mPitch = 0;
-		private float		mYaw = 0;
+		private float		mTheta = 0; // 用来限制摄像机绕X轴旋转的角度
 
 		/// <summary>
 		/// mPosition的get/set
@@ -107,39 +106,27 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 向右移动摄像机
+		/// 绕X轴旋转
 		/// </summary>
-		/// <param name="distance"></param>
-		public void MoveRight(float distance)
+		/// <param name="r"></param>
+		public void MoveTheta(float r)
 		{
-			Vector3D dir = (mTarget - mPosition);
-			Vector3D right = Vector3D.Cross(mUp, dir);
-			float w = mPosition.w;
-			mPosition = mPosition + (right.Normalize() * distance);
-			mPosition.w = w;
+			if (mTheta + r > MathUntil.PIDEV2 - 0.3f)
+				return;
+			if (mTheta +r < -MathUntil.PIDEV2 + 0.3f)
+				return;
+
+			mTheta += r;
+			mPosition = mPosition * Matrix4X4.RotateX(r);
 		}
-		
+
 		/// <summary>
-		/// 上下左右移动摄像机
+		/// 绕y轴旋转
 		/// </summary>
-		/// <param name="pr"></param>
-		/// <param name="yr"></param>
-		public void MovePitchAndYaw(float pr, float yr)
+		/// <param name="r"></param>
+		public void MovePhi(float r)
 		{
-			mPitch += pr;
-			mPitch = mPitch > MathUntil.PIDEV2 - 0.3f ? MathUntil.PIDEV2 - 0.3f : mPitch;
-			mPitch = mPitch < -MathUntil.PIDEV2 + 0.3f ? -MathUntil.PIDEV2 + 0.3f : mPitch;
-			mYaw += yr;
-			Vector3D dir = (mTarget - mPosition);
-			float length = dir.Length;
-
-			float x = (float)(-Math.Sin(mYaw) * Math.Cos(mPitch));
-			float y = (float)Math.Sin(mPitch);
-			float z = (float)(-Math.Cos(mPitch) * Math.Cos(mYaw));
-
-			mPosition.x = mTarget.x - x * length;
-			mPosition.y = mTarget.y - y * length;
-			mPosition.z = mTarget.z- z * length;
+			mPosition = mPosition * Matrix4X4.RotateY(r);
 		}
 
 	}

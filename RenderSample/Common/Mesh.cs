@@ -21,7 +21,7 @@ namespace SampleCommon
 		public Matrix4X4 Transform
 		{
 			get { return mTransform; }
-			set { mTransform = new Matrix4X4(value); }
+			set { mTransform = value; }
 		}
 
 		public Material Material
@@ -42,6 +42,8 @@ namespace SampleCommon
 			set { mCubeTextures = value; }
 		}
 
+		private Color mTmpVColor = new Color(); // 为了减少new，使用临时的私有变量
+		
 		/// <summary>
 		/// 构造
 		/// </summary>
@@ -89,23 +91,16 @@ namespace SampleCommon
 			if (renderer.LightList.Count() <= 0)
 				return;
 
-			// 暂时只支持第一个光源， TODO：支持多光源
 			Light light = renderer.LightList[0];
-			// 1. 将顶点和法线转换到世界空间中来
-			Vector3D position = vertex.Position * mTransform;
+			// 环境光
+			Color ambient = light.Color * mMaterial.AmbientStregth;
+			// 漫反射
 			Vector3D normal = vertex.Normal * mTransform;
-			Vector3D dir = light.Position - vertex.Position;
-			dir.Normalize();
+			Vector3D lightdir = (light.Position - vertex.Position).Normalize();
+			float diff = Math.Max(Vector3D.Dot(normal.Normalize(), lightdir), 0);
+			Color diffuse = mMaterial.Diffuse * diff;
 
-			float diffuse = Vector3D.Dot(normal, dir);
-			if (diffuse < 0)
-				diffuse = 0;
-
-			Color diffuseColor = mMaterial.Diffuse * diffuse * light.Color; // 漫反射
-			Color emission = mMaterial.Emissive;
-			Color ambient = emission * mMaterial.KA;
-
-			vertex.LightColor = ambient + emission + diffuseColor;
+			vertex.LightColor = ambient + diffuse;
 		}
 
 		/// <summary>
@@ -247,8 +242,10 @@ namespace SampleCommon
 			TransformToProjection(renderer, ref p3);
 
 			// 齐次裁剪(范围裁剪)
-			if (VertexClip(renderer, p1) == false || VertexClip(renderer, p2) == false || VertexClip(renderer, p3) == false)
-				return;
+			if (VertexClip(renderer, p1) == false && VertexClip(renderer, p2) == false && VertexClip(renderer, p3) == false)
+			{
+
+			}
 
 			TransformToScreen(renderer, ref p1);
 			TransformToScreen(renderer, ref p2);
@@ -292,9 +289,9 @@ namespace SampleCommon
 				for (int i = 0; i <= dx; i++)
 				{
 					float t = dx == 0 ? 0 : i / (float)dx;
-					Color vcolor = Color.Lerp(p1.Color, p2.Color, t);
+					Color.Lerp(p1.Color, p2.Color, t, ref mTmpVColor);
 					float depth = MathUntil.Lerp(p1.Position.z, p2.Position.z, t);
-					renderer.FrameBuffer.SetPointColor(x, y, vcolor, depth);
+					renderer.FrameBuffer.SetPointColor(x, y, mTmpVColor, depth);
 					if (error >= 0)
 					{
 						error -= dx2;
@@ -310,9 +307,9 @@ namespace SampleCommon
 				for (int i = 0; i <= dy; i++)
 				{
 					float t = dy == 0 ? 0 : i / (float)dy;
-					Color vcolor = Color.Lerp(p1.Color, p2.Color, t);
+					Color.Lerp(p1.Color, p2.Color, t, ref mTmpVColor);
 					float depth = MathUntil.Lerp(p1.Position.z, p2.Position.z, t);
-					renderer.FrameBuffer.SetPointColor(x, y, vcolor, depth);
+					renderer.FrameBuffer.SetPointColor(x, y, mTmpVColor, depth);
 					if (error >= 0)
 					{
 						error -= dy2;
@@ -524,17 +521,16 @@ namespace SampleCommon
 				int xIndex = (int)Math.Round(x, 0);
 				if (xIndex >= 0 && xIndex < renderer.Size.y)
 				{
-					Color vcolor = new Color();
-
 					float t = 0;
 					if (right.Position.x - left.Position.x > 0)
 						t = (x - left.Position.x) / (right.Position.x - left.Position.x);
 
+					Color vColor = new Color();
 					Color lightColor = Color.Lerp(left.LightColor, right.LightColor, t);
 					//根据渲染模式选择使用顶点色还是使用图片的颜色。
 					if (renderer.RenderMode == RenderMode.VERTEXCOLOR)
 					{
-						vcolor = Color.Lerp(left.Color, right.Color, t);
+						Color.Lerp(left.Color, right.Color, t, ref vColor);
 					}
 					else
 					{
@@ -546,16 +542,16 @@ namespace SampleCommon
 
 							float u = MathUntil.Lerp(left.TexCoord.x, right.TexCoord.x, lerpFactor);
 							float v = MathUntil.Lerp(left.TexCoord.y, right.TexCoord.y, lerpFactor);
-							vcolor = mTexture.GetPixelColor(u, v);
+							mTexture.GetPixelColor(u, v, ref vColor);
 						}
 						else
 						{
-							vcolor = Color.Red;
+							vColor = Color.Red;
 						}
 					}
-					vcolor = vcolor * lightColor;
+					vColor = vColor * lightColor;
 					float depth = MathUntil.Lerp(left.Position.z, right.Position.z, t);
-					renderer.FrameBuffer.SetPointColor(xIndex, yIndex, vcolor, depth);
+					renderer.FrameBuffer.SetPointColor(xIndex, yIndex, vColor, depth);
 				}
 			}
 		}
