@@ -1,0 +1,65 @@
+﻿  stdafx.cpp
+  AmbtLight.cpp
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\Vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  Camera.cpp
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\Vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  ParalLight.cpp
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\Vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  Material.cpp
+  Matrix4x4.cpp
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\Vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+Matrix4x4.cpp(303): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+Matrix4x4.cpp(304): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+Matrix4x4.cpp(305): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+Matrix4x4.cpp(308): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+Matrix4x4.cpp(309): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+Matrix4x4.cpp(310): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+Matrix4x4.cpp(313): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+Matrix4x4.cpp(314): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+Matrix4x4.cpp(315): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Model.cpp
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\Vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  Render.cpp
+  _WIN32_WINNT not defined. Defaulting to _WIN32_WINNT_MAXVER (see WinSDKVer.h)
+  Scene.cpp
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\Vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+Scene.cpp(87): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\ucrt\stdio.h(205): note: see declaration of 'fopen'
+  Triangle.cpp
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\Vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+Triangle.cpp(136): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(139): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(142): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(1441): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+Triangle.cpp(1683): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(1914): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(1915): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(1916): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(1917): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(1918): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(1919): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(1954): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(2040): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(2041): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(2042): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(2044): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(2058): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(2059): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(2060): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+Triangle.cpp(2062): warning C4244: 'argument': conversion from 'double' to 'int', possible loss of data
+  Vector2.cpp
+  Vector3.cpp
+  Vector4.cpp
+Vector4.cpp : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\Vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  Vertex.cpp
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\Vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  WindowsGraphics.cpp
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\Vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+  Generating code
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\ambtlight.cpp(25): warning C4715: 'AmbtLight::operator=': not all control paths return a value
+d:\谷歌下载目录\c++软件渲染管线\c++软件渲染管线\图形学软件渲染流水管线_罗浩_final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\parallight.cpp(28): warning C4715: 'ParalLight::operator=': not all control paths return a value
+  All 805 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  WindowsGraphics.vcxproj -> D:\谷歌下载目录\C++软件渲染管线\C++软件渲染管线\图形学软件渲染流水管线_罗浩_Final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\WindowsGraphics\Release\WindowsGraphics.exe
+  WindowsGraphics.vcxproj -> D:\谷歌下载目录\C++软件渲染管线\C++软件渲染管线\图形学软件渲染流水管线_罗浩_Final\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\WindowsGraphics\Release\WindowsGraphics.pdb (Full PDB)

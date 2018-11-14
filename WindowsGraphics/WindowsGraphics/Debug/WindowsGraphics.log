@@ -1,0 +1,29 @@
+﻿Build started 2017/9/23 18:12:17.
+     1>Project "F:\入职培训\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\WindowsGraphics\WindowsGraphics\WindowsGraphics.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _WINDOWS /D _UNICODE /D UNICODE /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"stdafx.h" /Fp"Debug\WindowsGraphics.pch" /Fo"Debug\\" /Fd"Debug\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt WindowsGraphics.cpp
+         WindowsGraphics.cpp
+     1>f:\入职培训\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\windowsgraphics\windowsgraphics\vector4.h : warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\入职培训\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\WindowsGraphics\Debug\WindowsGraphics.exe" /INCREMENTAL /NOLOGO /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /manifestinput:"C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\Include\Manifest\dpiaware.manifest" /DEBUG /PDB:"F:\入职培训\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\WindowsGraphics\Debug\WindowsGraphics.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /ENTRY:"wWinMainCRTStartup" /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\入职培训\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\WindowsGraphics\Debug\WindowsGraphics.lib" /MACHINE:X86 Debug\WindowsGraphics.res
+         Debug\AmbtLight.obj
+         Debug\Camera.obj
+         Debug\ParalLight.obj
+         Debug\Material.obj
+         Debug\Matrix4x4.obj
+         Debug\Model.obj
+         Debug\Render.obj
+         Debug\Scene.obj
+         Debug\stdafx.obj
+         Debug\Triangle.obj
+         Debug\Vector2.obj
+         Debug\Vector3.obj
+         Debug\Vector4.obj
+         Debug\Vertex.obj
+         Debug\WindowsGraphics.obj
+         WindowsGraphics.vcxproj -> F:\入职培训\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\WindowsGraphics\Debug\WindowsGraphics.exe
+     1>Done Building Project "F:\入职培训\图形学自学任务_罗浩_20170901502\图形学自学任务_罗浩_201709015\WindowsGraphics\WindowsGraphics\WindowsGraphics.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.83

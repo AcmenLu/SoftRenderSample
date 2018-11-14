@@ -41,7 +41,7 @@ namespace RenderSample
 		public void OnInit()
 		{
 			mGraphics = CreateGraphics();
-			mRenderer = new Renderer(Width, Height, (float)System.Math.PI / 4f, 1f, 500f);
+			mRenderer = new Renderer(Width, Height, (float)Math.PI / 8f, 1f, 500f);
 			mRenderer.BindGraphics(mGraphics);
 			mRenderer.Camera = new Camera(new Vector3D(0, 0, -5, 1), new Vector3D(0, 0, 0, 1), new Vector3D(0, 1, 0, 0));
 			mRenderer.EnableDepthTest = true;
@@ -241,141 +241,6 @@ namespace RenderSample
 			mRenderer.OnRender();
 		}
 
-		/// <summary>
-		/// 三角形的测试函数
-		/// </summary>
-		public void TriangleTest()
-		{
-			List<Vertex> vertices = new List<Vertex>();
-			Vertex v1 = new Vertex(new Vector3D(400.0f, 50.0f, 1.0f));
-			v1.Color = new SampleCommon.Color(1.0f, 0.0f, 0.0f);
-			vertices.Add(v1);
-	
-			Vertex v2 = new Vertex(new Vector3D(200.0f, 450.0f, 0.0f));
-			v2.Color = new SampleCommon.Color(0.0f, 1.0f, 0.0f);
-			vertices.Add(v2);
-
-			Vertex v3 = new Vertex(new Vector3D(600.0f, 450.0f, 0.0f));
-			v3.Color = new SampleCommon.Color(0.0f, 0.0f, 1.0f);
-			vertices.Add(v3);
-			Mesh msh = new Mesh(vertices);
-			if (mRenderer != null)
-			{
-				mRenderer.ClearRenderObjects();
-				mRenderer.AddRenderObject(msh);
-			}
-		}
-
-		/// <summary>
-		/// 矩形的测试函数
-		/// </summary>
-		public void RectangularTest()
-		{
-			List<Vertex> vertices = new List<Vertex>();
-			Vertex v1 = new Vertex(new Vector3D(200.0f, 50.0f, 1.0f));
-			v1.Color = new SampleCommon.Color(1.0f, 0.0f, 0.0f);
-			vertices.Add(v1);
-
-			Vertex v2 = new Vertex(new Vector3D(600.0f, 50.0f, 1.0f));
-			v2.Color = new SampleCommon.Color(0.0f, 1.0f, 0.0f);
-			vertices.Add(v2);
-
-			Vertex v3 = new Vertex(new Vector3D(200.0f, 500.0f, 1.0f));
-			v3.Color = new SampleCommon.Color(0.0f, 0.0f, 1.0f);
-			vertices.Add(v3);
-
-			Vertex v4 = new Vertex(new Vector3D(600.0f, 50.0f, 1.0f));
-			v4.Color = new SampleCommon.Color(1.0f, 0.0f, 0.0f);
-			vertices.Add(v4);
-
-			Vertex v5 = new Vertex(new Vector3D(200.0f, 500.0f, 1.0f));
-			v5.Color = new SampleCommon.Color(0.0f, 1.0f, 0.0f);
-			vertices.Add(v5);
-
-			Vertex v6 = new Vertex(new Vector3D(600.0f, 500.0f, 1.0f));
-			v6.Color = new SampleCommon.Color(0.0f, 0.0f, 1.0f);
-			vertices.Add(v6);
-
-			Mesh msh = new Mesh(vertices);
-			if (mRenderer != null)
-			{
-				mRenderer.ClearRenderObjects();
-				mRenderer.AddRenderObject(msh);
-			}
-		}
-
-		/// <summary>
-		/// 简单光照测试函数
-		/// </summary>
-		public void LightTest()
-		{
-			List<Vertex> vertices = new List<Vertex>();
-			Vertex v1 = new Vertex(new Vector3D(400.0f, 50.0f, 1.0f));
-			v1.Color = new SampleCommon.Color(1.0f, 0.0f, 0.0f);
-			vertices.Add(v1);
-
-			Vertex v2 = new Vertex(new Vector3D(200.0f, 450.0f, 0.0f));
-			v2.Color = new SampleCommon.Color(0.0f, 1.0f, 0.0f);
-			vertices.Add(v2);
-
-			Vertex v3 = new Vertex(new Vector3D(600.0f, 450.0f, 0.0f));
-			v3.Color = new SampleCommon.Color(0.0f, 0.0f, 1.0f);
-			vertices.Add(v3);
-			Mesh msh = new Mesh(vertices);
-			if (mRenderer != null)
-			{
-				Light light = new Light(new Vector3D(0.0f, 1.0f, 0.0f), new SampleCommon.Color(0.2f, 0.2f, 0.2f));
-				mRenderer.AddLight(light);
-				mRenderer.ClearRenderObjects();
-				mRenderer.AddRenderObject(msh);
-			}
-		}
-
-		/// <summary>
-		/// 渲染图片的测试函数
-		/// </summary>
-		public void TextureTest()
-		{
-			List<Vertex> vertices = new List<Vertex>();
-			Vertex v1 = new Vertex(new Vector3D(200.0f, 50.0f, 1.0f));
-			v1.Color = new SampleCommon.Color(1.0f, 0.0f, 0.0f);
-			v1.TexCoord = new Vector2(0.0f, 0.0f);
-			vertices.Add(v1);
-
-			Vertex v2 = new Vertex(new Vector3D(600.0f, 50.0f, 1.0f));
-			v2.Color = new SampleCommon.Color(0.0f, 1.0f, 0.0f);
-			v2.TexCoord = new Vector2(1.0f, 0.0f);
-			vertices.Add(v2);
-
-			Vertex v3 = new Vertex(new Vector3D(200.0f, 500.0f, 1.0f));
-			v3.Color = new SampleCommon.Color(0.0f, 0.0f, 1.0f);
-			v3.TexCoord = new Vector2(0.0f, 1.0f);
-			vertices.Add(v3);
-
-			Vertex v4 = new Vertex(new Vector3D(600.0f, 50.0f, 1.0f));
-			v4.Color = new SampleCommon.Color(1.0f, 0.0f, 0.0f);
-			v4.TexCoord = new Vector2(1.0f, 0.0f);
-			vertices.Add(v4);
-
-			Vertex v5 = new Vertex(new Vector3D(200.0f, 500.0f, 1.0f));
-			v5.Color = new SampleCommon.Color(0.0f, 1.0f, 0.0f);
-			v5.TexCoord = new Vector2(0.0f, 1.0f);
-			vertices.Add(v5);
-
-			Vertex v6 = new Vertex(new Vector3D(600.0f, 500.0f, 1.0f));
-			v6.Color = new SampleCommon.Color(0.0f, 0.0f, 1.0f);
-			v6.TexCoord = new Vector2(1.0f, 1.0f);
-			vertices.Add(v6);
-
-			Mesh msh = new Mesh(vertices);
-			RenderTexture texture = new RenderTexture("env3.bmp");
-			msh.Texture = texture;
-			if (mRenderer != null)
-			{
-				mRenderer.ClearRenderObjects();
-				mRenderer.AddRenderObject(msh);
-			}
-		}
 
 		/// <summary>
 		/// 创建一个立方体
@@ -466,7 +331,13 @@ namespace RenderSample
 				vertex.Color = new SampleCommon.Color((point.x + 1) / 2, (point.y + 1) / 2, (point.z + 1) / 2);
 				vertices.Add(vertex);
 			}
-			mCube = new Mesh(vertices);
+			List<Triangle> triangles = new List<Triangle>();
+			for (int i = 0; i < 36; i += 3)
+			{
+				Triangle triangle = new Triangle(vertices[i], vertices[i + 1], vertices[i + 2]);
+				triangles.Add(triangle);
+			}
+			mCube = new Mesh(triangles);
 			mRenderer.AddRenderObject(mCube);
 		}
 

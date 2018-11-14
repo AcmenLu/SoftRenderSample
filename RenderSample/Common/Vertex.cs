@@ -9,10 +9,11 @@ namespace SampleCommon
 	public class Vertex
 	{
 		private Vector3D	mPosition;
-		private Vector3D mNormal;
-		private Vector2	mTexcoord;
-		private Color	mColor;
-		private Color mLightColor;
+		private Vector3D	mNormal;
+		private Vector2		mTexcoord;
+		private Color		mColor;
+		private Color		mLightColor;
+		private byte		mAreaCode;
 
 		public Vector3D Position
 		{
@@ -44,6 +45,12 @@ namespace SampleCommon
 			set { mLightColor = value; }
 		}
 
+		public byte AreaCode
+		{
+			get { return mAreaCode; }
+			set { mAreaCode = value; }
+		}
+
 		public Vertex()
 		{
 			mPosition = new Vector3D();
@@ -60,6 +67,7 @@ namespace SampleCommon
 			mTexcoord = new Vector2();
 			mColor = new Color(1.0f, 1.0f, 1.0f);
 			mLightColor = new Color(1.0f, 1.0f, 1.0f);
+			mAreaCode = (byte)FaceType.NONE;
 		}
 
 		public Vertex(Vector3D pos, Vector3D normal, Vector2 texcoord, Color color, Color lightColor)
@@ -69,6 +77,7 @@ namespace SampleCommon
 			mTexcoord = texcoord;
 			mColor = color;
 			mLightColor = lightColor;
+			mAreaCode = (byte)FaceType.NONE;
 		}
 
 		public Vertex(Vertex v)
@@ -78,6 +87,21 @@ namespace SampleCommon
 			mTexcoord = v.TexCoord;
 			mColor = v.Color;
 			mLightColor = v.LightColor;
+			mAreaCode = v.AreaCode;
+		}
+
+		/// <summary>
+		/// 计算区域码
+		/// </summary>
+		public void CalAreaCode()
+		{
+			mAreaCode = (byte)FaceType.NONE;
+			if (mPosition.x < -mPosition.w) mAreaCode |= (byte)FaceType.LEFT;
+			if (mPosition.x > mPosition.w) mAreaCode |= (byte)FaceType.RIGHT;
+			if (mPosition.y < -mPosition.w) mAreaCode |= (byte)FaceType.TOP;
+			if (mPosition.y > mPosition.w) mAreaCode |= (byte)FaceType.BUTTOM;
+			if (mPosition.z < 0) mAreaCode |= (byte)FaceType.BACK;
+			if (mPosition.z > mPosition.w) mAreaCode |= (byte)FaceType.FRONT;
 		}
 
 		/// <summary>
@@ -94,6 +118,5 @@ namespace SampleCommon
 			v.Color = Color.Lerp(v1.Color, v2.Color, t);
 			v.LightColor = Color.Lerp(v1.LightColor, v2.LightColor, t);
 		}
-
 	}
 }

@@ -92,7 +92,7 @@ namespace SampleCommon
 		{
 			Vector3D dir = (mTarget - mPosition);
 			float w = mPosition.w;
-			if (distance > 0 && dir.Length < 2.4f)
+			if (distance > 0 && dir.Length < 0.4f)
 				return;
 
 			if (distance < 0 && dir.Length > 40)

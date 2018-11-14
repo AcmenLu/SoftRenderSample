@@ -124,6 +124,18 @@ namespace SampleCommon
 		}
 
 		/// <summary>
+		/// 判断向量相等
+		/// </summary>
+		/// <param name="fx"></param>
+		/// <param name="fy"></param>
+		/// <param name="fz"></param>
+		/// <returns></returns>
+		public bool IsEqual(float fx, float fy, float fz)
+		{
+			return mX == fx && mY == fy && mZ == fz;
+		}
+
+		/// <summary>
 		/// 两个向量相加
 		/// </summary>
 		/// <param name="lhs"></param>
