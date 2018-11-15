@@ -12,4 +12,3 @@ F:\Sample\SoftRender\SoftRenderSample\RenderSample\Common\bin\Debug\Common.dll
 F:\Sample\SoftRender\SoftRenderSample\RenderSample\Common\bin\Debug\Common.pdb
 F:\Sample\SoftRender\SoftRenderSample\RenderSample\Common\obj\Debug\Common.dll
 F:\Sample\SoftRender\SoftRenderSample\RenderSample\Common\obj\Debug\Common.pdb
-F:\Sample\SoftRender\SoftRenderSample\RenderSample\Common\obj\Debug\Common.csprojResolveAssemblyReference.cache

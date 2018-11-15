@@ -82,7 +82,7 @@ namespace SampleCommon
 
 		public Vertex(Vertex v)
 		{
-			mPosition = v.Position;
+			mPosition = new Vector3D(v.Position.x, v.Position.y, v.Position.z, v.Position.w);
 			mNormal = v.Normal;
 			mTexcoord = v.TexCoord;
 			mColor = v.Color;
@@ -98,10 +98,10 @@ namespace SampleCommon
 			mAreaCode = (byte)FaceType.NONE;
 			if (mPosition.x < -mPosition.w) mAreaCode |= (byte)FaceType.LEFT;
 			if (mPosition.x > mPosition.w) mAreaCode |= (byte)FaceType.RIGHT;
-			if (mPosition.y < -mPosition.w) mAreaCode |= (byte)FaceType.TOP;
-			if (mPosition.y > mPosition.w) mAreaCode |= (byte)FaceType.BUTTOM;
-			if (mPosition.z < 0) mAreaCode |= (byte)FaceType.BACK;
-			if (mPosition.z > mPosition.w) mAreaCode |= (byte)FaceType.FRONT;
+			if (mPosition.y < -mPosition.w) mAreaCode |= (byte)FaceType.BUTTOM;
+			if (mPosition.y > mPosition.w) mAreaCode |= (byte)FaceType.TOP;
+			if (mPosition.z < 0) mAreaCode |= (byte)FaceType.NEAR;
+			if (mPosition.z > mPosition.w) mAreaCode |= (byte)FaceType.FAR;
 		}
 
 		/// <summary>

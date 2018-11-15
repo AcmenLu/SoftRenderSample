@@ -16,8 +16,8 @@ namespace SampleCommon
 		TOP = 4,
 		BUTTOM = 8,
 		// z
-		FRONT = 16,
-		BACK = 32,
+		NEAR = 16,
+		FAR = 32,
 	}
 
 	public class Triangle
@@ -104,22 +104,27 @@ namespace SampleCommon
 		}
 
 		/// <summary>
+		/// 规范视椎体
+		/// </summary>
+		/// <param name="v"></param>
+		private void ConvertToView(ref Vertex v)
+		{
+			if (v.Position.w != 0)
+			{
+				v.Position.x *= 1 / v.Position.w;
+				v.Position.y *= 1 / v.Position.w;
+				v.Position.z *= 1 / v.Position.w;
+				v.Position.w = 1;
+			}
+		}
+		/// <summary>
 		/// 转换到屏幕坐标系
 		/// </summary>
 		/// <param name="v"></param>
 		private void TransformToScreen(Renderer renderer, ref Vertex v)
 		{
-			if (v.Position.w != 0)
-			{
-				//先进行透视除法，转到cvv
-				v.Position.x *= 1 / v.Position.w;
-				v.Position.y *= 1 / v.Position.w;
-				v.Position.z *= 1 / v.Position.w;
-				v.Position.w = 1;
-				//cvv到屏幕坐标
-				v.Position.x = (v.Position.x + 1) * 0.5f * renderer.Size.x;
-				v.Position.y = (1 - v.Position.y) * 0.5f * renderer.Size.y;
-			}
+			v.Position.x = (v.Position.x + 1) * 0.5f * renderer.Size.x;
+			v.Position.y = (1 - v.Position.y) * 0.5f * renderer.Size.y;
 		}
 
 		/// <summary>
@@ -171,7 +176,8 @@ namespace SampleCommon
 			{
 				if ((a & 1) == 1)
 				{
-					faces.Add((FaceType)p);
+					if (faces.Exists(x=>x == (FaceType)p) == false)
+						faces.Add((FaceType)p);
 				}
 				p *= 2;
 				a >>= 1;
@@ -192,8 +198,459 @@ namespace SampleCommon
 			LinePunctureFaces(p3, p1, ref faces);
 		}
 
-		private Vector3D GetPoint()
+		private void SwapVertex(ref Vertex v0, ref Vertex v1)
 		{
+			Vertex temp = v0;
+			v0 = v1;
+			v1 = temp;
+		}
+
+		/// <summary>
+		/// 将三角形分成一些小的三角形
+		/// </summary>
+		/// <param name="p1"></param>
+		/// <param name="p2"></param>
+		/// <param name="p3"></param>
+		/// <param name="faceType"></param>
+		/// <param name="triangles"></param>
+		private void VertexClip(ref Vertex p1, ref Vertex p2, ref Vertex p3, FaceType faceType, ref List<Triangle> triangles)
+		{
+			if (faceType == FaceType.TOP)
+			{
+				// 将三个点按自上而下排序
+				if (p1.Position.y < p2.Position.y)
+				{
+					SwapVertex(ref p1, ref p2);
+				}
+				if (p1.Position.y < p3.Position.y)
+				{
+					SwapVertex(ref p1, ref p3);
+				}
+				if (p2.Position.y < p3.Position.y)
+				{
+					SwapVertex(ref p2, ref p3);
+				}
+
+				if (p3.Position.y > 1)
+					return;
+
+				if (p1.Position.y <= 1)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+
+				Vertex v0 = new Vertex(); // y0 -- y2的交点
+				v0.Position.y = 1;
+				float dt = (p1.Position.y - 1.0f) / (p1.Position.y - p3.Position.y);
+				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
+				v0.Position.z = (float)(p1.Position.z - (p1.Position.z - p3.Position.z) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+
+				Vertex v1 = null;
+				Vertex v2 = null;
+				if (p2.Position.y < 1)
+				{
+					v1 = new Vertex(); // y0 -- y1的交点
+					v1.Position.y = 1;
+					dt = (p1.Position.y - 1.0f) / (p1.Position.y - p2.Position.y);
+					v1.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
+					v1.Position.z = (float)(p1.Position.z - (p1.Position.z - p2.Position.z) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p1.Normal;
+					v1.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v1.Color = Color.Lerp(p1.Color, p2.Color, dt);
+				}
+				else if (p2.Position.y > 1)
+				{
+					v2 = new Vertex(); // y1 -- y2的交点
+					v2.Position.y = 1;
+					dt = (p2.Position.y - 1.0f) / (p2.Position.y - p3.Position.y);
+					v2.Position.x = (float)(p2.Position.x - (p2.Position.x - p3.Position.x) * dt);
+					v2.Position.z = (float)(p2.Position.z - (p2.Position.z - p3.Position.z) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p2.Normal;
+					v2.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v2.Color = Color.Lerp(p2.Color, p3.Color, dt);
+				}
+
+				if (v2 == null)
+					triangles.Add(new Triangle(v0, p2, p3));
+				else
+					triangles.Add(new Triangle(v0, v2, p3));
+
+				if (v1 != null)
+				{
+					Vertex t1 = new Vertex(v0);
+					Vertex t2 = new Vertex(p2);
+					triangles.Add(new Triangle(t1, v1, t2));
+				}
+			}
+			else if (faceType == FaceType.BUTTOM)
+			{
+				if (p1.Position.y < p2.Position.y)
+				{
+					SwapVertex(ref p1, ref p2);
+				}
+				if (p1.Position.y < p3.Position.y)
+				{
+					SwapVertex(ref p1, ref p3);
+				}
+				if (p2.Position.y < p3.Position.y)
+				{
+					SwapVertex(ref p2, ref p3);
+				}
+
+				if (p1.Position.y < -1)
+					return;
+
+				if (p3.Position.y >= -1)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+
+				Vertex v0 = new Vertex(); // y0 -- y2的交点
+				v0.Position.y = -1;
+				float dt = (p1.Position.y + 1.0f) / (p1.Position.y - p3.Position.y);
+				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
+				v0.Position.z = (float)(p1.Position.z - (p1.Position.z - p3.Position.z) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+
+				Vertex v1 = null;
+				Vertex v2 = null;
+				if (p2.Position.y > -1)
+				{
+					v1 = new Vertex(); // y1 -- y2的交点
+					v1.Position.y = -1;
+					dt = (p2.Position.y + 1.0f) / (p2.Position.y - p3.Position.y);
+					v1.Position.x = (float)(p2.Position.x - (p2.Position.x - p3.Position.x) * dt);
+					v1.Position.z = (float)(p2.Position.z - (p2.Position.z - p3.Position.z) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p1.Normal;
+					v1.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v1.Color = Color.Lerp(p2.Color, p3.Color, dt);
+				}
+				else if (p2.Position.y < -1)
+				{
+					v2 = new Vertex(); // y0 -- y1的交点
+					v2.Position.y = -1;
+					dt = (p1.Position.y + 1.0f) / (p1.Position.y - p2.Position.y);
+					v2.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
+					v2.Position.z = (float)(p1.Position.z - (p1.Position.z - p2.Position.z) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p2.Normal;
+					v2.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v2.Color = Color.Lerp(p1.Color, p2.Color, dt);
+				}
+
+				if (v2 == null)
+					triangles.Add(new Triangle(p1, p2, v0));
+				else
+					triangles.Add(new Triangle(p1, v2, v0));
+
+				if (v1 != null)
+				{
+					Vertex t1 = new Vertex(v0);
+					Vertex t2 = new Vertex(p2);
+					triangles.Add(new Triangle(t2, v1, t1));
+				}
+			}
+			else if (faceType == FaceType.LEFT)
+			{
+				if (p1.Position.x < p2.Position.x)
+				{
+					SwapVertex(ref p1, ref p2);
+				}
+				if (p1.Position.x < p3.Position.x)
+				{
+					SwapVertex(ref p1, ref p3);
+				}
+				if (p2.Position.x < p3.Position.x)
+				{
+					SwapVertex(ref p2, ref p3);
+				}
+
+				if (p1.Position.x < -1)
+					return;
+
+				if (p3.Position.x >= -1)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+
+				Vertex v0 = new Vertex(); // y0 -- y2的交点
+				v0.Position.x = -1;
+				float dt = (p1.Position.x + 1.0f) / (p1.Position.x - p3.Position.x);
+				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
+				v0.Position.z = (float)(p1.Position.z - (p1.Position.z - p3.Position.z) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+
+				Vertex v1 = null;
+				Vertex v2 = null;
+				if (p2.Position.x > -1)
+				{
+					v1 = new Vertex(); // y1 -- y2的交点
+					v1.Position.x = -1;
+					dt = (p2.Position.x + 1.0f) / (p2.Position.x - p3.Position.x);
+					v1.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
+					v1.Position.z = (float)(p2.Position.z - (p2.Position.z - p3.Position.z) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p2.Normal;
+					v1.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v1.Color = Color.Lerp(p2.Color, p3.Color, dt);
+				}
+				else if (p2.Position.x < -1)
+				{
+					v2 = new Vertex(); // y0 -- y1的交点
+					v2.Position.x = -1;
+					dt = (p1.Position.x + 1.0f) / (p1.Position.x - p2.Position.x);
+					v2.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
+					v2.Position.z = (float)(p1.Position.z - (p1.Position.z - p2.Position.z) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p1.Normal;
+					v2.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v2.Color = Color.Lerp(p1.Color, p2.Color, dt);
+				}
+				if (v2 != null)
+					triangles.Add(new Triangle(v0, p1, v2));
+				else
+					triangles.Add(new Triangle(v0, p1, p2));
+
+				if (v1 != null)
+				{
+					Vertex t1 = new Vertex(v0);
+					Vertex t2 = new Vertex(p2);
+					triangles.Add(new Triangle(t1, t2, v1));
+				}
+			}
+			if (faceType == FaceType.RIGHT)
+			{
+				if (p1.Position.x < p2.Position.x)
+				{
+					SwapVertex(ref p1, ref p2);
+				}
+				if (p1.Position.x < p3.Position.x)
+				{
+					SwapVertex(ref p1, ref p3);
+				}
+				if (p2.Position.x < p3.Position.x)
+				{
+					SwapVertex(ref p2, ref p3);
+				}
+
+				if (p3.Position.x > 1)
+					return;
+
+				if (p1.Position.x <= 1)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+
+				Vertex v0 = new Vertex(); // y0 -- y2的交点
+				v0.Position.x = 1;
+				float dt = (p1.Position.x - 1.0f) / (p1.Position.x - p3.Position.x);
+				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
+				v0.Position.z = (float)(p1.Position.z - (p1.Position.z - p3.Position.z) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+
+				Vertex v1 = null;
+				Vertex v2 = null;
+				if (p2.Position.x < 1)
+				{
+					v1 = new Vertex(); // y0 -- y1的交点
+					v1.Position.x = 1;
+					dt = (p1.Position.x - 1.0f) / (p1.Position.x - p2.Position.x);
+					v1.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
+					v1.Position.z = (float)(p1.Position.z - (p1.Position.z - p2.Position.z) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p1.Normal;
+					v1.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v1.Color = Color.Lerp(p1.Color, p2.Color, dt);
+				}
+				else if (p2.Position.x > 1)
+				{
+					v2 = new Vertex(); // y1 -- y2的交点
+					v2.Position.x = 1;
+					dt = (p2.Position.x - 1.0f) / (p2.Position.x - p3.Position.x);
+					v2.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
+					v2.Position.z = (float)(p3.Position.z - (p2.Position.z - p3.Position.z) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p1.Normal;
+					v2.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v2.Color = Color.Lerp(p2.Color, p3.Color, dt);
+				}
+				if (v2 != null)
+					triangles.Add(new Triangle(v0, v2, p3));
+				else
+					triangles.Add(new Triangle(v0, p2, p3));
+
+				if (v1 != null)
+				{
+					Vertex t1 = new Vertex(v0);
+					Vertex t2 = new Vertex(p2);
+					triangles.Add(new Triangle(t1, v1, t2));
+				}
+			}
+			else if (faceType == FaceType.FAR)
+			{
+				if (p1.Position.z < p2.Position.z)
+				{
+					SwapVertex(ref p1, ref p2);
+				}
+				if (p1.Position.z < p3.Position.z)
+				{
+					SwapVertex(ref p1, ref p3);
+				}
+				if (p2.Position.z < p3.Position.z)
+				{
+					SwapVertex(ref p2, ref p3);
+				}
+
+				if (p3.Position.z > 1)
+					return;
+
+				if (p1.Position.x <= 1)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+
+				Vertex v0 = new Vertex(); // y0 -- y2的交点
+				v0.Position.z = 1;
+				float dt = (p1.Position.z - 1.0f) / (p1.Position.z - p3.Position.z);
+				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
+				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+
+				Vertex v1 = null;
+				Vertex v2 = null;
+				if (p2.Position.z < 1)
+				{
+					v1 = new Vertex(); // y0 -- y1的交点
+					v1.Position.z = 1;
+					dt = (p1.Position.z - 1.0f) / (p1.Position.z - p2.Position.z);
+					v1.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
+					v1.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p1.Normal;
+					v1.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v1.Color = Color.Lerp(p1.Color, p2.Color, dt);
+				}
+				else if (p2.Position.z > 1)
+				{
+					v2 = new Vertex(); // y1 -- y2的交点
+					v2.Position.z = 1;
+					dt = (p2.Position.z - 1.0f) / (p2.Position.z - p3.Position.z);
+					v2.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
+					v2.Position.x = (float)(p3.Position.x - (p2.Position.x - p3.Position.x) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p1.Normal;
+					v2.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v2.Color = Color.Lerp(p2.Color, p3.Color, dt);
+				}
+				if (v2 != null)
+					triangles.Add(new Triangle(v0, v2, p3));
+				else
+					triangles.Add(new Triangle(v0, p2, p3));
+
+				if (v1 != null)
+				{
+					Vertex t1 = new Vertex(v0);
+					Vertex t2 = new Vertex(p2);
+					triangles.Add(new Triangle(t1, v1, t2));
+				}
+			}
+			else if (faceType == FaceType.NEAR)
+			{
+				if (p1.Position.z < p2.Position.z)
+				{
+					SwapVertex(ref p1, ref p2);
+				}
+				if (p1.Position.z < p3.Position.z)
+				{
+					SwapVertex(ref p1, ref p3);
+				}
+				if (p2.Position.z < p3.Position.z)
+				{
+					SwapVertex(ref p2, ref p3);
+				}
+
+				if (p1.Position.z < 0)
+					return;
+
+				if (p3.Position.z >= 0)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+
+				Vertex v0 = new Vertex(); // y0 -- y2的交点
+				v0.Position.z = 0;
+				float dt = p1.Position.z / (p1.Position.z - p3.Position.z);
+				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
+				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+
+				Vertex v1 = null;
+				Vertex v2 = null;
+				if (p2.Position.z > 0)
+				{
+					v1 = new Vertex(); // y1 -- y2的交点
+					v1.Position.z = 0;
+					dt = p2.Position.z / (p2.Position.z - p3.Position.z);
+					v1.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
+					v1.Position.x = (float)(p2.Position.x - (p2.Position.x - p3.Position.x) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p2.Normal;
+					v1.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v1.Color = Color.Lerp(p2.Color, p3.Color, dt);
+				}
+				else if (p2.Position.z < 0)
+				{
+					v2 = new Vertex(); // y0 -- y1的交点
+					v2.Position.z = -1;
+					dt = p1.Position.z / (p1.Position.z - p2.Position.z);
+					v2.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
+					v2.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p1.Normal;
+					v2.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v2.Color = Color.Lerp(p1.Color, p2.Color, dt);
+				}
+				if (v2 != null)
+					triangles.Add(new Triangle(v0, p1, v2));
+				else
+					triangles.Add(new Triangle(v0, p1, p2));
+
+				if (v1 != null)
+				{
+					Vertex t1 = new Vertex(v0);
+					Vertex t2 = new Vertex(p2);
+					triangles.Add(new Triangle(t1, t2, v1));
+				}
+			}
+			
 
 		}
 
@@ -207,14 +664,14 @@ namespace SampleCommon
 			p2.CalAreaCode();
 			p3.CalAreaCode();
 
-			if ((p1.AreaCode | p2.AreaCode | p3.AreaCode) == (byte)FaceType.NONE)
+			// 全部在视野之内
+			if (p1.AreaCode == (byte)FaceType.NONE && p2.AreaCode == (byte)FaceType.NONE && p3.AreaCode == (byte)FaceType.NONE)
 			{
-				// 全部在视野之内
 				triangles.Add(new Triangle(p1, p2, p3));
 			}
-			else if((p1.AreaCode & p2.AreaCode & p3.AreaCode) == 1)
+			// 显然不可见
+			else if ((p1.AreaCode & p2.AreaCode) != 0 & (p2.AreaCode & p3.AreaCode) != 0 & (p3.AreaCode & p1.AreaCode) != 0)
 			{
-				// 全部在视野之外
 				return;
 			}
 			else
@@ -222,10 +679,8 @@ namespace SampleCommon
 				// 一部分在视野之内
 				List<FaceType> faces = new List<FaceType>();
 				TriPunctureFaces(p1, p2, p3, ref faces);
-				for (int i = 0; i < faces.Count(); i++)
-				{
-					
-				}
+				if (faces.Count() > 0)
+					VertexClip(ref p1, ref p2, ref p3, faces[0], ref triangles);
 			}
 		}
 
@@ -263,8 +718,20 @@ namespace SampleCommon
 			TransformToProjection(renderer, ref p2);
 			TransformToProjection(renderer, ref p3);
 
+			// 规范视椎体
+			ConvertToView(ref p1);
+			ConvertToView(ref p2);
+			ConvertToView(ref p3);
 			mRenderLst.Clear();
-			VertexClip(renderer, ref p1, ref p2, ref p3, ref mRenderLst);
+			if ((renderer.CullMode & CullMode.CULL_CVV) != 0)
+			{
+				VertexClip(renderer, ref p1, ref p2, ref p3, ref mRenderLst);
+			}
+			else
+			{
+				mRenderLst.Add(new Triangle(p1, p2, p3));
+			}
+
 			for(int i = 0; i < mRenderLst.Count(); i++)
 				DrawTriangle(renderer, mRenderLst[i]);
 		}
@@ -281,10 +748,10 @@ namespace SampleCommon
 			Vertex p1 = triangle.Vertex0;
 			Vertex p2 = triangle.Vertex1;
 			Vertex p3 = triangle.Vertex2;
+
 			TransformToScreen(renderer, ref p1);
 			TransformToScreen(renderer, ref p2);
 			TransformToScreen(renderer, ref p3);
-
 			if (renderer.RenderMode == RenderMode.WIREFRAME)
 			{
 				DrawLine(renderer, p1, p2);

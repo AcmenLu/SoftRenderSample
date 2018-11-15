@@ -255,7 +255,7 @@ namespace SampleCommon
 		/// </summary>
 		private void ResetProjection()
 		{
-			float aspect = mSize.x / mSize.y;
+			float aspect = mSize.y / mSize.x;
 			mProjection = Matrix4X4.Projection(mFov, aspect, mNear, mFar);
 		}
 
@@ -295,9 +295,10 @@ namespace SampleCommon
 				}
 
 				if (mGraphics != null)
+				{
 					mGraphics.Clear(System.Drawing.Color.Black);
-
-				mGraphics.DrawImage(mFrameBuffer.ColorBuffer, 0, 0);
+					mGraphics.DrawImage(mFrameBuffer.ColorBuffer, 0, 0);
+				}
 			}
 		}
 	}

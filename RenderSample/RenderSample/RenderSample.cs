@@ -30,7 +30,7 @@ namespace RenderSample
 			this.MouseUp += new MouseEventHandler(OnMouseUp);
 			this.MouseMove += new MouseEventHandler(OnMouseMove);
 			Width = 800;
-			Height = 600;
+			Height = 800;
 			OnInit();
 		}
 
@@ -41,15 +41,15 @@ namespace RenderSample
 		public void OnInit()
 		{
 			mGraphics = CreateGraphics();
-			mRenderer = new Renderer(Width, Height, (float)Math.PI / 8f, 1f, 500f);
+			mRenderer = new Renderer(Width - 20, Height - 20, (float)Math.PI / 8f, 5, 50f);
 			mRenderer.BindGraphics(mGraphics);
 			mRenderer.Camera = new Camera(new Vector3D(0, 0, -5, 1), new Vector3D(0, 0, 0, 1), new Vector3D(0, 1, 0, 0));
 			mRenderer.EnableDepthTest = true;
-			System.Timers.Timer mainTimer = new System.Timers.Timer(1000 / 60f);
-			mainTimer.Elapsed += new ElapsedEventHandler(OnIdle);
-			mainTimer.AutoReset = true;
-			mainTimer.Enabled = true;
-			mainTimer.Start();
+			//System.Timers.Timer mainTimer = new System.Timers.Timer(1000 / 20f);
+			//mainTimer.Elapsed += new ElapsedEventHandler(OnIdle);
+			//mainTimer.AutoReset = true;
+			//mainTimer.Enabled = true;
+			//mainTimer.Start();
 			CreateCube();
 		}
 
@@ -125,22 +125,39 @@ namespace RenderSample
 					mRenderer.Camera.MoveForward(-0.2f);
 					break;
 				case Keys.Up:
-					mCube.Transform = Matrix4X4.RotateX(0.2f) * mCube.Transform;
+					mCube.Transform = Matrix4X4.Translate(0, 0.2f, 0) * mCube.Transform;
 					break;
 				case Keys.Down:
-					mCube.Transform = Matrix4X4.RotateX(-0.2f) * mCube.Transform;
+					mCube.Transform = Matrix4X4.Translate(0, -0.2f, 0) * mCube.Transform;
 					break;
 				case Keys.Left:
-					mCube.Transform = Matrix4X4.RotateY(0.2f) * mCube.Transform;
+					mCube.Transform = Matrix4X4.Translate(-0.2f, 0, 0) * mCube.Transform;
 					break;
 				case Keys.Right:
-					mCube.Transform = Matrix4X4.RotateY(-0.2f) * mCube.Transform;
+					mCube.Transform = Matrix4X4.Translate(0.2f, 0, 0) * mCube.Transform;
+					break;
+				case Keys.F:
+					mCube.Transform = Matrix4X4.Translate(0, 0, 0.2f) * mCube.Transform;
+					break;
+				case Keys.B:
+					mCube.Transform = Matrix4X4.Translate(0, 0, -0.2f) * mCube.Transform;
 					break;
 			}
-
+			mRenderer.OnRender();
 			return true;
 		}
 
+		/// <summary>
+		/// 绘制函数
+		/// </summary>
+		/// <param name="e"></param>
+		protected override void OnPaint(PaintEventArgs e)
+		{
+			if (mRenderer == null)
+				return;
+
+			mRenderer.OnRender();
+		}
 		/// <summary>
 		/// 鼠标事件
 		/// </summary>
@@ -152,6 +169,7 @@ namespace RenderSample
 				return;
 
 			mRenderer.Camera.MoveForward(e.Delta / (float)800);
+			mRenderer.OnRender();
 		}
 
 		/// <summary>
@@ -226,6 +244,7 @@ namespace RenderSample
 				mMouseRightpos.x = x;
 				mMouseRightpos.y = y;
 			}
+			mRenderer.OnRender();
 		}
 
 		/// <summary>
@@ -241,6 +260,7 @@ namespace RenderSample
 			mRenderer.OnRender();
 		}
 
+	
 
 		/// <summary>
 		/// 创建一个立方体
