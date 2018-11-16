@@ -123,8 +123,10 @@ namespace SampleCommon
 		/// <param name="v"></param>
 		private void TransformToScreen(Renderer renderer, ref Vertex v)
 		{
-			v.Position.x = (v.Position.x + 1) * 0.5f * renderer.Size.x;
-			v.Position.y = (1 - v.Position.y) * 0.5f * renderer.Size.y;
+			Matrix4X4 mat = Matrix4X4.ViewPort(0, 0, renderer.Size.x, renderer.Size.y, 0, 1);
+			v.Position = v.Position * mat;
+			//v.Position.x = (v.Position.x + 1) * 0.5f * renderer.Size.x;
+			//v.Position.y = (1 - v.Position.y) * 0.5f * renderer.Size.y;
 		}
 
 		/// <summary>
@@ -149,15 +151,6 @@ namespace SampleCommon
 				return true;
 
 			return false;
-		}
-
-
-		public List<Triangle> ClipWithFace(ref Vertex p1, ref Vertex p2, ref Vertex p3)
-		{
-			List<Triangle> triangles = new List<Triangle>();
-
-
-			return triangles;
 		}
 
 		/// <summary>
@@ -198,6 +191,11 @@ namespace SampleCommon
 			LinePunctureFaces(p3, p1, ref faces);
 		}
 
+		/// <summary>
+		/// 交换两个顶点
+		/// </summary>
+		/// <param name="v0"></param>
+		/// <param name="v1"></param>
 		private void SwapVertex(ref Vertex v0, ref Vertex v1)
 		{
 			Vertex temp = v0;
@@ -213,8 +211,37 @@ namespace SampleCommon
 		/// <param name="p3"></param>
 		/// <param name="faceType"></param>
 		/// <param name="triangles"></param>
-		private void VertexClip(ref Vertex p1, ref Vertex p2, ref Vertex p3, FaceType faceType, ref List<Triangle> triangles)
+		private void VertexClip(Vertex point1, Vertex point2, Vertex point3, ref List<Triangle> triangles)
 		{
+			if (point1 == null || point2 == null || point3 == null)
+				return;
+
+			Vertex p1 = new Vertex(point1);
+			Vertex p2 = new Vertex(point2);
+			Vertex p3 = new Vertex(point3);
+			p1.CalAreaCode();
+			p2.CalAreaCode();
+			p3.CalAreaCode();
+
+			// 全部在视野之内
+			if (p1.AreaCode == (byte)FaceType.NONE && p2.AreaCode == (byte)FaceType.NONE && p3.AreaCode == (byte)FaceType.NONE)
+			{
+				triangles.Add(new Triangle(p1, p2, p3));
+				return;
+			}
+			// 显然不可见
+			else if ((p1.AreaCode & p2.AreaCode) != 0 & (p2.AreaCode & p3.AreaCode) != 0 & (p3.AreaCode & p1.AreaCode) != 0)
+			{
+				return;
+			}
+
+			// 一部分在视野之内
+			List<FaceType> faces = new List<FaceType>();
+			TriPunctureFaces(p1, p2, p3, ref faces);
+			Vertex v0 = new Vertex();
+			Vertex v1 = null;
+			Vertex v2 = null;
+			FaceType faceType = faces[0];
 			if (faceType == FaceType.TOP)
 			{
 				// 将三个点按自上而下排序
@@ -240,7 +267,7 @@ namespace SampleCommon
 					return;
 				}
 
-				Vertex v0 = new Vertex(); // y0 -- y2的交点
+				 // y0 -- y2的交点
 				v0.Position.y = 1;
 				float dt = (p1.Position.y - 1.0f) / (p1.Position.y - p3.Position.y);
 				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
@@ -250,8 +277,6 @@ namespace SampleCommon
 				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
 				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
 
-				Vertex v1 = null;
-				Vertex v2 = null;
 				if (p2.Position.y < 1)
 				{
 					v1 = new Vertex(); // y0 -- y1的交点
@@ -277,16 +302,29 @@ namespace SampleCommon
 					v2.Color = Color.Lerp(p2.Color, p3.Color, dt);
 				}
 
+				Triangle triang1 = null;
 				if (v2 == null)
-					triangles.Add(new Triangle(v0, p2, p3));
+					triang1 = new Triangle(v0, p2, p3);
 				else
-					triangles.Add(new Triangle(v0, v2, p3));
+					triang1 = new Triangle(v0, v2, p3);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
 
 				if (v1 != null)
 				{
 					Vertex t1 = new Vertex(v0);
 					Vertex t2 = new Vertex(p2);
-					triangles.Add(new Triangle(t1, v1, t2));
+					faces.Clear();
+					TriPunctureFaces(t1, v1, t2, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(t1, v1, t2, ref triangles);
+					else
+						triangles.Add(new Triangle(t1, v1, t2));
 				}
 			}
 			else if (faceType == FaceType.BUTTOM)
@@ -313,7 +351,6 @@ namespace SampleCommon
 					return;
 				}
 
-				Vertex v0 = new Vertex(); // y0 -- y2的交点
 				v0.Position.y = -1;
 				float dt = (p1.Position.y + 1.0f) / (p1.Position.y - p3.Position.y);
 				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
@@ -323,8 +360,6 @@ namespace SampleCommon
 				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
 				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
 
-				Vertex v1 = null;
-				Vertex v2 = null;
 				if (p2.Position.y > -1)
 				{
 					v1 = new Vertex(); // y1 -- y2的交点
@@ -350,16 +385,29 @@ namespace SampleCommon
 					v2.Color = Color.Lerp(p1.Color, p2.Color, dt);
 				}
 
+				Triangle triang1 = null;
 				if (v2 == null)
-					triangles.Add(new Triangle(p1, p2, v0));
+					triang1 = new Triangle(p1, p2, v0);
 				else
-					triangles.Add(new Triangle(p1, v2, v0));
+					triang1 = new Triangle(p1, v2, v0);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
 
 				if (v1 != null)
 				{
 					Vertex t1 = new Vertex(v0);
 					Vertex t2 = new Vertex(p2);
-					triangles.Add(new Triangle(t2, v1, t1));
+					faces.Clear();
+					TriPunctureFaces(t2, v1, t1, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(t2, v1, t1, ref triangles);
+					else
+						triangles.Add(new Triangle(t2, v1, t1));
 				}
 			}
 			else if (faceType == FaceType.LEFT)
@@ -386,7 +434,6 @@ namespace SampleCommon
 					return;
 				}
 
-				Vertex v0 = new Vertex(); // y0 -- y2的交点
 				v0.Position.x = -1;
 				float dt = (p1.Position.x + 1.0f) / (p1.Position.x - p3.Position.x);
 				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
@@ -396,8 +443,6 @@ namespace SampleCommon
 				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
 				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
 
-				Vertex v1 = null;
-				Vertex v2 = null;
 				if (p2.Position.x > -1)
 				{
 					v1 = new Vertex(); // y1 -- y2的交点
@@ -422,16 +467,30 @@ namespace SampleCommon
 					v2.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
 					v2.Color = Color.Lerp(p1.Color, p2.Color, dt);
 				}
+
+				Triangle triang1 = null;
 				if (v2 != null)
-					triangles.Add(new Triangle(v0, p1, v2));
+					triang1 = new Triangle(v0, p1, v2);
 				else
-					triangles.Add(new Triangle(v0, p1, p2));
+					triang1 = new Triangle(v0, p1, p2);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
 
 				if (v1 != null)
 				{
 					Vertex t1 = new Vertex(v0);
 					Vertex t2 = new Vertex(p2);
-					triangles.Add(new Triangle(t1, t2, v1));
+					//triangles.Add(new Triangle(t1, t2, v1));
+					TriPunctureFaces(t1, t2, v1, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(t1, t2, v1, ref triangles);
+					else
+						triangles.Add(new Triangle(t1, t2, v1));
 				}
 			}
 			if (faceType == FaceType.RIGHT)
@@ -458,7 +517,6 @@ namespace SampleCommon
 					return;
 				}
 
-				Vertex v0 = new Vertex(); // y0 -- y2的交点
 				v0.Position.x = 1;
 				float dt = (p1.Position.x - 1.0f) / (p1.Position.x - p3.Position.x);
 				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
@@ -468,8 +526,6 @@ namespace SampleCommon
 				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
 				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
 
-				Vertex v1 = null;
-				Vertex v2 = null;
 				if (p2.Position.x < 1)
 				{
 					v1 = new Vertex(); // y0 -- y1的交点
@@ -494,16 +550,30 @@ namespace SampleCommon
 					v2.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
 					v2.Color = Color.Lerp(p2.Color, p3.Color, dt);
 				}
+
+				Triangle triang1 = null;
 				if (v2 != null)
-					triangles.Add(new Triangle(v0, v2, p3));
+					triang1 = new Triangle(v0, v2, p3);
 				else
-					triangles.Add(new Triangle(v0, p2, p3));
+					triang1 = new Triangle(v0, p2, p3);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
 
 				if (v1 != null)
 				{
 					Vertex t1 = new Vertex(v0);
 					Vertex t2 = new Vertex(p2);
-					triangles.Add(new Triangle(t1, v1, t2));
+					//triangles.Add(new Triangle(t1, v1, t2));
+					TriPunctureFaces(t1, v1, t2, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(t1, v1, t2, ref triangles);
+					else
+						triangles.Add(new Triangle(t1, v1, t2));
 				}
 			}
 			else if (faceType == FaceType.FAR)
@@ -530,7 +600,6 @@ namespace SampleCommon
 					return;
 				}
 
-				Vertex v0 = new Vertex(); // y0 -- y2的交点
 				v0.Position.z = 1;
 				float dt = (p1.Position.z - 1.0f) / (p1.Position.z - p3.Position.z);
 				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
@@ -540,8 +609,6 @@ namespace SampleCommon
 				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
 				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
 
-				Vertex v1 = null;
-				Vertex v2 = null;
 				if (p2.Position.z < 1)
 				{
 					v1 = new Vertex(); // y0 -- y1的交点
@@ -566,16 +633,29 @@ namespace SampleCommon
 					v2.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
 					v2.Color = Color.Lerp(p2.Color, p3.Color, dt);
 				}
+				Triangle triang1 = null;
 				if (v2 != null)
-					triangles.Add(new Triangle(v0, v2, p3));
+					triang1 = new Triangle(v0, v2, p3);
 				else
-					triangles.Add(new Triangle(v0, p2, p3));
+					triang1 = new Triangle(v0, p2, p3);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
 
 				if (v1 != null)
 				{
 					Vertex t1 = new Vertex(v0);
 					Vertex t2 = new Vertex(p2);
-					triangles.Add(new Triangle(t1, v1, t2));
+					//triangles.Add(new Triangle(t1, v1, t2));
+					TriPunctureFaces(t1, v1, t2, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(t1, v1, t2, ref triangles);
+					else
+						triangles.Add(new Triangle(t1, v1, t2));
 				}
 			}
 			else if (faceType == FaceType.NEAR)
@@ -602,7 +682,6 @@ namespace SampleCommon
 					return;
 				}
 
-				Vertex v0 = new Vertex(); // y0 -- y2的交点
 				v0.Position.z = 0;
 				float dt = p1.Position.z / (p1.Position.z - p3.Position.z);
 				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
@@ -612,8 +691,6 @@ namespace SampleCommon
 				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
 				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
 
-				Vertex v1 = null;
-				Vertex v2 = null;
 				if (p2.Position.z > 0)
 				{
 					v1 = new Vertex(); // y1 -- y2的交点
@@ -638,49 +715,30 @@ namespace SampleCommon
 					v2.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
 					v2.Color = Color.Lerp(p1.Color, p2.Color, dt);
 				}
+				Triangle triang1 = null;
 				if (v2 != null)
-					triangles.Add(new Triangle(v0, p1, v2));
+					triang1 = new Triangle(v0, p1, v2);
 				else
-					triangles.Add(new Triangle(v0, p1, p2));
+					triang1 = new Triangle(v0, p1, p2);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
 
 				if (v1 != null)
 				{
 					Vertex t1 = new Vertex(v0);
 					Vertex t2 = new Vertex(p2);
-					triangles.Add(new Triangle(t1, t2, v1));
+					//triangles.Add(new Triangle(t1, t2, v1));
+					TriPunctureFaces(t1, t2, v1, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(t1, t2, v1, ref triangles);
+					else
+						triangles.Add(new Triangle(t1, t2, v1));
 				}
-			}
-			
-
-		}
-
-		/// <summary>
-		/// 检查是否裁剪这个顶点,简单的cvv裁剪,在透视除法之前
-		/// </summary>
-		/// <returns>是否通关剪裁</returns>
-		private void VertexClip(Renderer renderer, ref Vertex p1, ref Vertex p2, ref Vertex p3, ref List<Triangle> triangles)
-		{
-			p1.CalAreaCode();
-			p2.CalAreaCode();
-			p3.CalAreaCode();
-
-			// 全部在视野之内
-			if (p1.AreaCode == (byte)FaceType.NONE && p2.AreaCode == (byte)FaceType.NONE && p3.AreaCode == (byte)FaceType.NONE)
-			{
-				triangles.Add(new Triangle(p1, p2, p3));
-			}
-			// 显然不可见
-			else if ((p1.AreaCode & p2.AreaCode) != 0 & (p2.AreaCode & p3.AreaCode) != 0 & (p3.AreaCode & p1.AreaCode) != 0)
-			{
-				return;
-			}
-			else
-			{
-				// 一部分在视野之内
-				List<FaceType> faces = new List<FaceType>();
-				TriPunctureFaces(p1, p2, p3, ref faces);
-				if (faces.Count() > 0)
-					VertexClip(ref p1, ref p2, ref p3, faces[0], ref triangles);
 			}
 		}
 
@@ -725,7 +783,7 @@ namespace SampleCommon
 			mRenderLst.Clear();
 			if ((renderer.CullMode & CullMode.CULL_CVV) != 0)
 			{
-				VertexClip(renderer, ref p1, ref p2, ref p3, ref mRenderLst);
+				VertexClip(p1, p2, p3, ref mRenderLst);
 			}
 			else
 			{

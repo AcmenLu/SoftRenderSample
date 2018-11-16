@@ -185,7 +185,7 @@ namespace SampleCommon
 			v.x = lhs.x * len;
 			v.y = lhs.y * len;
 			v.z = lhs.z * len;
-			v.w = 0;
+			v.w = lhs.w;
 			return v;
 		}
 
@@ -211,7 +211,7 @@ namespace SampleCommon
 			float x = lhs.y * rhs.z - lhs.z * rhs.y;
 			float y = lhs.z * rhs.x - lhs.x * rhs.z;
 			float z = lhs.x * rhs.y - lhs.y * rhs.x;
-			return new Vector3D(x, y, z, 0);
+			return new Vector3D(x, y, z, lhs.w);
 		}
 	}
 }

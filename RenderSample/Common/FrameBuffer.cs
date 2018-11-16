@@ -62,8 +62,10 @@ namespace SampleCommon
 		/// <param name="color"></param>
 		public void SetPointColor(int posX, int posY, Color color, float depth = 0.0f)
 		{
-			if (posX < 0 || posX >= mSize.x || posY < 0 || posY >= mSize.y)
-				return;
+			posX = posX < 0 ? 0 : posX;
+			posX = posX >= mSize.x ? (int)mSize.x - 1 : posX;
+			posY = posY < 0 ? 0 : posY;
+			posY = posY >= mSize.y ? (int)mSize.y - 1 : posY;
 			if (mDepthTest == true)
 			{
 				float tmpdepth = mDepthBuffer[posX, posY];
