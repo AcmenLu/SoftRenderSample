@@ -515,7 +515,7 @@ namespace SampleCommon
 						triangles.Add(new Triangle(t1, t2, v1));
 				}
 			}
-			if (faceType == FaceType.RIGHT)
+			else if (faceType == FaceType.RIGHT)
 			{
 				if (p1.Position.x < p2.Position.x)
 				{
@@ -742,7 +742,7 @@ namespace SampleCommon
 				else if (p2.Position.z < 0)
 				{
 					v2 = new Vertex(); // y0 -- y1的交点
-					v2.Position.z = -1;
+					v2.Position.z = 0;
 					dt = p1.Position.z / (p1.Position.z - p2.Position.z);
 					v2.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
 					v2.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
@@ -755,7 +755,7 @@ namespace SampleCommon
 				}
 				Triangle triang1 = null;
 				if (v2 != null)
-					triang1 = new Triangle(v0, p1, v2);
+					triang1 = new Triangle(v2, v0, p1);
 				else
 					triang1 = new Triangle(v0, p1, p2);
 
@@ -1002,6 +1002,7 @@ namespace SampleCommon
 				float dy = middle.Position.y - top.Position.y;
 				float t = dy / (bottom.Position.y - top.Position.y);
 				Vertex.LerpColor(ref newMiddle, top, bottom, t);
+				newMiddle.Position.z = MathUntil.Lerp(top.Position.z, bottom.Position.z, t);
 
 				DrawBottomTriangle(renderer, top, newMiddle, middle);
 				DrawTopTriangle(renderer, newMiddle, middle, bottom);
@@ -1031,10 +1032,12 @@ namespace SampleCommon
 					Vertex new1 = new Vertex();
 					new1.Position.x = xl;
 					new1.Position.y = y;
+					new1.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, t);
 					Vertex.LerpColor(ref new1, p1, p3, t);
 					Vertex new2 = new Vertex();
 					new2.Position.x = xr;
 					new2.Position.y = y;
+					new2.Position.z = MathUntil.Lerp(p2.Position.z, p3.Position.z, t);
 					Vertex.LerpColor(ref new2, p2, p3, t);
 					//扫描线填充
 					if (new1.Position.x < new2.Position.x)
@@ -1067,11 +1070,13 @@ namespace SampleCommon
 					Vertex new1 = new Vertex();
 					new1.Position.x = xLeft;
 					new1.Position.y = y;
+					new1.Position.z = MathUntil.Lerp(p1.Position.z, p2.Position.z, t);
 					Vertex.LerpColor(ref new1, p1, p2, t);
 
 					Vertex new2 = new Vertex();
 					new2.Position.x = xRight;
 					new2.Position.y = y;
+					new2.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, t);
 					Vertex.LerpColor(ref new2, p1, p3, t);
 					//扫描行进行填充
 					if (new1.Position.x < new2.Position.x)
@@ -1103,6 +1108,11 @@ namespace SampleCommon
 					if (right.Position.x - left.Position.x > 0)
 						t = (x - left.Position.x) / (right.Position.x - left.Position.x);
 
+					//深度测试
+					float depth = MathUntil.Lerp(left.Position.z, right.Position.z, t);
+					if (renderer.FrameBuffer.TestDepth(xIndex, yIndex, depth) == false)
+						continue;
+
 					Color vColor = new Color();
 					Color lightColor = Color.Lerp(left.LightColor, right.LightColor, t);
 					//根据渲染模式选择使用顶点色还是使用图片的颜色。
@@ -1128,7 +1138,6 @@ namespace SampleCommon
 						}
 					}
 					vColor = vColor * lightColor;
-					float depth = MathUntil.Lerp(left.Position.z, right.Position.z, t);
 					renderer.FrameBuffer.SetPointColor(xIndex, yIndex, vColor, depth);
 				}
 			}

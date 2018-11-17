@@ -68,10 +68,6 @@ namespace SampleCommon
 		/// <param name="color"></param>
 		public void SetPointColor(int posX, int posY, Color color, float depth = 0.0f)
 		{
-			if(posX > 799)
-			{
-				int a = 10;
-			}
 			posX = posX < 0 ? 0 : posX;
 			posX = posX >= mSize.x ? (int)mSize.x - 1 : posX;
 			posY = posY < 0 ? 0 : posY;
@@ -85,6 +81,22 @@ namespace SampleCommon
 			mColorBuffer.SetPixel(posX, posY, color.TransFormToSystemColor());
 		}
 
+		/// <summary>
+		/// 根据深度值判断是否需要
+		/// </summary>
+		/// <param name="posX"></param>
+		/// <param name="posY"></param>
+		/// <param name="depth"></param>
+		/// <returns></returns>
+		public bool TestDepth(int posX, int posY, float depth)
+		{
+			posX = posX < 0 ? 0 : posX;
+			posX = posX >= mSize.x ? (int)mSize.x - 1 : posX;
+			posY = posY < 0 ? 0 : posY;
+			posY = posY >= mSize.y ? (int)mSize.y - 1 : posY;
+			float tmpdepth = mDepthBuffer[posX, posY];
+			return tmpdepth < depth;
+		}
 		/// <summary>
 		/// 清除FrameBuffer中的颜色缓存和深度缓存
 		/// </summary>
