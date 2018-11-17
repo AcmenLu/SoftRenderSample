@@ -89,7 +89,7 @@ namespace SampleCommon
 			for (int i = 0; i < mTriangles.Count(); i++)
 			{
 				triangle = mTriangles[i];
-				normal = triangle.GetNormal().Normalize();
+				normal = triangle.GetNormal();
 				if (renderer.RenderMode == RenderMode.CUBETEXTURED && mCubeTextures != null && mCubeTextures.Length == 6)
 				{
 					// 前面

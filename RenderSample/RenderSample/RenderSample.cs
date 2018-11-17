@@ -139,8 +139,10 @@ namespace RenderSample
 					mCube.Transform = Matrix4X4.Translate(0, 0, -0.2f) * mCube.Transform;
 					break;
 			}
+
 			if (Keys.Escape != keyData)
 				OnRender();
+
 			return true;
 		}
 
@@ -379,15 +381,8 @@ namespace RenderSample
 		/// <param name="filename"></param>
 		public void AddTexture(string filename)
 		{
-			if (mCube.Texture == null)
-			{
-				RenderTexture texture = new RenderTexture(filename);
-				mCube.Texture = texture;
-			}
-			else
-			{
-				mCube.Texture = null;
-			}
+			RenderTexture texture = new RenderTexture(filename);
+			mCube.Texture = texture;
 		}
 
 		/// <summary>

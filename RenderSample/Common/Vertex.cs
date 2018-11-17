@@ -14,6 +14,7 @@ namespace SampleCommon
 		private Color		mColor;
 		private Color		mLightColor;
 		private byte		mAreaCode;
+		private float		mZView;
 
 		/// <summary>
 		/// 顶点位置
@@ -67,6 +68,15 @@ namespace SampleCommon
 		{
 			get { return mAreaCode; }
 			set { mAreaCode = value; }
+		}
+
+		/// <summary>
+		/// 纹理矫正
+		/// </summary>
+		public float ZView
+		{
+			get { return mZView; }
+			set { mZView = value; }
 		}
 
 		/// <summary>

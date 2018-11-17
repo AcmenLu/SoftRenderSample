@@ -60,7 +60,12 @@ namespace SampleCommon
 		/// <returns></returns>
 		public Vector3D GetNormal()
 		{
-			return mVertex0.Normal;
+			//逆时针
+			Vector3D v1 = mVertex1.Position - mVertex0.Position;
+			Vector3D v2 = mVertex0.Position - mVertex2.Position;
+			Vector3D normal = Vector3D.Cross(v1, v2);
+			//return mVertex0.Normal;
+			return normal.Normalize();
 		}
 
 		/// <summary>
@@ -72,12 +77,10 @@ namespace SampleCommon
 		{
 			// 光照计算：vertex color = ambient（环境光颜色） + diffuse（漫反射颜色） + specular（镜面光颜色） + emission(自发光)
 			// 如果模型没有材质或者环境中没有光源，则不受光照影响
-			if (mMaterial == null)
+			if (mMaterial == null || renderer.LightList.Count() <= 0)
 				return;
 
-			if (renderer.LightList.Count() <= 0)
-				return;
-
+			// 目前只接受一个光源。
 			Light light = renderer.LightList[0];
 			// 环境光
 			Color ambient = light.Color * mMaterial.AmbientStregth;
@@ -86,7 +89,6 @@ namespace SampleCommon
 			Vector3D lightdir = (light.Position - vertex.Position).Normalize();
 			float diff = Math.Max(Vector3D.Dot(normal.Normalize(), lightdir), 0);
 			Color diffuse = mMaterial.Diffuse * diff;
-
 			vertex.LightColor = ambient + diffuse;
 		}
 
@@ -114,7 +116,7 @@ namespace SampleCommon
 		/// 规范视椎体
 		/// </summary>
 		/// <param name="v"></param>
-		private void ConvertToView(ref Vertex v)
+		private void StandardView(ref Vertex v)
 		{
 			if (v.Position.w != 0)
 			{
@@ -218,6 +220,11 @@ namespace SampleCommon
 		/// <param name="triangles"></param>
 		private void VertexClip(Vertex point1, Vertex point2, Vertex point3, ref List<Triangle> triangles)
 		{
+			// 思路：1. 计算出三角形的每一条线所穿过的面
+			// 2. 计算三角形所穿过的面
+			// 3. 根据三角形穿过的其中一个面将三角形切割为一个或两个三角形（一个面最多将一个三角形切割为两个可见的小三角形）
+			// 4. 将上面切割的三角形重复1-3的过程，直到所有三角形在包围盒之内。
+
 			if (point1 == null || point2 == null || point3 == null)
 				return;
 
@@ -235,7 +242,7 @@ namespace SampleCommon
 				return;
 			}
 			// 显然不可见
-			else if ((p1.AreaCode & p2.AreaCode) != 0 & (p2.AreaCode & p3.AreaCode) != 0 & (p3.AreaCode & p1.AreaCode) != 0)
+			else if ((p1.AreaCode & p2.AreaCode) != 0 && (p2.AreaCode & p3.AreaCode) != 0 && (p3.AreaCode & p1.AreaCode) != 0)
 			{
 				return;
 			}
@@ -273,7 +280,6 @@ namespace SampleCommon
 					return;
 				}
 
-				 // y0 -- y2的交点
 				v0.Position.y = 1;
 				float dt = (p1.Position.y - 1.0f) / (p1.Position.y - p3.Position.y);
 				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
@@ -287,7 +293,7 @@ namespace SampleCommon
 
 				if (p2.Position.y < 1)
 				{
-					v1 = new Vertex(); // y0 -- y1的交点
+					v1 = new Vertex();
 					v1.Position.y = 1;
 					dt = (p1.Position.y - 1.0f) / (p1.Position.y - p2.Position.y);
 					v1.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
@@ -301,7 +307,7 @@ namespace SampleCommon
 				}
 				else if (p2.Position.y > 1)
 				{
-					v2 = new Vertex(); // y1 -- y2的交点
+					v2 = new Vertex();
 					v2.Position.y = 1;
 					dt = (p2.Position.y - 1.0f) / (p2.Position.y - p3.Position.y);
 					v2.Position.x = (float)(p2.Position.x - (p2.Position.x - p3.Position.x) * dt);
@@ -376,7 +382,7 @@ namespace SampleCommon
 
 				if (p2.Position.y > -1)
 				{
-					v1 = new Vertex(); // y1 -- y2的交点
+					v1 = new Vertex();
 					v1.Position.y = -1;
 					dt = (p2.Position.y + 1.0f) / (p2.Position.y - p3.Position.y);
 					v1.Position.x = (float)(p2.Position.x - (p2.Position.x - p3.Position.x) * dt);
@@ -390,7 +396,7 @@ namespace SampleCommon
 				}
 				else if (p2.Position.y < -1)
 				{
-					v2 = new Vertex(); // y0 -- y1的交点
+					v2 = new Vertex();
 					v2.Position.y = -1;
 					dt = (p1.Position.y + 1.0f) / (p1.Position.y - p2.Position.y);
 					v2.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
@@ -464,7 +470,7 @@ namespace SampleCommon
 
 				if (p2.Position.x > -1)
 				{
-					v1 = new Vertex(); // y1 -- y2的交点
+					v1 = new Vertex();
 					v1.Position.x = -1;
 					dt = (p2.Position.x + 1.0f) / (p2.Position.x - p3.Position.x);
 					v1.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
@@ -478,7 +484,7 @@ namespace SampleCommon
 				}
 				else if (p2.Position.x < -1)
 				{
-					v2 = new Vertex(); // y0 -- y1的交点
+					v2 = new Vertex();
 					v2.Position.x = -1;
 					dt = (p1.Position.x + 1.0f) / (p1.Position.x - p2.Position.x);
 					v2.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
@@ -552,7 +558,7 @@ namespace SampleCommon
 
 				if (p2.Position.x < 1)
 				{
-					v1 = new Vertex(); // y0 -- y1的交点
+					v1 = new Vertex();
 					v1.Position.x = 1;
 					dt = (p1.Position.x - 1.0f) / (p1.Position.x - p2.Position.x);
 					v1.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
@@ -566,7 +572,7 @@ namespace SampleCommon
 				}
 				else if (p2.Position.x > 1)
 				{
-					v2 = new Vertex(); // y1 -- y2的交点
+					v2 = new Vertex();
 					v2.Position.x = 1;
 					dt = (p2.Position.x - 1.0f) / (p2.Position.x - p3.Position.x);
 					v2.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
@@ -640,7 +646,7 @@ namespace SampleCommon
 
 				if (p2.Position.z < 1)
 				{
-					v1 = new Vertex(); // y0 -- y1的交点
+					v1 = new Vertex();
 					v1.Position.z = 1;
 					dt = (p1.Position.z - 1.0f) / (p1.Position.z - p2.Position.z);
 					v1.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
@@ -654,7 +660,7 @@ namespace SampleCommon
 				}
 				else if (p2.Position.z > 1)
 				{
-					v2 = new Vertex(); // y1 -- y2的交点
+					v2 = new Vertex();
 					v2.Position.z = 1;
 					dt = (p2.Position.z - 1.0f) / (p2.Position.z - p3.Position.z);
 					v2.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
@@ -727,7 +733,7 @@ namespace SampleCommon
 
 				if (p2.Position.z > 0)
 				{
-					v1 = new Vertex(); // y1 -- y2的交点
+					v1 = new Vertex();
 					v1.Position.z = 0;
 					dt = p2.Position.z / (p2.Position.z - p3.Position.z);
 					v1.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
@@ -741,7 +747,7 @@ namespace SampleCommon
 				}
 				else if (p2.Position.z < 0)
 				{
-					v2 = new Vertex(); // y0 -- y1的交点
+					v2 = new Vertex();
 					v2.Position.z = 0;
 					dt = p1.Position.z / (p1.Position.z - p2.Position.z);
 					v2.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
@@ -805,6 +811,10 @@ namespace SampleCommon
 			TransformToView(renderer, transform, ref p1);
 			TransformToView(renderer, transform, ref p2);
 			TransformToView(renderer, transform, ref p3);
+			p1.ZView = p1.Position.z;
+			p2.ZView = p2.Position.z;
+			p3.ZView = p3.Position.z;
+
 			// 摄像机背面剔除
 			if (CameraBackCulling(renderer, p1, p2, p3) == false)
 				return;
@@ -815,9 +825,9 @@ namespace SampleCommon
 			TransformToProjection(renderer, ref p3);
 
 			// 规范视椎体
-			ConvertToView(ref p1);
-			ConvertToView(ref p2);
-			ConvertToView(ref p3);
+			StandardView(ref p1);
+			StandardView(ref p2);
+			StandardView(ref p3);
 
 			mRenderLst.Clear();
 			if ((renderer.CullMode & CullMode.CULL_CVV) != 0)
@@ -851,7 +861,8 @@ namespace SampleCommon
 			}
 			else
 			{
-				TriangleRasterization(renderer, p1, p2, p3);
+				//TriangleRasterization(renderer, p1, p2, p3);
+				TriangleRasterization(renderer, ref p1, ref p2, ref p3);
 			}
 		}
 
@@ -862,55 +873,67 @@ namespace SampleCommon
 		/// <param name="Position2"></param>
 		public void DrawLine(Renderer renderer, Vertex p1, Vertex p2)
 		{
-			int x = (int)Math.Round(p1.Position.x, 0);
-			int y = (int)Math.Round(p1.Position.y, 0);
-			int dx = (int)Math.Round(p2.Position.x - p1.Position.x, 0);
-			int dy = (int)Math.Round(p2.Position.y - p1.Position.y, 0);
-			int stepx = dx > 0 ? 1 : -1;
-			int stepy = dy > 0 ? 1 : -1;
-			dx = Math.Abs(dx);
-			dy = Math.Abs(dy);
+			float dx = p2.Position.x - p1.Position.x;
+			float dy = p2.Position.y - p1.Position.y;
 
-			int dx2 = 2 * dx;
-			int dy2 = 2 * dy;
+			float steps;
+			if (Math.Abs(dx) > Math.Abs(dy))
+				steps = Math.Abs(dx);
+			else
+				steps = Math.Abs(dy);
 
+			float deltaX = (float)dx / (float)steps;
+			float deltaY = (float)dy / (float)steps;
+
+			float x = p1.Position.x;
+			float y = p1.Position.y;
 			Color mTmpVColor = new Color();
-			// 斜率小于1
-			if (dx > dy)
+			for (int k = 0; k < steps; ++k)
 			{
-				int error = dy2 - dx;
-				for (int i = 0; i <= dx; i++)
-				{
-					float t = dx == 0 ? 0 : i / (float)dx;
-					Color.Lerp(p1.Color, p2.Color, t, ref mTmpVColor);
-					float depth = MathUntil.Lerp(p1.Position.z, p2.Position.z, t);
-					renderer.FrameBuffer.SetPointColor(x, y, mTmpVColor, depth);
-					if (error >= 0)
-					{
-						error -= dx2;
-						y += stepy;
-					}
-					error += dy2;
-					x += stepx;
-				}
+				x += deltaX;
+				y += deltaY;
+				float t = k / (float)steps;
+				Color.Lerp(p1.Color, p2.Color, t, ref mTmpVColor);
+				float depth = MathUntil.Lerp(p1.Position.z, p2.Position.z, t);
+				renderer.FrameBuffer.SetPointColor((int)Math.Round(x, 0), (int)Math.Round(y, 0), mTmpVColor, depth);
+			}
+		}
+
+		/// <summary>
+		/// 
+		/// </summary>
+		/// <param name="renderer"></param>
+		/// <param name="p1"></param>
+		/// <param name="p2"></param>
+		/// <param name="p3"></param>
+		public void TriangleRasterization(Renderer renderer, ref Vertex p1, ref Vertex p2, ref Vertex p3)
+		{
+			// 排序
+			if (p1.Position.y > p2.Position.y)
+				SwapVertex(ref p1, ref p2);
+			if (p1.Position.y > p3.Position.y)
+				SwapVertex(ref p1, ref p3);
+			if (p2.Position.y > p3.Position.y)
+				SwapVertex(ref p2, ref p3);
+
+			if(Math.Abs(p1.Position.y - p2.Position.y) <= 0.001f)
+			{
+				DrawTopTriangle(renderer, p1, p2, p3);
+			}
+			else if(Math.Abs(p2.Position.y - p3.Position.y) <= 0.001f)
+			{
+				DrawBottomTriangle(renderer, p1, p2, p3);
 			}
 			else
 			{
-				int error = dx2 - dy;
-				for (int i = 0; i <= dy; i++)
-				{
-					float t = dy == 0 ? 0 : i / (float)dy;
-					Color.Lerp(p1.Color, p2.Color, t, ref mTmpVColor);
-					float depth = MathUntil.Lerp(p1.Position.z, p2.Position.z, t);
-					renderer.FrameBuffer.SetPointColor(x, y, mTmpVColor, depth);
-					if (error >= 0)
-					{
-						error -= dy2;
-						x += stepx;
-					}
-					error += dx2;
-					y += stepy;
-				}
+				Vertex ver = new Vertex();
+				float t = (p1.Position.y - p2.Position.y) / (p1.Position.y - p3.Position.y);
+				ver.Position.y = p2.Position.y;
+				ver.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, t);
+				ver.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, t);
+				Vertex.LerpColor(ref ver, p1, p3, t);
+				DrawBottomTriangle(renderer, p1, ver, p2);
+				DrawTopTriangle(renderer, ver, p2, p3);
 			}
 		}
 
@@ -1020,7 +1043,7 @@ namespace SampleCommon
 		{
 			for (float y = p1.Position.y; y <= p3.Position.y; y += 1f)
 			{
-				int yIndex = (int)(System.Math.Round(y, MidpointRounding.AwayFromZero));
+				int yIndex = (int)Math.Round(y, 0);
 				if (yIndex >= 0 && yIndex < renderer.Size.x)
 				{
 					float xl = (y - p1.Position.y) * (p3.Position.x - p1.Position.x) / (p3.Position.y - p1.Position.y) + p1.Position.x;
