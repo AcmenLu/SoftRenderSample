@@ -28,6 +28,9 @@ namespace SampleCommon
 		CUBETEXTURED,
 	}
 
+	/// <summary>
+	/// 裁剪模式
+	/// </summary>
 	public enum CullMode
 	{
 		CULL_NONE = 0,
@@ -36,6 +39,9 @@ namespace SampleCommon
 		CULL_ALL = 3
 	}
 
+	/// <summary>
+	/// 渲染器，用来渲染所有需要渲染的物体
+	/// </summary>
 	public class Renderer
 	{
 		private List<Mesh> mRenderList;
@@ -43,32 +49,40 @@ namespace SampleCommon
 		private Color mBgColor;
 		private Camera mCamera;
 		private Vector2 mSize;
-		private Matrix4X4 mProjection;
-		private float mFov;
-		private float mNear;
-		private float mFar;
-
 		private Graphics mGraphics;
 		private FrameBuffer mFrameBuffer;
 		private RenderMode mRenderMode;
 		private CullMode mCullMode;
+		private Matrix4X4 mViewPoreMat;
 
+		/// <summary>
+		/// 所有需要被渲染的物体
+		/// </summary>
 		public List<Mesh> RenderList
 		{
 			get { return mRenderList; }
 		}
 
+		/// <summary>
+		/// 场景中的光的列表
+		/// </summary>
 		public List<Light> LightList
 		{
 			get { return mLightList; }
 		}
 
+		/// <summary>
+		/// 用来清空的背景色
+		/// </summary>
 		public Color BgColor
 		{
 			get { return mBgColor; }
 			set { mBgColor = value; }
 		}
 
+		/// <summary>
+		/// 渲染器对应的摄像机
+		/// </summary>
 		public Camera Camera
 		{
 			get
@@ -80,6 +94,9 @@ namespace SampleCommon
 			set { mCamera = value; }
 		}
 
+		/// <summary>
+		/// 渲染窗口的大小
+		/// </summary>
 		public Vector2 Size
 		{
 			get { return mSize; }
@@ -87,84 +104,76 @@ namespace SampleCommon
 			{
 				mSize = value;
 				CreateFrameBuffer();
-				ResetProjection();
 			}
 		}
 
-		public Matrix4X4 Projection
-		{
-			get { return mProjection; }
-		}
-
-		public float Fov
-		{
-			get { return mFov; }
-			set
-			{
-				mFov = value;
-				ResetProjection();
-			}
-		}
-
-		public float Near
-		{
-			get { return mNear; }
-			set
-			{
-				mNear = value;
-				ResetProjection();
-			}
-		}
-
-		public float Far
-		{
-			get { return mFar; }
-			set
-			{
-				mFar = value;
-				ResetProjection();
-			}
-		}
-
+		/// <summary>
+		/// 缓冲用的Buffer
+		/// </summary>
 		public FrameBuffer FrameBuffer
 		{
 			get { return mFrameBuffer; }
 		}
 
+		/// <summary>
+		/// 渲染模式
+		/// </summary>
 		public RenderMode RenderMode
 		{
 			get { return mRenderMode; }
 			set { mRenderMode = value; }
 		}
 
+		/// <summary>
+		/// 裁剪模式
+		/// </summary>
 		public CullMode CullMode
 		{
 			get { return mCullMode; }
 			set { mCullMode = value; }
 		}
 
+		/// <summary>
+		/// 是否需要开启深度测试
+		/// </summary>
 		public bool EnableDepthTest
 		{
 			get { return mFrameBuffer.EnableDepthTest; }
 			set { mFrameBuffer.EnableDepthTest = value; }
 		}
+
+		/// <summary>
+		/// 视口矩阵
+		/// </summary>
+		public Matrix4X4 ViewPort
+		{
+			get { return mViewPoreMat; }
+		}
+		
 		/// <summary>
 		/// 初始化的大小为指定大小
 		/// </summary>
 		/// <param name="size"></param>
-		public Renderer(int width, int height, float fov, float near, float far)
+		public Renderer(int width, int height)
 		{
 			mRenderList = new List<Mesh>();
 			mSize = new Vector2(width, height);
 			mBgColor = Color.Black;
-			mFov = fov;
-			mNear = near;
-			mFar = far;
 			mRenderMode = RenderMode.WIREFRAME;
 			mCullMode = CullMode.CULL_ALL;
 			mLightList = new List<Light>();
 			CreateFrameBuffer();
-			ResetProjection();
+			InitViewPortMat();
+		}
+
+		/// <summary>
+		/// 初始化ViewPort矩阵
+		/// </summary>
+		public void InitViewPortMat()
+		{
+			if (mViewPoreMat == null)
+				mViewPoreMat = new Matrix4X4();
+			Matrix4X4.BuildViewPortLH(0, 0, mSize.x, mSize.y, 0, 1, ref mViewPoreMat);
 		}
 
 		/// <summary>
@@ -251,20 +260,11 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 设置透新的视矩阵
-		/// </summary>
-		private void ResetProjection()
-		{
-			float aspect = mSize.y / mSize.x;
-			mProjection = Matrix4X4.Projection(mFov, aspect, mNear, mFar);
-		}
-
-		/// <summary>
 		/// 创建一个新的FramBuffer
 		/// </summary>
 		private void CreateFrameBuffer()
 		{
-			mFrameBuffer = new FrameBuffer(mSize.x, mSize.y);
+			mFrameBuffer = new FrameBuffer((int)mSize.x, (int)mSize.y);
 		}
 
 		/// <summary>

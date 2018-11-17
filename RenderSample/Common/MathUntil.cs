@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace SampleCommon
 {
+	/// <summary>
+	/// 公共数学库
+	/// </summary>
 	public class MathUntil
 	{
 		public static float PIDEV2 = (float)Math.PI / 2;

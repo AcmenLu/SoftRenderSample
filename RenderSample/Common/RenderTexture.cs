@@ -10,6 +10,9 @@ namespace SampleCommon
 		private int mWidth;
 		private int mHeight;
 
+		/// <summary>
+		/// 要渲染的图片的真实数据
+		/// </summary>
 		public Bitmap Texture
 		{
 			get { return mTexture; }

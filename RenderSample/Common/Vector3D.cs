@@ -10,24 +10,36 @@ namespace SampleCommon
 		private float mZ;
 		private float mW;
 
+		/// <summary>
+		/// x坐标的值
+		/// </summary>
 		public float x
 		{
 			get { return mX; }
 			set { mX = value; }
 		}
 
+		/// <summary>
+		/// y坐标的值
+		/// </summary>
 		public float y
 		{
 			get { return mY; }
 			set { mY = value; }
 		}
 
+		/// <summary>
+		/// z坐标的值
+		/// </summary>
 		public float z
 		{
 			get { return mZ; }
 			set { mZ = value; }
 		}
 
+		/// <summary>
+		/// 齐次坐标的w值
+		/// </summary>
 		public float w
 		{
 			get { return mW; }
@@ -40,11 +52,7 @@ namespace SampleCommon
 		/// <returns></returns>
 		public float Length
 		{
-			get
-			{
-				float sq = mX * mX + mY * mY + mZ * mZ;
-				return (float)Math.Sqrt(sq);
-			}
+			get { return (float)Math.Sqrt(mX * mX + mY * mY + mZ * mZ); }
 		}
 
 		/// <summary>

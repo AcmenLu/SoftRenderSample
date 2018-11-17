@@ -30,7 +30,7 @@ namespace RenderSample
 			this.MouseUp += new MouseEventHandler(OnMouseUp);
 			this.MouseMove += new MouseEventHandler(OnMouseMove);
 			Width = 800;
-			Height = 800;
+			Height = 600;
 			OnInit();
 		}
 
@@ -41,15 +41,11 @@ namespace RenderSample
 		public void OnInit()
 		{
 			mGraphics = CreateGraphics();
-			mRenderer = new Renderer(Width - 20, Height - 20, (float)Math.PI / 8f, 5, 50f);
+			mRenderer = new Renderer(Width - 16, Height - 40);
 			mRenderer.BindGraphics(mGraphics);
-			mRenderer.Camera = new Camera(new Vector3D(0, 0, -5, 1), new Vector3D(0, 0, 0, 1), new Vector3D(0, 1, 0, 0));
+			float aspect = (Width - 16) / (float)(Height - 40);
+			mRenderer.Camera = new Camera(new Vector3D(0, 0, -4, 1), new Vector3D(0, 0, 0, 1), new Vector3D(0, 1, 0, 0), aspect, 2, 500, (float)Math.PI / 3f);
 			mRenderer.EnableDepthTest = true;
-			//System.Timers.Timer mainTimer = new System.Timers.Timer(1000 / 20f);
-			//mainTimer.Elapsed += new ElapsedEventHandler(OnIdle);
-			//mainTimer.AutoReset = true;
-			//mainTimer.Enabled = true;
-			//mainTimer.Start();
 			CreateCube();
 		}
 
@@ -143,7 +139,8 @@ namespace RenderSample
 					mCube.Transform = Matrix4X4.Translate(0, 0, -0.2f) * mCube.Transform;
 					break;
 			}
-			mRenderer.OnRender();
+			if (Keys.Escape != keyData)
+				OnRender();
 			return true;
 		}
 
@@ -153,10 +150,7 @@ namespace RenderSample
 		/// <param name="e"></param>
 		protected override void OnPaint(PaintEventArgs e)
 		{
-			if (mRenderer == null)
-				return;
-
-			mRenderer.OnRender();
+			OnRender();
 		}
 		/// <summary>
 		/// 鼠标事件
@@ -168,8 +162,8 @@ namespace RenderSample
 			if (e.Delta == 0)
 				return;
 
-			mRenderer.Camera.MoveForward(e.Delta / (float)800);
-			mRenderer.OnRender();
+			mRenderer.Camera.MoveForward(e.Delta / (float)1200);
+			OnRender();
 		}
 
 		/// <summary>
@@ -244,7 +238,7 @@ namespace RenderSample
 				mMouseRightpos.x = x;
 				mMouseRightpos.y = y;
 			}
-			mRenderer.OnRender();
+			OnRender();
 		}
 
 		/// <summary>
@@ -252,15 +246,13 @@ namespace RenderSample
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void OnIdle(object sender, EventArgs e)
+		private void OnRender()
 		{
 			if (mRenderer == null)
 				return;
 
 			mRenderer.OnRender();
 		}
-
-	
 
 		/// <summary>
 		/// 创建一个立方体

@@ -11,12 +11,18 @@ namespace SampleCommon
 		private Vector3D mPosition;
 		private Color mColor;
 
+		/// <summary>
+		/// 光的位置
+		/// </summary>
 		public Vector3D Position
 		{
 			get { return mPosition; }
 			set { mPosition = value; }
 		}
 
+		/// <summary>
+		/// 光照颜色
+		/// </summary>
 		public Color Color
 		{
 			get { return mColor; }

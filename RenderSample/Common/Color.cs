@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace SampleCommon
 {
+	/// <summary>
+	/// 颜色类，每种颜色是取值范围是[0, 1]
+	/// </summary>
 	public class Color
 	{
 		/// <summary>
@@ -21,18 +24,27 @@ namespace SampleCommon
 		private float mG;
 		private float mB;
 
+		/// <summary>
+		/// 红色分量
+		/// </summary>
 		public float r
 		{
 			get { return mR; }
 			set { mR = MathUntil.Range(value, 0.0f, 1.0f); }
 		}
 
+		/// <summary>
+		/// 绿色分量
+		/// </summary>
 		public float g
 		{
 			get { return mG; }
 			set { mG = MathUntil.Range(value, 0.0f, 1.0f); }
 		}
 
+		/// <summary>
+		/// 蓝色分量
+		/// </summary>
 		public float b
 		{
 			get { return mB; }
@@ -44,7 +56,7 @@ namespace SampleCommon
 		/// </summary>
 		public Color()
 		{
-			mR = mG = mB = 0.0f;
+			mR = mG = mB = 0;
 		}
 
 		/// <summary>

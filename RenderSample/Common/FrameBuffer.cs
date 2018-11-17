@@ -12,22 +12,28 @@ namespace SampleCommon
 		COLORBUFFER = 2,
 	}
 
+	/// <summary>
+	/// 缓存类，包括颜色缓存和深度缓存。
+	/// </summary>
 	public class FrameBuffer
 	{
-		/// <summary>
-		/// FrameBuffer中包含一个颜色缓存和一个深度缓存，暂时不考虑模板缓存。
-		/// </summary>
 		private Bitmap mColorBuffer;
 		private float[,] mDepthBuffer;
 		private Graphics mGraphicsframe;
 		private Vector2 mSize;
 		private bool mDepthTest;
 
+		/// <summary>
+		/// 颜色缓存，外部只读
+		/// </summary>
 		public Bitmap ColorBuffer
 		{
 			get { return mColorBuffer; }
 		}
 
+		/// <summary>
+		/// 开启/关闭深度测试
+		/// </summary>
 		public bool EnableDepthTest
 		{
 			get { return mDepthTest; }
@@ -39,7 +45,7 @@ namespace SampleCommon
 		/// </summary>
 		/// <param name="width"></param>
 		/// <param name="height"></param>
-		public FrameBuffer(float width, float height)
+		public FrameBuffer(int width, int height)
 		{
 			mSize = new Vector2(width, height);
 			CreateBuffer();
@@ -62,6 +68,10 @@ namespace SampleCommon
 		/// <param name="color"></param>
 		public void SetPointColor(int posX, int posY, Color color, float depth = 0.0f)
 		{
+			if(posX > 799)
+			{
+				int a = 10;
+			}
 			posX = posX < 0 ? 0 : posX;
 			posX = posX >= mSize.x ? (int)mSize.x - 1 : posX;
 			posY = posY < 0 ? 0 : posY;

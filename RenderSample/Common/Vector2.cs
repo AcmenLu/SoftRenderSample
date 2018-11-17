@@ -11,12 +11,18 @@ namespace SampleCommon
 		private float mX;
 		private float mY;
 
+		/// <summary>
+		/// x做标得值
+		/// </summary>
 		public float x
 		{
 			get { return mX; }
 			set { mX = value; }
 		}
 
+		/// <summary>
+		/// y坐标的值
+		/// </summary>
 		public float y
 		{
 			get { return mY; }

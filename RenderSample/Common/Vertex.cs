@@ -15,42 +15,63 @@ namespace SampleCommon
 		private Color		mLightColor;
 		private byte		mAreaCode;
 
+		/// <summary>
+		/// 顶点位置
+		/// </summary>
 		public Vector3D Position
 		{
 			get { return mPosition; }
 			set { mPosition = value; }
 		}
 
+		/// <summary>
+		/// 顶点法线
+		/// </summary>
 		public Vector3D Normal
 		{
 			get { return mNormal; }
 			set { mNormal = value; }
 		}
 
+		/// <summary>
+		/// uv坐标
+		/// </summary>
 		public Vector2 TexCoord
 		{
 			get { return mTexcoord; }
 			set { mTexcoord = value; }
 		}
 
+		/// <summary>
+		/// 顶点色
+		/// </summary>
 		public Color Color
 		{
 			get { return mColor; }
 			set { mColor = value; }
 		}
 
+		/// <summary>
+		/// 顶点光的颜色
+		/// </summary>
 		public Color LightColor
 		{
 			get { return mLightColor; }
 			set { mLightColor = value; }
 		}
 
+		/// <summary>
+		/// 裁剪使用的顶点编码
+		/// </summary>
 		public byte AreaCode
 		{
 			get { return mAreaCode; }
 			set { mAreaCode = value; }
 		}
 
+		/// <summary>
+		/// 默认构造
+		/// </summary>
 		public Vertex()
 		{
 			mPosition = new Vector3D();
@@ -60,6 +81,10 @@ namespace SampleCommon
 			mLightColor = new Color(1.0f, 1.0f, 1.0f);
 		}
 
+		/// <summary>
+		/// 使用位置构造一个顶点
+		/// </summary>
+		/// <param name="pos"></param>
 		public Vertex(Vector3D pos)
 		{
 			mPosition = new Vector3D(pos);
@@ -70,21 +95,15 @@ namespace SampleCommon
 			mAreaCode = (byte)FaceType.NONE;
 		}
 
-		public Vertex(Vector3D pos, Vector3D normal, Vector2 texcoord, Color color, Color lightColor)
-		{
-			mPosition = pos;
-			mNormal = normal;
-			mTexcoord = texcoord;
-			mColor = color;
-			mLightColor = lightColor;
-			mAreaCode = (byte)FaceType.NONE;
-		}
-
+		/// <summary>
+		/// 复制构造
+		/// </summary>
+		/// <param name="v"></param>
 		public Vertex(Vertex v)
 		{
-			mPosition = new Vector3D(v.Position.x, v.Position.y, v.Position.z, v.Position.w);
-			mNormal = v.Normal;
-			mTexcoord = v.TexCoord;
+			mPosition = new Vector3D(v.Position);
+			mNormal = new Vector3D(v.Normal);
+			mTexcoord = new Vector2(v.TexCoord);
 			mColor = v.Color;
 			mLightColor = v.LightColor;
 			mAreaCode = v.AreaCode;
@@ -93,7 +112,7 @@ namespace SampleCommon
 		/// <summary>
 		/// 计算区域码
 		/// </summary>
-		public void CalAreaCode()
+		public void CallAreaCode()
 		{
 			mAreaCode = (byte)FaceType.NONE;
 			if (mPosition.x < -mPosition.w) mAreaCode |= (byte)FaceType.LEFT;

@@ -6,12 +6,25 @@ using System.Threading.Tasks;
 
 namespace SampleCommon
 {
+	/// <summary>
+	/// 摄像机类，用来定义摄像机的相关操作
+	/// </summary>
 	public class Camera
 	{
 		private Vector3D	mPosition;
 		private Vector3D	mTarget;
 		private Vector3D	mUp;
-		private float		mTheta = 0; // 用来限制摄像机绕X轴旋转的角度
+
+		private float mFov;
+		private float mNear;
+		private float mFar;
+		private float mAspect;
+
+		private Matrix4X4 mPerspective;
+		private Matrix4X4 mViewMatrix;
+
+		private float mTheta = 0; // 用来限制摄像机绕X轴旋转的角度
+
 
 		/// <summary>
 		/// mPosition的get/set
@@ -41,6 +54,14 @@ namespace SampleCommon
 		}
 
 		/// <summary>
+		/// 透视投影矩阵
+		/// </summary>
+		public Matrix4X4 PerspectiveMatrix
+		{
+			get { return mPerspective; }
+		}
+
+		/// <summary>
 		/// 无参数构造，默认给定一个位置信息
 		/// </summary>
 		public Camera()
@@ -48,6 +69,11 @@ namespace SampleCommon
 			mPosition = new Vector3D(0, 0, 1, 1);
 			mTarget = new Vector3D(0, 0, 0, 1);
 			mUp = new Vector3D(0, 1, 0, 0);
+			mAspect = 1;
+			mNear = 1;
+			mFar = 50;
+			mFov = (float)Math.PI / 3.0f;
+			InitPerspectiveMat();
 		}
 
 		/// <summary>
@@ -56,11 +82,26 @@ namespace SampleCommon
 		/// <param name="pos"></param>
 		/// <param name="lookAt"></param>
 		/// <param name="up"></param>
-		public Camera(Vector3D pos, Vector3D target, Vector3D up)
+		public Camera(Vector3D eye, Vector3D at, Vector3D up, float aspect, float near, float far, float fov)
 		{
-			mPosition = pos;
-			mTarget = target;
+			mPosition = eye;
+			mTarget = at;
 			mUp = up;
+			mAspect = aspect;
+			mNear = near;
+			mFar = far;
+			mFov = fov;
+			InitPerspectiveMat();
+		}
+
+		/// <summary>
+		/// 初始化透视投影矩阵
+		/// </summary>
+		public void InitPerspectiveMat()
+		{
+			if (mPerspective == null)
+				mPerspective = new Matrix4X4();
+			mPerspective = Matrix4X4.BuildPerspectiveFovLH(mFov, mAspect, mNear, mFar, ref mPerspective);
 		}
 
 		/// <summary>
@@ -69,19 +110,10 @@ namespace SampleCommon
 		/// <returns></returns>
 		public Matrix4X4 GetViewMat()
 		{
-			Vector3D dir = mTarget - mPosition;
-			Vector3D right = Vector3D.Cross(mUp, dir);
-			right.Normalize();
-			Matrix4X4 trans = new Matrix4X4(1, 0, 0, 0,
-											0, 1, 0, 0,
-											0, 0, 1, 0,
-											-mPosition.x, -mPosition.y, -mPosition.z, 1);
-
-			Matrix4X4 rotate = new Matrix4X4(right.x, mUp.x, dir.x, 0,
-											right.y, mUp.y, dir.y, 0,
-											right.z, mUp.z, dir.z, 0,
-											0, 0, 0, 1);
-			return trans * rotate;
+			if (mViewMatrix == null)
+				mViewMatrix = new Matrix4X4();
+			Matrix4X4.BuildLookAtLH(mPosition, mTarget, mUp, ref mViewMatrix);
+			return mViewMatrix;
 		}
 
 		/// <summary>
@@ -92,10 +124,10 @@ namespace SampleCommon
 		{
 			Vector3D dir = (mTarget - mPosition);
 			float w = mPosition.w;
-			if (distance > 0 && dir.Length < 0.4f)
+			if (distance > 0 && dir.Length < 3.3f)
 				return;
 
-			if (distance < 0 && dir.Length > 40)
+			if (distance < 0 && dir.Length > 30)
 				return;
 	
 			if (mTarget.IsEqual(mPosition + (dir.Normalize() * distance)))

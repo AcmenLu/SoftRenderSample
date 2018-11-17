@@ -12,40 +12,53 @@ namespace SampleCommon
 		private RenderTexture mTexture;
 		private RenderTexture[] mCubeTextures;
 
+		/// <summary>
+		/// 模型的三角形列表
+		/// </summary>
 		public List<Triangle> Triangles
 		{
 			get { return mTriangles; }
 			set { mTriangles = value; }
 		}
 
+		/// <summary>
+		/// 模型的Transform
+		/// </summary>
 		public Matrix4X4 Transform
 		{
 			get { return mTransform; }
 			set { mTransform = value; }
 		}
 
+		/// <summary>
+		/// 模型上面的材质
+		/// </summary>
 		public Material Material
 		{
 			get { return mMaterial; }
 			set { mMaterial = value; }
 		}
 
+		/// <summary>
+		/// 贴图
+		/// </summary>
 		public RenderTexture Texture
 		{
 			get { return mTexture; }
 			set { mTexture = value; }
 		}
 
+		/// <summary>
+		/// 立方体贴图的六张图
+		/// </summary>
 		public RenderTexture[] CubeTexture
 		{
 			get { return mCubeTextures; }
 			set { mCubeTextures = value; }
 		}
 
-		private Color mTmpVColor = new Color(); // 为了减少new，使用临时的私有变量
-		
 		/// <summary>
-		/// 构造
+		/// 默认构造，构造一个没有任何三角形的空mesh
 		/// </summary>
 		public Mesh()
 		{
@@ -54,7 +67,7 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 构造
+		/// 用三角形列表构造
 		/// </summary>
 		public Mesh(List<Triangle> triangles)
 		{

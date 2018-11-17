@@ -10,6 +10,12 @@ namespace SampleCommon
 	{
 		private float[,] mfValues;
 
+		/// <summary>
+		/// 直接访问某个位置的值
+		/// </summary>
+		/// <param name="i"></param>
+		/// <param name="j"></param>
+		/// <returns></returns>
 		public float this[int i, int j]
 		{
 			get { return mfValues[i, j]; }
@@ -17,7 +23,7 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 矩阵的无参数构造
+		/// 矩阵的无参数构造，默认为单位向量
 		/// </summary>
 		public Matrix4X4()
 		{
@@ -26,7 +32,7 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 举证的参数构造
+		/// 矩阵的参数构造
 		/// </summary>
 		/// <param name="a1"></param>
 		/// <param name="a2"></param>
@@ -238,23 +244,76 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 投影矩阵
+		/// 构建左手坐标系下的投影矩阵
 		/// </summary>
 		/// <param name="fov">视角大小</param>
 		/// <param name="aspect">宽高比</param>
 		/// <param name="zn">近截面距离</param>
 		/// <param name="zf">远截面距离</param>
 		/// <returns></returns>
-		public static Matrix4X4 Projection(float fov, float aspect, float zn, float zf)
+		public static Matrix4X4 BuildPerspectiveFovLH(float fov, float aspect, float zn, float zf, ref Matrix4X4 mat4)
 		{
-			Matrix4X4 mat4 = new Matrix4X4();
 			mat4.Zero();
 			mat4[0, 0] = (float)(1 / (Math.Tan(fov * 0.5f) * aspect));
 			mat4[1, 1] = (float)(1 / Math.Tan(fov * 0.5f));
 			mat4[2, 2] = zf / (zf - zn);
 			mat4[2, 3] = 1f;
-			mat4[3, 2] = (zn * zf) / (zn - zf);
+			mat4[3, 2] = zn * zf / (zn - zf);
 			return mat4;
+		}
+
+		/// <summary>
+		/// 构建左手坐标系下的viewport向量
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="width"></param>
+		/// <param name="height"></param>
+		/// <param name="minZ"></param>
+		/// <param name="maxZ"></param>
+		/// <returns></returns>
+		public static Matrix4X4 BuildViewPortLH(float x, float y, float width, float height, float minZ, float maxZ, ref Matrix4X4 mat4)
+		{
+			mat4.Identity();
+			mat4[0, 0] = width / 2;
+			mat4[1, 1] = -height / 2;
+			mat4[2, 2] = maxZ - minZ;
+			mat4[3, 0] = x + width / 2;
+			mat4[3, 1] = y + height / 2;
+			mat4[3, 2] = minZ;
+			return mat4;
+		}
+
+		/// <summary>
+		/// 左手坐标系下的摄像机矩阵
+		/// </summary>
+		/// <param name="eye">摄像机位置</param>
+		/// <param name="at">目标点位置</param>
+		/// <param name="up"></param>
+		/// <returns></returns>
+		public static Matrix4X4 BuildLookAtLH(Vector3D eye, Vector3D at, Vector3D up, ref Matrix4X4 viewMatrix)
+		{
+			Vector3D zAxis = at - eye;
+			zAxis.Normalize();
+			Vector3D xAxis = Vector3D.Cross(up, zAxis);
+			xAxis.Normalize();
+			Vector3D yAxis = Vector3D.Cross(zAxis, xAxis);
+			yAxis.Normalize();
+			viewMatrix.Identity();
+			viewMatrix[0, 0] = xAxis.x;
+			viewMatrix[0, 1] = yAxis.x;
+			viewMatrix[0, 2] = zAxis.x;
+			viewMatrix[1, 0] = xAxis.y;
+			viewMatrix[1, 1] = yAxis.y;
+			viewMatrix[1, 2] = zAxis.y;
+			viewMatrix[2, 0] = xAxis.z;
+			viewMatrix[2, 1] = yAxis.z;
+			viewMatrix[2, 2] = zAxis.z;
+			viewMatrix[3, 0] = -Vector3D.Dot(xAxis, eye);
+			viewMatrix[3, 1] = -Vector3D.Dot(yAxis, eye);
+			viewMatrix[3, 2] = -Vector3D.Dot(zAxis, eye);
+			viewMatrix[3, 3] = 1;
+			return viewMatrix;
 		}
 	}
 }
