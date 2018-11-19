@@ -144,6 +144,21 @@ namespace SampleCommon
 		}
 
 		/// <summary>
+		/// 颜色相减
+		/// </summary>
+		/// <param name="a"></param>
+		/// <param name="b"></param>
+		/// <returns></returns>
+		public static Color operator -(Color a, Color b)
+		{
+			Color c = new Color();
+			c.r = a.r - b.r;
+			c.g = a.g - b.g;
+			c.b = a.b - b.b;
+			return c;
+		}
+
+		/// <summary>
 		/// 将系统颜色转换为自定义的颜色。
 		/// </summary>
 		/// <param name="color"></param>
@@ -208,6 +223,13 @@ namespace SampleCommon
 				color.g = MathUntil.Lerp(a.g, b.g, t);
 				color.b = MathUntil.Lerp(a.b, b.b, t);
 			}
+		}
+
+		public static void Mult(Color a, Color b, ref Color c)
+		{
+			c.r = a.r * b.r;
+			c.g = a.g * b.g;
+			c.b = a.b * b.b;
 		}
 	}
 }

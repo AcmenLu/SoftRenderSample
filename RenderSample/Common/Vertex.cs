@@ -89,6 +89,7 @@ namespace SampleCommon
 			mTexcoord = new Vector2();
 			mColor = new Color(1.0f, 1.0f, 1.0f);
 			mLightColor = new Color(1.0f, 1.0f, 1.0f);
+			mZView = 0f;
 		}
 
 		/// <summary>
@@ -103,6 +104,7 @@ namespace SampleCommon
 			mColor = new Color(1.0f, 1.0f, 1.0f);
 			mLightColor = new Color(1.0f, 1.0f, 1.0f);
 			mAreaCode = (byte)FaceType.NONE;
+			mZView = 0f;
 		}
 
 		/// <summary>
@@ -117,6 +119,7 @@ namespace SampleCommon
 			mColor = v.Color;
 			mLightColor = v.LightColor;
 			mAreaCode = v.AreaCode;
+			mZView = v.ZView;
 		}
 
 		/// <summary>
@@ -142,10 +145,15 @@ namespace SampleCommon
 		/// <returns></returns>
 		public static void LerpColor(ref Vertex v, Vertex v1, Vertex v2, float t)
 		{
+			float Zt = 0;
+			if (v1.ZView != 0.0f && v2.ZView != 0.0f) Zt = MathUntil.Lerp(1f / v1.ZView, 1f / v2.ZView, t);
+			if (Zt != 0) Zt = 1f / Zt;
+			v.ZView = Zt;
 			v.TexCoord.x = MathUntil.Lerp(v1.TexCoord.x, v2.TexCoord.x, t);
 			v.TexCoord.y = MathUntil.Lerp(v1.TexCoord.y, v2.TexCoord.y, t);
 			v.Color = Color.Lerp(v1.Color, v2.Color, t);
 			v.LightColor = Color.Lerp(v1.LightColor, v2.LightColor, t);
 		}
+
 	}
 }

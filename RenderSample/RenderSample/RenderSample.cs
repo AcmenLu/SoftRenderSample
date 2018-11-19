@@ -5,6 +5,7 @@ using System.Windows.Forms;
 
 using SampleCommon;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 
 namespace RenderSample
 {
@@ -12,6 +13,8 @@ namespace RenderSample
 	{
 		private Renderer mRenderer;
 		private Graphics mGraphics;
+		private Rectangle mRect;
+		private BitmapData mData;
 		private Mesh mCube;
 		private bool mIsMouseLeftDown;
 		private bool mIsMouseRightDown;
@@ -21,17 +24,6 @@ namespace RenderSample
 		public RenderSample()
 		{
 			InitializeComponent();
-			mIsMouseLeftDown = false;
-			mIsMouseRightDown = false;
-			mMouseLeftPos = new Vector2(0, 0);
-			mMouseRightpos = new Vector2(0, 0);
-			this.MouseWheel += new MouseEventHandler(OnMouseWheel);
-			this.MouseDown += new MouseEventHandler(OnMouseDown);
-			this.MouseUp += new MouseEventHandler(OnMouseUp);
-			this.MouseMove += new MouseEventHandler(OnMouseMove);
-			Width = 800;
-			Height = 600;
-			OnInit();
 		}
 
 
@@ -41,9 +33,8 @@ namespace RenderSample
 		public void OnInit()
 		{
 			mGraphics = CreateGraphics();
-			mRenderer = new Renderer(Width - 16, Height - 40);
-			mRenderer.BindGraphics(mGraphics);
-			float aspect = (Width - 16) / (float)(Height - 40);
+			mRenderer = new Renderer(this.ClientSize.Width, this.ClientSize.Height);
+			float aspect = this.ClientSize.Width / (float)this.ClientSize.Height;
 			mRenderer.Camera = new Camera(new Vector3D(0, 0, -4, 1), new Vector3D(0, 0, 0, 1), new Vector3D(0, 1, 0, 0), aspect, 2, 500, (float)Math.PI / 3f);
 			mRenderer.EnableDepthTest = true;
 			CreateCube();
@@ -141,7 +132,7 @@ namespace RenderSample
 			}
 
 			if (Keys.Escape != keyData)
-				OnRender();
+				this.Invalidate();
 
 			return true;
 		}
@@ -150,10 +141,14 @@ namespace RenderSample
 		/// 绘制函数
 		/// </summary>
 		/// <param name="e"></param>
-		protected override void OnPaint(PaintEventArgs e)
+		protected override void OnPaint(PaintEventArgs pe)
 		{
-			OnRender();
+			if (mRenderer == null)
+				return;
+
+			mRenderer.OnRender(pe.Graphics);
 		}
+
 		/// <summary>
 		/// 鼠标事件
 		/// </summary>
@@ -165,7 +160,7 @@ namespace RenderSample
 				return;
 
 			mRenderer.Camera.MoveForward(e.Delta / (float)1200);
-			OnRender();
+			this.Invalidate();
 		}
 
 		/// <summary>
@@ -181,7 +176,7 @@ namespace RenderSample
 				mMouseLeftPos.x = e.X;
 				mMouseLeftPos.y = e.Y;
 			}
-			else if(e.Button == MouseButtons.Right)
+			else if (e.Button == MouseButtons.Right)
 			{
 				mIsMouseRightDown = true;
 				mMouseRightpos.x = e.X;
@@ -240,20 +235,7 @@ namespace RenderSample
 				mMouseRightpos.x = x;
 				mMouseRightpos.y = y;
 			}
-			OnRender();
-		}
-
-		/// <summary>
-		/// 每帧运行的函数：MainLoop
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		private void OnRender()
-		{
-			if (mRenderer == null)
-				return;
-
-			mRenderer.OnRender();
+			this.Invalidate();
 		}
 
 		/// <summary>
@@ -334,7 +316,7 @@ namespace RenderSample
 			};
 
 			List<Vertex> vertices = new List<Vertex>();
-			for(int i = 0; i < 36; i ++)
+			for (int i = 0; i < 36; i++)
 			{
 				Vertex vertex = new Vertex();
 				Vector3D point = points[indices[i]];
@@ -395,11 +377,33 @@ namespace RenderSample
 				return;
 
 			RenderTexture[] textures = new RenderTexture[names.Length];
-			for (int i = 0; i < names.Length; i ++)
+			for (int i = 0; i < names.Length; i++)
 			{
 				textures[i] = new RenderTexture(names[i]);
 			}
 			mCube.CubeTexture = textures;
+		}
+
+		/// <summary>
+		/// 初始化加载
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void RenderSample_Load(object sender, EventArgs e)
+		{
+			mIsMouseLeftDown = false;
+			mIsMouseRightDown = false;
+			this.DoubleBuffered = true;
+			mMouseLeftPos = new Vector2(0, 0);
+			mMouseRightpos = new Vector2(0, 0);
+			Width = 800;
+			Height = 600;
+			this.MouseWheel += new MouseEventHandler(OnMouseWheel);
+			this.MouseDown += new MouseEventHandler(OnMouseDown);
+			this.MouseUp += new MouseEventHandler(OnMouseUp);
+			this.MouseMove += new MouseEventHandler(OnMouseMove);
+			this.mRect = new Rectangle(0, 0, this.ClientSize.Width, this.ClientSize.Height);
+			OnInit();
 		}
 	}
 }

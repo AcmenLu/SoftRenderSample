@@ -49,7 +49,6 @@ namespace SampleCommon
 		private Color mBgColor;
 		private Camera mCamera;
 		private Vector2 mSize;
-		private Graphics mGraphics;
 		private FrameBuffer mFrameBuffer;
 		private RenderMode mRenderMode;
 		private CullMode mCullMode;
@@ -268,38 +267,24 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 绑定渲染的画布
-		/// </summary>
-		/// <param name="graphics"></param>
-		public void BindGraphics(Graphics graphics)
-		{
-			mGraphics = graphics;
-		}
-
-		/// <summary>
 		/// 渲染在渲染队列中的对象
 		/// </summary>
-		public void OnRender()
+		public void OnRender(Graphics graphics)
 		{
-			if (mGraphics == null || mFrameBuffer == null)
+			if (mFrameBuffer == null)
 				return;
 
-			lock (mFrameBuffer.ColorBuffer)
+			mFrameBuffer.LockBuffer();
+			if (mFrameBuffer != null)
+				mFrameBuffer.ClearBuffer();
+
+			foreach (Mesh obj in mRenderList)
 			{
-				if (mFrameBuffer != null)
-					mFrameBuffer.ClearBuffer();
-
-				foreach (Mesh obj in mRenderList)
-				{
-					obj.OnRender(this);
-				}
-
-				if (mGraphics != null)
-				{
-					mGraphics.Clear(System.Drawing.Color.Black);
-					mGraphics.DrawImage(mFrameBuffer.ColorBuffer, 0, 0);
-				}
+				obj.OnRender(this);
 			}
+
+			mFrameBuffer.UnLockBuffer();
+			graphics.DrawImage(mFrameBuffer.ColorBuffer, 0, 0);
 		}
 	}
 }
