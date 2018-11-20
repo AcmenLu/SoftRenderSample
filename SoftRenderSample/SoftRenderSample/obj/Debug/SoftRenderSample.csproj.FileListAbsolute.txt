@@ -1,0 +1,9 @@
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Debug\SoftRenderSample.SoftRenderSample.resources
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Debug\SoftRenderSample.csproj.GenerateResource.Cache
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\bin\Debug\SoftRenderSample.exe.config
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\bin\Debug\SoftRenderSample.exe
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\bin\Debug\SoftRenderSample.pdb
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Debug\SoftRenderSample.csprojResolveAssemblyReference.cache
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Debug\SoftRenderSample.Properties.Resources.resources
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Debug\SoftRenderSample.exe
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Debug\SoftRenderSample.pdb

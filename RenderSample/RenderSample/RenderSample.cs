@@ -14,7 +14,6 @@ namespace RenderSample
 		private Renderer mRenderer;
 		private Graphics mGraphics;
 		private Rectangle mRect;
-		private BitmapData mData;
 		private Mesh mCube;
 		private bool mIsMouseLeftDown;
 		private bool mIsMouseRightDown;
@@ -26,18 +25,30 @@ namespace RenderSample
 			InitializeComponent();
 		}
 
-
 		/// <summary>
 		/// 初始化事件
 		/// </summary>
 		public void OnInit()
 		{
 			mGraphics = CreateGraphics();
+			InitSettings();
 			mRenderer = new Renderer(this.ClientSize.Width, this.ClientSize.Height);
 			float aspect = this.ClientSize.Width / (float)this.ClientSize.Height;
-			mRenderer.Camera = new Camera(new Vector3D(0, 0, -4, 1), new Vector3D(0, 0, 0, 1), new Vector3D(0, 1, 0, 0), aspect, 2, 500, (float)Math.PI / 3f);
+			mRenderer.Camera = new Camera(new Vector3D(0, 0, -4, 1), new Vector3D(0, 0, 0, 1), new Vector3D(0, 1, 0, 0), aspect, 1, 500, (float)Math.PI / 3f);
 			mRenderer.EnableDepthTest = true;
 			CreateCube();
+		}
+
+		/// <summary>
+		/// 初始化设置
+		/// </summary>
+		private void InitSettings()
+		{
+			SetStyle(ControlStyles.UserPaint, true);
+			SetStyle(ControlStyles.AllPaintingInWmPaint, true);
+			SetStyle(ControlStyles.DoubleBuffer, true);
+			SetStyle(ControlStyles.ResizeRedraw, true);
+			SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
 		}
 
 		/// <summary>
@@ -87,7 +98,7 @@ namespace RenderSample
 					AddTexture("env3.bmp");
 					break;
 				case Keys.F4:
-					string[] names = { "env0.bmp", "env1.bmp", "env2.bmp", "env3.bmp", "env4.bmp", "env5.bmp" };
+					string[] names = {"env1.bmp", "env2.bmp", "env3.bmp", "env4.bmp", "env5.bmp", "env0.bmp" };
 					AddCubeTexture(names);
 					break;
 				case Keys.Escape:
@@ -159,7 +170,7 @@ namespace RenderSample
 			if (e.Delta == 0)
 				return;
 
-			mRenderer.Camera.MoveForward(e.Delta / (float)1200);
+			mRenderer.Camera.MoveForward(e.Delta / (float)900);
 			this.Invalidate();
 		}
 
@@ -396,7 +407,7 @@ namespace RenderSample
 			this.DoubleBuffered = true;
 			mMouseLeftPos = new Vector2(0, 0);
 			mMouseRightpos = new Vector2(0, 0);
-			Width = 800;
+			Width = 700;
 			Height = 600;
 			this.MouseWheel += new MouseEventHandler(OnMouseWheel);
 			this.MouseDown += new MouseEventHandler(OnMouseDown);

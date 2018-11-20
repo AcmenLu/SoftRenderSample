@@ -96,6 +96,21 @@ namespace SampleCommon
 			}
 		}
 
+		public void Putpixel(int x, int y, System.Drawing.Color color, float depth)
+		{
+			if (x < 0 || x >= mSize.x || y < 0 || y >= mSize.y)
+				return;
+
+			unsafe
+			{
+				byte* ptr = (byte*)(this.mBmData.Scan0);
+				byte* row = ptr + (y * this.mBmData.Stride);
+				row[x * 3] = (byte)color.R;
+				row[x * 3 + 1] = (byte)color.G;
+				row[x * 3 + 2] = (byte)color.B;
+			}
+		}
+
 		public void LockBuffer()
 		{
 			mBmData = mColorBuffer.LockBits(mRect, ImageLockMode.ReadWrite, PixelFormat.Format24bppRgb);

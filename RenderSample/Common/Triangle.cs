@@ -49,9 +49,9 @@ namespace SampleCommon
 
 		public Triangle(Vertex v1, Vertex v2, Vertex v3)
 		{
-			mVertex0 = v1;
-			mVertex1 = v2;
-			mVertex2 = v3;
+			mVertex0 = new Vertex(v1);
+			mVertex1 = new Vertex(v2);
+			mVertex2 = new Vertex(v3);
 		}
 
 		/// <summary>
@@ -253,7 +253,464 @@ namespace SampleCommon
 			TriPunctureFaces(p1, p2, p3, ref faces);
 			if (faces.Count() == 0)
 				return;
-			Vertex v0 = new Vertex(p1);
+
+			Vertex v1 = null;
+			Vertex v2 = null;
+			FaceType faceType = faces[0];
+			if (faceType == FaceType.TOP)
+			{
+				if (p1.Position.y < p2.Position.y)
+					SwapVertex(ref p1, ref p2);
+				if (p1.Position.y < p3.Position.y)
+					SwapVertex(ref p1, ref p3);
+				if (p2.Position.y < p3.Position.y)
+					SwapVertex(ref p2, ref p3);
+
+				// 不构成三角形
+				if (Math.Abs(p1.Position.y - p3.Position.y) < 0.01f)
+					return;
+
+				if (p3.Position.y >= 1)
+					return;
+
+				if (p1.Position.y <= 1)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+				Vertex v0 = new Vertex(p1);
+				v0.Position.y = 1;
+				float dt = (p1.Position.y - 1.0f) / (p1.Position.y - p3.Position.y);
+				v0.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, dt);
+				v0.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, dt);
+				Vertex.LerpColor(ref v0, p1, p3, dt);
+
+				if (p2.Position.y < 1)
+				{
+					v1 = new Vertex(p1);
+					v1.Position.y = 1;
+					dt = (p1.Position.y - 1.0f) / (p1.Position.y - p2.Position.y);
+					v1.Position.x = MathUntil.Lerp(p1.Position.x, p2.Position.x, dt);
+					v1.Position.z = MathUntil.Lerp(p1.Position.z, p2.Position.z, dt);
+					Vertex.LerpColor(ref v1, p1, p2, dt);
+				}
+				else if (p2.Position.y > 1)
+				{
+					v2 = new Vertex(p2);
+					v2.Position.y = 1;
+					dt = (p2.Position.y - 1.0f) / (p2.Position.y - p3.Position.y);
+					v2.Position.x = MathUntil.Lerp(p2.Position.x, p3.Position.x, dt);
+					v2.Position.z = MathUntil.Lerp(p2.Position.z, p3.Position.z, dt);
+					Vertex.LerpColor(ref v2, p2, p3, dt);
+				}
+
+				Triangle triang1 = null;
+				if (v2 == null)
+					triang1 = new Triangle(v0, p2, p3);
+				else
+					triang1 = new Triangle(v0, v2, p3);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
+
+				if (v1 != null)
+				{
+					faces.Clear();
+					TriPunctureFaces(v0, v1, p2, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(v0, v1, p2, ref triangles);
+					else
+						triangles.Add(new Triangle(v0, v1, p2));
+				}
+			}
+			else if (faceType == FaceType.BUTTOM)
+			{
+				if (p1.Position.y < p2.Position.y)
+					SwapVertex(ref p1, ref p2);
+				if (p1.Position.y < p3.Position.y)
+					SwapVertex(ref p1, ref p3);
+				if (p2.Position.y < p3.Position.y)
+					SwapVertex(ref p2, ref p3);
+
+				// 不构成三角形
+				if (Math.Abs(p1.Position.y - p3.Position.y) < 0.01f)
+					return;
+
+				if (p1.Position.y <= -1)
+					return;
+
+				if (p3.Position.y >= -1)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+				Vertex v0 = new Vertex(p1);
+				v0.Position.y = -1;
+				float dt = (p1.Position.y + 1.0f) / (p1.Position.y - p3.Position.y);
+				v0.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, dt);
+				v0.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, dt);
+				Vertex.LerpColor(ref v0, p1, p3, dt);
+
+				if (p2.Position.y > -1)
+				{
+					v1 = new Vertex(p2);
+					v1.Position.y = -1;
+					dt = (p2.Position.y + 1.0f) / (p2.Position.y - p3.Position.y);
+					v1.Position.x = MathUntil.Lerp(p2.Position.x, p3.Position.x, dt);
+					v1.Position.z = MathUntil.Lerp(p2.Position.z, p3.Position.z, dt);
+					Vertex.LerpColor(ref v1, p2, p3, dt);
+				}
+				else if (p2.Position.y < -1)
+				{
+					v2 = new Vertex(p1);
+					v2.Position.y = -1;
+					dt = (p1.Position.y + 1.0f) / (p1.Position.y - p2.Position.y);
+					v2.Position.x = MathUntil.Lerp(p1.Position.x, p2.Position.x, dt);
+					v2.Position.z = MathUntil.Lerp(p1.Position.z, p2.Position.z, dt);
+					Vertex.LerpColor(ref v2, p1, p2, dt);
+				}
+
+				Triangle triang1 = null;
+				if (v2 == null)
+					triang1 = new Triangle(p1, p2, v0);
+				else
+					triang1 = new Triangle(p1, v2, v0);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
+
+				if (v1 != null)
+				{
+					faces.Clear();
+					TriPunctureFaces(p2, v1, v0, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(p2, v1, v0, ref triangles);
+					else
+						triangles.Add(new Triangle(p2, v1, v0));
+				}
+			}
+			else if (faceType == FaceType.LEFT)
+			{
+				if (p1.Position.x < p2.Position.x)
+					SwapVertex(ref p1, ref p2);
+				if (p1.Position.x < p3.Position.x)
+					SwapVertex(ref p1, ref p3);
+				if (p2.Position.x < p3.Position.x)
+					SwapVertex(ref p2, ref p3);
+				// 不构成三角形
+				if (Math.Abs(p1.Position.x - p3.Position.x) < 0.01f)
+					return;
+
+				if (p1.Position.x <= -1)
+					return;
+
+				if (p3.Position.x >= -1)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+				Vertex v0 = new Vertex(p1);
+				v0.Position.x = -1;
+				float dt = (p1.Position.x + 1.0f) / (p1.Position.x - p3.Position.x);
+				v0.Position.y = MathUntil.Lerp(p1.Position.y, p3.Position.y, dt);
+				v0.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, dt);
+				Vertex.LerpColor(ref v0, p1, p3, dt);
+
+				if (p2.Position.x > -1)
+				{
+					v1 = new Vertex(p2);
+					v1.Position.x = -1;
+					dt = (p2.Position.x + 1.0f) / (p2.Position.x - p3.Position.x);
+					v1.Position.y = MathUntil.Lerp(p2.Position.y, p3.Position.y, dt);
+					v1.Position.z = MathUntil.Lerp(p2.Position.z, p3.Position.z, dt);
+					Vertex.LerpColor(ref v1, p2, p3, dt);
+				}
+				else if (p2.Position.x < -1)
+				{
+					v2 = new Vertex(p1);
+					v2.Position.x = -1;
+					dt = (p1.Position.x + 1.0f) / (p1.Position.x - p2.Position.x);
+					v2.Position.y = MathUntil.Lerp(p1.Position.y, p2.Position.y, dt);
+					v2.Position.z = MathUntil.Lerp(p1.Position.z, p2.Position.z, dt);
+					Vertex.LerpColor(ref v2, p1, p2, dt);
+				}
+
+				Triangle triang1 = null;
+				if (v2 != null)
+					triang1 = new Triangle(v0, p1, v2);
+				else
+					triang1 = new Triangle(v0, p1, p2);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
+
+				if (v1 != null)
+				{
+					faces.Clear();
+					TriPunctureFaces(v0, p2, v1, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(v0, p2, v1, ref triangles);
+					else
+						triangles.Add(new Triangle(v0, p2, v1));
+				}
+			}
+			else if (faceType == FaceType.RIGHT)
+			{
+				if (p1.Position.x < p2.Position.x)
+					SwapVertex(ref p1, ref p2);
+				if (p1.Position.x < p3.Position.x)
+					SwapVertex(ref p1, ref p3);
+				if (p2.Position.x < p3.Position.x)
+					SwapVertex(ref p2, ref p3);
+
+				// 不构成三角形
+				if (Math.Abs(p1.Position.x - p3.Position.x) < 0.01f)
+					return;
+
+				if (p3.Position.x >= 1)
+					return;
+
+				if (p1.Position.x <= 1)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+				Vertex v0 = new Vertex(p1);
+				v0.Position.x = 1;
+				float dt = (p1.Position.x - 1.0f) / (p1.Position.x - p3.Position.x);
+				v0.Position.y = MathUntil.Lerp(p1.Position.y, p3.Position.y, dt);
+				v0.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, dt);
+				Vertex.LerpColor(ref v0, p1, p3, dt);
+
+				if (p2.Position.x < 1)
+				{
+					v1 = new Vertex(p1);
+					v1.Position.x = 1;
+					dt = (p1.Position.x - 1.0f) / (p1.Position.x - p2.Position.x);
+					v1.Position.y = MathUntil.Lerp(p1.Position.y, p2.Position.y, dt);
+					v1.Position.z = MathUntil.Lerp(p1.Position.z, p2.Position.z, dt);
+					Vertex.LerpColor(ref v1, p1, p2, dt);
+				}
+				else if (p2.Position.x > 1)
+				{
+					v2 = new Vertex(p2);
+					v2.Position.x = 1;
+					dt = (p2.Position.x - 1.0f) / (p2.Position.x - p3.Position.x);
+					v2.Position.y = MathUntil.Lerp(p2.Position.y, p3.Position.y, dt);
+					v2.Position.z = MathUntil.Lerp(p3.Position.z, p3.Position.z, dt);
+					Vertex.LerpColor(ref v2, p2, p3, dt);
+				}
+
+				Triangle triang1 = null;
+				if (v2 != null)
+					triang1 = new Triangle(v0, v2, p3);
+				else
+					triang1 = new Triangle(v0, p2, p3);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
+
+				if (v1 != null)
+				{
+					faces.Clear();
+					TriPunctureFaces(v0, v1, p2, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(v0, v1, p2, ref triangles);
+					else
+						triangles.Add(new Triangle(v0, v1, p2));
+				}
+			}
+			else if (faceType == FaceType.FAR)
+			{
+				if (p1.Position.z < p2.Position.z)
+					SwapVertex(ref p1, ref p2);
+				if (p1.Position.z < p3.Position.z)
+					SwapVertex(ref p1, ref p3);
+				if (p2.Position.z < p3.Position.z)
+					SwapVertex(ref p2, ref p3);
+
+				// 不构成三角形
+				if (Math.Abs(p1.Position.z - p3.Position.z) < 0.01f)
+					return;
+
+				if (p3.Position.z >= 1)
+					return;
+
+				if (p1.Position.z <= 1)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+				Vertex v0 = new Vertex(p1);
+				v0.Position.z = 1;
+				float dt = (p1.Position.z - 1.0f) / (p1.Position.z - p3.Position.z);
+				v0.Position.y = MathUntil.Lerp(p1.Position.y, p3.Position.y, dt);
+				v0.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, dt);
+				Vertex.LerpColor(ref v0, p1, p3, dt);
+
+				if (p2.Position.z < 1)
+				{
+					v1 = new Vertex(p2);
+					v1.Position.z = 1;
+					dt = (p1.Position.z - 1.0f) / (p1.Position.z - p2.Position.z);
+					v1.Position.y = MathUntil.Lerp(p1.Position.y, p2.Position.y, dt);
+					v1.Position.x = MathUntil.Lerp(p1.Position.x, p2.Position.x, dt);
+					Vertex.LerpColor(ref v1, p1, p2, dt);
+				}
+				else if (p2.Position.z > 1)
+				{
+					v2 = new Vertex(p1);
+					v2.Position.z = 1;
+					dt = (p2.Position.z - 1.0f) / (p2.Position.z - p3.Position.z);
+					v2.Position.y = MathUntil.Lerp(p2.Position.y, p3.Position.y, dt);
+					v2.Position.x = MathUntil.Lerp(p3.Position.x, p3.Position.x, dt);
+					Vertex.LerpColor(ref v2, p2, p3, dt);
+				}
+				Triangle triang1 = null;
+				if (v2 != null)
+					triang1 = new Triangle(v0, v2, p3);
+				else
+					triang1 = new Triangle(v0, p2, p3);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
+
+				if (v1 != null)
+				{
+					faces.Clear();
+					TriPunctureFaces(v0, v1, p2, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(v0, v1, p2, ref triangles);
+					else
+						triangles.Add(new Triangle(v0, v1, p2));
+				}
+			}
+			else if (faceType == FaceType.NEAR)
+			{
+				if (p1.Position.z < p2.Position.z)
+					SwapVertex(ref p1, ref p2);
+				if (p1.Position.z < p3.Position.z)
+					SwapVertex(ref p1, ref p3);
+				if (p2.Position.z < p3.Position.z)
+					SwapVertex(ref p2, ref p3);
+
+				// 不构成三角形
+				if (Math.Abs(p1.Position.z - p3.Position.z) < 0.01f)
+					return;
+
+				if (p1.Position.z <= 0)
+					return;
+
+				if (p3.Position.z >= 0)
+				{
+					triangles.Add(new Triangle(p1, p2, p3));
+					return;
+				}
+				Vertex v0 = new Vertex(p1);
+				v0.Position.z = 0;
+				float dt = p1.Position.z / (p1.Position.z - p3.Position.z);
+				v0.Position.y = MathUntil.Lerp(p1.Position.y, p3.Position.y, dt);
+				v0.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, dt);
+				Vertex.LerpColor(ref v0, p1, p3, dt);
+
+				if (p2.Position.z > 0)
+				{
+					v1 = new Vertex(p2);
+					v1.Position.z = 0;
+					dt = p2.Position.z / (p2.Position.z - p3.Position.z);
+					v1.Position.y = MathUntil.Lerp(p2.Position.y, p3.Position.y, dt);
+					v1.Position.x = MathUntil.Lerp(p2.Position.x, p3.Position.x, dt);
+					Vertex.LerpColor(ref v1, p2, p3, dt);
+				}
+				else if (p2.Position.z < 0)
+				{
+					v2 = new Vertex(p1);
+					v2.Position.z = 0;
+					dt = p1.Position.z / (p1.Position.z - p2.Position.z);
+					v2.Position.y = MathUntil.Lerp(p1.Position.y, p2.Position.y, dt);
+					v2.Position.x = MathUntil.Lerp(p1.Position.x, p2.Position.x, dt);
+					Vertex.LerpColor(ref v2, p1, p2, dt);
+				}
+				Triangle triang1 = null;
+				if (v2 != null)
+					triang1 = new Triangle(v2, v0, p1);
+				else
+					triang1 = new Triangle(v0, p1, p2);
+
+				faces.Clear();
+				TriPunctureFaces(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref faces);
+				if (faces.Count() > 0)
+					VertexClip(triang1.Vertex0, triang1.Vertex1, triang1.Vertex2, ref triangles);
+				else
+					triangles.Add(triang1);
+
+				if (v1 != null)
+				{
+					faces.Clear();
+					TriPunctureFaces(v0, p2, v1, ref faces);
+					if (faces.Count() > 0)
+						VertexClip(v0, p2, v1, ref triangles);
+					else
+						triangles.Add(new Triangle(v0, p2, v1));
+				}
+			}
+		}
+
+		private void VertexClip1(Vertex point1, Vertex point2, Vertex point3, ref List<Triangle> triangles)
+		{
+			// 思路：1. 计算出三角形的每一条线所穿过的面
+			// 2. 计算三角形所穿过的面
+			// 3. 根据三角形穿过的其中一个面将三角形切割为一个或两个三角形（一个面最多将一个三角形切割为两个可见的小三角形）
+			// 4. 将上面切割的三角形重复1-3的过程，直到所有三角形在包围盒之内。
+
+			if (point1 == null || point2 == null || point3 == null)
+				return;
+
+			Vertex p1 = new Vertex(point1);
+			Vertex p2 = new Vertex(point2);
+			Vertex p3 = new Vertex(point3);
+			p1.CallAreaCode();
+			p2.CallAreaCode();
+			p3.CallAreaCode();
+
+			// 全部在视野之内
+			if (p1.AreaCode == (byte)FaceType.NONE && p2.AreaCode == (byte)FaceType.NONE && p3.AreaCode == (byte)FaceType.NONE)
+			{
+				triangles.Add(new Triangle(p1, p2, p3));
+				return;
+			}
+			// 显然不可见
+			else if ((p1.AreaCode & p2.AreaCode) != 0 && (p2.AreaCode & p3.AreaCode) != 0 && (p3.AreaCode & p1.AreaCode) != 0)
+			{
+				return;
+			}
+
+			// 一部分在视野之内
+			List<FaceType> faces = new List<FaceType>();
+			TriPunctureFaces(p1, p2, p3, ref faces);
+			if (faces.Count() == 0)
+				return;
+			Vertex v0 = new Vertex();
 			Vertex v1 = null;
 			Vertex v2 = null;
 			FaceType faceType = faces[0];
@@ -283,27 +740,42 @@ namespace SampleCommon
 
 				v0.Position.y = 1;
 				float dt = (p1.Position.y - 1.0f) / (p1.Position.y - p3.Position.y);
-				v0.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, dt);
-				v0.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, dt);
-				Vertex.LerpColor(ref v0, p1, p3, dt);
+				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
+				v0.Position.z = (float)(p1.Position.z - (p1.Position.z - p3.Position.z) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+				v0.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p3.TexCoord.x, dt);
+				v0.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p3.TexCoord.y, dt);
 
 				if (p2.Position.y < 1)
 				{
-					v1 = new Vertex(p1);
+					v1 = new Vertex();
 					v1.Position.y = 1;
 					dt = (p1.Position.y - 1.0f) / (p1.Position.y - p2.Position.y);
-					v1.Position.x = MathUntil.Lerp(p1.Position.x, p2.Position.x, dt);
-					v1.Position.z = MathUntil.Lerp(p1.Position.z, p2.Position.z, dt);
-					Vertex.LerpColor(ref v1, p1, p2, dt);
+					v1.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
+					v1.Position.z = (float)(p1.Position.z - (p1.Position.z - p2.Position.z) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p1.Normal;
+					v1.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v1.Color = Color.Lerp(p1.Color, p2.Color, dt);
+					v1.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p2.TexCoord.x, dt);
+					v1.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p2.TexCoord.y, dt);
 				}
 				else if (p2.Position.y > 1)
 				{
-					v2 = new Vertex(p2);
+					v2 = new Vertex();
 					v2.Position.y = 1;
 					dt = (p2.Position.y - 1.0f) / (p2.Position.y - p3.Position.y);
-					v2.Position.x = MathUntil.Lerp(p2.Position.x, p3.Position.x, dt);
-					v2.Position.z = MathUntil.Lerp(p2.Position.z, p3.Position.z, dt);
-					Vertex.LerpColor(ref v2, p2, p3, dt);
+					v2.Position.x = (float)(p2.Position.x - (p2.Position.x - p3.Position.x) * dt);
+					v2.Position.z = (float)(p2.Position.z - (p2.Position.z - p3.Position.z) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p2.Normal;
+					v2.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v2.Color = Color.Lerp(p2.Color, p3.Color, dt);
+					v2.TexCoord.x = MathUntil.Lerp(p2.TexCoord.x, p3.TexCoord.x, dt);
+					v2.TexCoord.y = MathUntil.Lerp(p2.TexCoord.y, p3.TexCoord.y, dt);
 				}
 
 				Triangle triang1 = null;
@@ -357,27 +829,42 @@ namespace SampleCommon
 
 				v0.Position.y = -1;
 				float dt = (p1.Position.y + 1.0f) / (p1.Position.y - p3.Position.y);
-				v0.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, dt);
-				v0.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, dt);
-				Vertex.LerpColor(ref v0, p1, p3, dt);
+				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
+				v0.Position.z = (float)(p1.Position.z - (p1.Position.z - p3.Position.z) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+				v0.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p3.TexCoord.x, dt);
+				v0.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p3.TexCoord.y, dt);
 
 				if (p2.Position.y > -1)
 				{
-					v1 = new Vertex(p2);
+					v1 = new Vertex();
 					v1.Position.y = -1;
 					dt = (p2.Position.y + 1.0f) / (p2.Position.y - p3.Position.y);
-					v1.Position.x = MathUntil.Lerp(p2.Position.x, p3.Position.x, dt);
-					v1.Position.z = MathUntil.Lerp(p2.Position.z, p3.Position.z, dt);
-					Vertex.LerpColor(ref v1, p2, p3, dt);
+					v1.Position.x = (float)(p2.Position.x - (p2.Position.x - p3.Position.x) * dt);
+					v1.Position.z = (float)(p2.Position.z - (p2.Position.z - p3.Position.z) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p1.Normal;
+					v1.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v1.Color = Color.Lerp(p2.Color, p3.Color, dt);
+					v1.TexCoord.x = MathUntil.Lerp(p2.TexCoord.x, p3.TexCoord.x, dt);
+					v1.TexCoord.y = MathUntil.Lerp(p2.TexCoord.y, p3.TexCoord.y, dt);
 				}
 				else if (p2.Position.y < -1)
 				{
-					v2 = new Vertex(p1);
+					v2 = new Vertex();
 					v2.Position.y = -1;
 					dt = (p1.Position.y + 1.0f) / (p1.Position.y - p2.Position.y);
-					v2.Position.x = MathUntil.Lerp(p1.Position.x, p2.Position.x, dt);
-					v2.Position.z = MathUntil.Lerp(p1.Position.z, p2.Position.z, dt);
-					Vertex.LerpColor(ref v2, p1, p2, dt);
+					v2.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
+					v2.Position.z = (float)(p1.Position.z - (p1.Position.z - p2.Position.z) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p1.Normal;
+					v2.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v2.Color = Color.Lerp(p1.Color, p2.Color, dt);
+					v2.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p2.TexCoord.x, dt);
+					v2.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p2.TexCoord.y, dt);
 				}
 
 				Triangle triang1 = null;
@@ -430,27 +917,42 @@ namespace SampleCommon
 
 				v0.Position.x = -1;
 				float dt = (p1.Position.x + 1.0f) / (p1.Position.x - p3.Position.x);
-				v0.Position.y = MathUntil.Lerp(p1.Position.y, p3.Position.y, dt);
-				v0.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, dt);
-				Vertex.LerpColor(ref v0, p1, p3, dt);
+				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
+				v0.Position.z = (float)(p1.Position.z - (p1.Position.z - p3.Position.z) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+				v0.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p3.TexCoord.x, dt);
+				v0.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p3.TexCoord.y, dt);
 
 				if (p2.Position.x > -1)
 				{
-					v1 = new Vertex(p2);
+					v1 = new Vertex();
 					v1.Position.x = -1;
 					dt = (p2.Position.x + 1.0f) / (p2.Position.x - p3.Position.x);
-					v1.Position.y = MathUntil.Lerp(p2.Position.y, p3.Position.y, dt);
-					v1.Position.z = MathUntil.Lerp(p2.Position.z, p3.Position.z, dt);
-					Vertex.LerpColor(ref v1, p2, p3, dt);
+					v1.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
+					v1.Position.z = (float)(p2.Position.z - (p2.Position.z - p3.Position.z) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p2.Normal;
+					v1.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v1.Color = Color.Lerp(p2.Color, p3.Color, dt);
+					v1.TexCoord.x = MathUntil.Lerp(p2.TexCoord.x, p3.TexCoord.x, dt);
+					v1.TexCoord.y = MathUntil.Lerp(p2.TexCoord.y, p3.TexCoord.y, dt);
 				}
 				else if (p2.Position.x < -1)
 				{
-					v2 = new Vertex(p1);
+					v2 = new Vertex();
 					v2.Position.x = -1;
 					dt = (p1.Position.x + 1.0f) / (p1.Position.x - p2.Position.x);
-					v2.Position.y = MathUntil.Lerp(p1.Position.y, p2.Position.y, dt);
-					v2.Position.z = MathUntil.Lerp(p1.Position.z, p2.Position.z, dt);
-					Vertex.LerpColor(ref v2, p1, p2, dt);
+					v2.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
+					v2.Position.z = (float)(p1.Position.z - (p1.Position.z - p2.Position.z) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p1.Normal;
+					v2.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v2.Color = Color.Lerp(p1.Color, p2.Color, dt);
+					v2.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p2.TexCoord.x, dt);
+					v2.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p2.TexCoord.y, dt);
 				}
 
 				Triangle triang1 = null;
@@ -503,27 +1005,42 @@ namespace SampleCommon
 
 				v0.Position.x = 1;
 				float dt = (p1.Position.x - 1.0f) / (p1.Position.x - p3.Position.x);
-				v0.Position.y = MathUntil.Lerp(p1.Position.y, p3.Position.y, dt);
-				v0.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, dt);
-				Vertex.LerpColor(ref v0, p1, p3, dt);
+				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
+				v0.Position.z = (float)(p1.Position.z - (p1.Position.z - p3.Position.z) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+				v0.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p3.TexCoord.x, dt);
+				v0.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p3.TexCoord.y, dt);
 
 				if (p2.Position.x < 1)
 				{
-					v1 = new Vertex(p1);
+					v1 = new Vertex();
 					v1.Position.x = 1;
 					dt = (p1.Position.x - 1.0f) / (p1.Position.x - p2.Position.x);
-					v1.Position.y = MathUntil.Lerp(p1.Position.y, p2.Position.y, dt);
-					v1.Position.z = MathUntil.Lerp(p1.Position.z, p2.Position.z, dt);
-					Vertex.LerpColor(ref v1, p1, p2, dt);
+					v1.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
+					v1.Position.z = (float)(p1.Position.z - (p1.Position.z - p2.Position.z) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p1.Normal;
+					v1.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v1.Color = Color.Lerp(p1.Color, p2.Color, dt);
+					v1.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p2.TexCoord.x, dt);
+					v1.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p2.TexCoord.y, dt);
 				}
 				else if (p2.Position.x > 1)
 				{
-					v2 = new Vertex(p2);
+					v2 = new Vertex();
 					v2.Position.x = 1;
 					dt = (p2.Position.x - 1.0f) / (p2.Position.x - p3.Position.x);
-					v2.Position.y = MathUntil.Lerp(p2.Position.y, p3.Position.y, dt);
-					v2.Position.z = MathUntil.Lerp(p3.Position.z, p3.Position.z, dt);
-					Vertex.LerpColor(ref v2, p2, p3, dt);
+					v2.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
+					v2.Position.z = (float)(p3.Position.z - (p2.Position.z - p3.Position.z) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p1.Normal;
+					v2.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v2.Color = Color.Lerp(p2.Color, p3.Color, dt);
+					v2.TexCoord.x = MathUntil.Lerp(p2.TexCoord.x, p3.TexCoord.x, dt);
+					v2.TexCoord.y = MathUntil.Lerp(p2.TexCoord.y, p3.TexCoord.y, dt);
 				}
 
 				Triangle triang1 = null;
@@ -576,27 +1093,42 @@ namespace SampleCommon
 
 				v0.Position.z = 1;
 				float dt = (p1.Position.z - 1.0f) / (p1.Position.z - p3.Position.z);
-				v0.Position.y = MathUntil.Lerp(p1.Position.y, p3.Position.y, dt);
-				v0.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, dt);
-				Vertex.LerpColor(ref v0, p1, p3, dt);
+				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
+				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+				v0.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p3.TexCoord.x, dt);
+				v0.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p3.TexCoord.y, dt);
 
 				if (p2.Position.z < 1)
 				{
-					v1 = new Vertex(p2);
+					v1 = new Vertex();
 					v1.Position.z = 1;
 					dt = (p1.Position.z - 1.0f) / (p1.Position.z - p2.Position.z);
-					v1.Position.y = MathUntil.Lerp(p1.Position.y, p2.Position.y, dt);
-					v1.Position.x = MathUntil.Lerp(p1.Position.x, p2.Position.x, dt);
-					Vertex.LerpColor(ref v1, p1, p2, dt);
+					v1.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
+					v1.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p1.Normal;
+					v1.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v1.Color = Color.Lerp(p1.Color, p2.Color, dt);
+					v1.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p2.TexCoord.x, dt);
+					v1.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p2.TexCoord.y, dt);
 				}
 				else if (p2.Position.z > 1)
 				{
-					v2 = new Vertex(p1);
+					v2 = new Vertex();
 					v2.Position.z = 1;
 					dt = (p2.Position.z - 1.0f) / (p2.Position.z - p3.Position.z);
-					v2.Position.y = MathUntil.Lerp(p2.Position.y, p3.Position.y, dt);
-					v2.Position.x = MathUntil.Lerp(p3.Position.x, p3.Position.x, dt);
-					Vertex.LerpColor(ref v2, p2, p3, dt);
+					v2.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
+					v2.Position.x = (float)(p3.Position.x - (p2.Position.x - p3.Position.x) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p1.Normal;
+					v2.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v2.Color = Color.Lerp(p2.Color, p3.Color, dt);
+					v2.TexCoord.x = MathUntil.Lerp(p2.TexCoord.x, p3.TexCoord.x, dt);
+					v2.TexCoord.y = MathUntil.Lerp(p2.TexCoord.y, p3.TexCoord.y, dt);
 				}
 				Triangle triang1 = null;
 				if (v2 != null)
@@ -648,27 +1180,42 @@ namespace SampleCommon
 
 				v0.Position.z = 0;
 				float dt = p1.Position.z / (p1.Position.z - p3.Position.z);
-				v0.Position.y = MathUntil.Lerp(p1.Position.y, p3.Position.y, dt);
-				v0.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, dt);
-				Vertex.LerpColor(ref v0, p1, p3, dt);
+				v0.Position.y = (float)(p1.Position.y - (p1.Position.y - p3.Position.y) * dt);
+				v0.Position.x = (float)(p1.Position.x - (p1.Position.x - p3.Position.x) * dt);
+				v0.Position.w = 1;
+				v0.Normal = p1.Normal;
+				v0.LightColor = Color.Lerp(p1.LightColor, p3.LightColor, dt);
+				v0.Color = Color.Lerp(p1.Color, p3.Color, dt);
+				v0.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p3.TexCoord.x, dt);
+				v0.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p3.TexCoord.y, dt);
 
 				if (p2.Position.z > 0)
 				{
-					v1 = new Vertex(p2);
+					v1 = new Vertex();
 					v1.Position.z = 0;
 					dt = p2.Position.z / (p2.Position.z - p3.Position.z);
-					v1.Position.y = MathUntil.Lerp(p2.Position.y, p3.Position.y, dt);
-					v1.Position.x = MathUntil.Lerp(p2.Position.x, p3.Position.x, dt);
-					Vertex.LerpColor(ref v1, p2, p3, dt);
+					v1.Position.y = (float)(p2.Position.y - (p2.Position.y - p3.Position.y) * dt);
+					v1.Position.x = (float)(p2.Position.x - (p2.Position.x - p3.Position.x) * dt);
+					v1.Position.w = 1;
+					v1.Normal = p2.Normal;
+					v1.LightColor = Color.Lerp(p2.LightColor, p3.LightColor, dt);
+					v1.Color = Color.Lerp(p2.Color, p3.Color, dt);
+					v1.TexCoord.x = MathUntil.Lerp(p2.TexCoord.x, p3.TexCoord.x, dt);
+					v1.TexCoord.y = MathUntil.Lerp(p2.TexCoord.y, p3.TexCoord.y, dt);
 				}
 				else if (p2.Position.z < 0)
 				{
-					v2 = new Vertex(p1);
+					v2 = new Vertex();
 					v2.Position.z = 0;
 					dt = p1.Position.z / (p1.Position.z - p2.Position.z);
-					v2.Position.y = MathUntil.Lerp(p1.Position.y, p2.Position.y, dt);
-					v2.Position.x = MathUntil.Lerp(p1.Position.x, p2.Position.x, dt);
-					Vertex.LerpColor(ref v2, p1, p2, dt);
+					v2.Position.y = (float)(p1.Position.y - (p1.Position.y - p2.Position.y) * dt);
+					v2.Position.x = (float)(p1.Position.x - (p1.Position.x - p2.Position.x) * dt);
+					v2.Position.w = 1;
+					v2.Normal = p1.Normal;
+					v2.LightColor = Color.Lerp(p1.LightColor, p2.LightColor, dt);
+					v2.Color = Color.Lerp(p1.Color, p2.Color, dt);
+					v2.TexCoord.x = MathUntil.Lerp(p1.TexCoord.x, p2.TexCoord.x, dt);
+					v2.TexCoord.y = MathUntil.Lerp(p1.TexCoord.y, p2.TexCoord.y, dt);
 				}
 				Triangle triang1 = null;
 				if (v2 != null)
@@ -769,7 +1316,8 @@ namespace SampleCommon
 			}
 			else
 			{
-				TriangleRasterization(renderer, ref p1, ref p2, ref p3);
+				//TriangleRasterizationY(renderer, ref p1, ref p2, ref p3);
+				TriangleRasterizationY(renderer, p1, p2, p3);
 			}
 		}
 
@@ -817,8 +1365,12 @@ namespace SampleCommon
 		/// <param name="p1"></param>
 		/// <param name="p2"></param>
 		/// <param name="p3"></param>
-		public void TriangleRasterization(Renderer renderer, ref Vertex p1, ref Vertex p2, ref Vertex p3)
+		public void TriangleRasterizationY(Renderer renderer, ref Vertex p1, ref Vertex p2, ref Vertex p3)
 		{
+			if ((p1.Position.x == p2.Position.x && p2.Position.x == p3.Position.x)
+			|| (p1.Position.y == p2.Position.y && p2.Position.y == p3.Position.y))
+				return; //传入的点无法构成三角形
+
 			// 排序
 			if (p1.Position.y > p2.Position.y)
 				SwapVertex(ref p1, ref p2);
@@ -827,13 +1379,13 @@ namespace SampleCommon
 			if (p2.Position.y > p3.Position.y)
 				SwapVertex(ref p2, ref p3);
 
-			if(Math.Abs(p1.Position.y - p2.Position.y) <= 0.001f)
+			if(Math.Abs(p1.Position.y - p2.Position.y) == 0)
 			{
-				DrawTopTriangle(renderer, p1, p2, p3);
+				DrawTopYTriangle(renderer, p1, p2, p3);
 			}
-			else if(Math.Abs(p2.Position.y - p3.Position.y) <= 0.001f)
+			else if(Math.Abs(p2.Position.y - p3.Position.y) == 0)
 			{
-				DrawBottomTriangle(renderer, p1, p2, p3);
+				DrawBottomYTriangle(renderer, p1, p2, p3);
 			}
 			else
 			{
@@ -843,8 +1395,8 @@ namespace SampleCommon
 				ver.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, t);
 				ver.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, t);
 				Vertex.LerpColor(ref ver, p1, p3, t);
-				DrawBottomTriangle(renderer, p1, ver, p2);
-				DrawTopTriangle(renderer, ver, p2, p3);
+				DrawBottomYTriangle(renderer, p1, ver, p2);
+				DrawTopYTriangle(renderer, ver, p2, p3);
 			}
 		}
 
@@ -854,8 +1406,12 @@ namespace SampleCommon
 		/// <param name="p1"></param>
 		/// <param name="p2"></param>
 		/// <param name="p3"></param>
-		public void TriangleRasterization(Renderer renderer, Vertex p1, Vertex p2, Vertex p3)
+		public void TriangleRasterizationY(Renderer renderer, Vertex p1, Vertex p2, Vertex p3)
 		{
+			if ((p1.Position.x == p2.Position.x && p2.Position.x == p3.Position.x)
+			|| (p1.Position.y == p2.Position.y && p2.Position.y == p3.Position.y))
+				return; //传入的点无法构成三角形
+
 			// 平顶三角形：就是在计算机中显示的上面两个顶点的Y坐标相同。
 			// 平底三角形：就是在计算机中显示的时候下面两个顶点的Y坐标相同。
 			// 右边为主三角形：这种三角形三个点的Y坐标都不相同，但是右边的一条边是最长的斜边
@@ -863,23 +1419,23 @@ namespace SampleCommon
 			if (p1.Position.y == p2.Position.y)
 			{
 				if (p1.Position.y < p3.Position.y)
-					DrawTopTriangle(renderer, p1, p2, p3);
+					DrawTopYTriangle(renderer, p1, p2, p3);
 				else
-					DrawBottomTriangle(renderer, p3, p1, p2);
+					DrawBottomYTriangle(renderer, p3, p1, p2);
 			}
 			else if (p1.Position.y == p3.Position.y)
 			{
 				if (p1.Position.y < p2.Position.y)
-					DrawTopTriangle(renderer, p1, p3, p2);
+					DrawTopYTriangle(renderer, p1, p3, p2);
 				else
-					DrawBottomTriangle(renderer, p2, p1, p3);
+					DrawBottomYTriangle(renderer, p2, p1, p3);
 			}
 			else if (p2.Position.y == p3.Position.y)
 			{
 				if (p2.Position.y < p1.Position.y)
-					DrawTopTriangle(renderer, p2, p3, p1);
+					DrawTopYTriangle(renderer, p2, p3, p1);
 				else
-					DrawBottomTriangle(renderer, p1, p2, p3);
+					DrawBottomYTriangle(renderer, p1, p2, p3);
 			}
 			else
 			{
@@ -938,8 +1494,8 @@ namespace SampleCommon
 				Vertex.LerpColor(ref newMiddle, top, bottom, t);
 				newMiddle.Position.z = MathUntil.Lerp(top.Position.z, bottom.Position.z, t);
 
-				DrawBottomTriangle(renderer, top, newMiddle, middle);
-				DrawTopTriangle(renderer, newMiddle, middle, bottom);
+				DrawBottomYTriangle(renderer, top, newMiddle, middle);
+				DrawTopYTriangle(renderer, newMiddle, middle, bottom);
 			}
 		}
 
@@ -950,32 +1506,38 @@ namespace SampleCommon
 		/// <param name="p1">平顶三角形的顶点</param>
 		/// <param name="p2"></param>
 		/// <param name="p3"></param>
-		private void DrawTopTriangle(Renderer renderer, Vertex p1, Vertex p2, Vertex p3)
+		private void DrawTopYTriangle(Renderer renderer, Vertex p1, Vertex p2, Vertex p3)
 		{
+			if ((p1.Position.x == p2.Position.x && p2.Position.x == p3.Position.x)
+			|| (p1.Position.y == p2.Position.y && p2.Position.y == p3.Position.y))
+				return; //传入的点无法构成三角形
+
 			Vertex new1 = new Vertex(p1);
 			Vertex new2 = new Vertex(p2);
-			int miny = (int)p1.Position.y;
-			int maxy = (int)Math.Ceiling(p3.Position.y);
-			for (int y = miny; y <= maxy ; y += 1)
+			float maxx = Math.Max(Math.Abs(p1.Position.x - p3.Position.x), Math.Abs(p2.Position.x - p3.Position.x));
+			float offset = 1f;
+			if (maxx > (p3.Position.y - p1.Position.y) * 5)
+				offset = 0.2f;
+
+			for (float y = p1.Position.y; y <= p3.Position.y + 0.5f; y += offset)
 			{
 				if (y < 0 || y > renderer.Size.y)
 					continue;
 
-				float t = (float)(y - miny) / (float)(maxy - miny);
-				float xl = (p3.Position.x - p1.Position.x) * t + p1.Position.x;
-				float xr = (p3.Position.x - p2.Position.x) * t + p2.Position.x;
-
-				new1.Position.x = xl;
+				float t = (float)(y - p1.Position.y) / (float)(p3.Position.y - p1.Position.y);
+				new1.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, t);
 				new1.Position.y = y;
+				new1.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, t);
 				Vertex.LerpColor(ref new1, p1, p3, t);
-				new2.Position.x = xr;
+				new2.Position.x = MathUntil.Lerp(p2.Position.x, p3.Position.x, t);
 				new2.Position.y = y;
+				new2.Position.z = MathUntil.Lerp(p2.Position.z, p3.Position.z, t);
 				Vertex.LerpColor(ref new2, p2, p3, t);
 				//扫描线填充
 				if (new1.Position.x < new2.Position.x)
-					ScanlineFill(renderer, new1, new2, y);
+					ScanlineYFill(renderer, new1, new2, (int)y);
 				else
-					ScanlineFill(renderer, new2, new1, y);
+					ScanlineYFill(renderer, new2, new1, (int)y);
 			}
 		}
 
@@ -986,33 +1548,39 @@ namespace SampleCommon
 		/// <param name="p1">平底三角形的上顶点</param>
 		/// <param name="p2">平底三角形的下面第一个顶点</param>
 		/// <param name="p3">平底三角形的下面第二个顶点</param>
-		private void DrawBottomTriangle(Renderer renderer, Vertex p1, Vertex p2, Vertex p3)
+		private void DrawBottomYTriangle(Renderer renderer, Vertex p1, Vertex p2, Vertex p3)
 		{
+			if ((p1.Position.x == p2.Position.x && p2.Position.x == p3.Position.x)
+			|| (p1.Position.y == p2.Position.y && p2.Position.y == p3.Position.y))
+				return; //传入的点无法构成三角形
+
 			Vertex new1 = new Vertex();
 			Vertex new2 = new Vertex();
-			int miny = (int)p1.Position.y;
-			int maxy = (int)Math.Ceiling(p3.Position.y);
-			for (int y = miny; y <= maxy; y += 1)
+			float maxx = Math.Max(Math.Abs(p1.Position.x - p2.Position.x), Math.Abs(p1.Position.x - p3.Position.x));
+			float offset = 1f;
+			if (maxx > (p3.Position.y - p1.Position.y) * 5)
+				offset = 0.2f;
+			for (float y = p1.Position.y; y <= p3.Position.y + 0.5f; y += offset)
 			{
 				if (y < 0 || y > renderer.Size.y)
 					continue;
 
-				float t = (float)(y - miny) / (float)(maxy - miny);
-				float xLeft = (p2.Position.x - p1.Position.x) * t + p1.Position.x;
-				float xRight = (p3.Position.x - p1.Position.x) * t + p1.Position.x;
+				float t = (float)(y - p1.Position.y) / (float)(p3.Position.y - p1.Position.y);
 
-				new1.Position.x = xLeft;
+				new1.Position.x = MathUntil.Lerp(p1.Position.x, p2.Position.x, t);
 				new1.Position.y = y;
+				new1.Position.z = MathUntil.Lerp(p1.Position.z, p2.Position.z, t);
 				Vertex.LerpColor(ref new1, p1, p2, t);
 
-				new2.Position.x = xRight;
+				new2.Position.x = MathUntil.Lerp(p1.Position.x, p3.Position.x, t);
 				new2.Position.y = y;
+				new2.Position.z = MathUntil.Lerp(p1.Position.z, p3.Position.z, t);
 				Vertex.LerpColor(ref new2, p1, p3, t);
 				//扫描行进行填充
 				if (new1.Position.x < new2.Position.x)
-					ScanlineFill(renderer, new1, new2, y);
+					ScanlineYFill(renderer, new1, new2, (int)y);
 				else
-					ScanlineFill(renderer, new2, new1, y);
+					ScanlineYFill(renderer, new2, new1, (int)y);
 			}
 		}
 
@@ -1023,7 +1591,7 @@ namespace SampleCommon
 		/// <param name="left"></param>
 		/// <param name="right"></param>
 		/// <param name="yIndex"></param>
-		private void ScanlineFill(Renderer renderer, Vertex left, Vertex right, int yIndex)
+		private void ScanlineYFill(Renderer renderer, Vertex left, Vertex right, int yIndex)
 		{
 			float dx = right.Position.x - left.Position.x;
 			int minx = (int)left.Position.x;
@@ -1036,8 +1604,7 @@ namespace SampleCommon
 
 				float t = 0;
 				if (right.Position.x - left.Position.x > 0)
-					t = (x - left.Position.x) / (right.Position.x - left.Position.x);
-
+					t = MathUntil.Range((x - left.Position.x) / (right.Position.x - left.Position.x), 0f, 1f);
 				//深度测试
 				float depth = 0f;
 				if (left.ZView != 0 && right.ZView != 0)
@@ -1061,22 +1628,19 @@ namespace SampleCommon
 						// 纹理矫正
 						float lerpFactor = t;
 						if (right.ZView - left.ZView != 0)
-							lerpFactor = (depth - left.ZView) / (right.ZView - left.ZView);
-						float u = MathUntil.Lerp(left.TexCoord.x, right.TexCoord.x, t);
-						float v = MathUntil.Lerp(left.TexCoord.y, right.TexCoord.y, t);
+							lerpFactor = MathUntil.Range((depth - left.ZView) / (right.ZView - left.ZView), 0f, 1f);
+						float u = MathUntil.Lerp(left.TexCoord.x, right.TexCoord.x, lerpFactor);
+						float v = MathUntil.Lerp(left.TexCoord.y, right.TexCoord.y, lerpFactor);
 						mTexture.GetPixelColor(u, v, ref vColor);
 					}
 					else
 					{
-						vColor = Color.Red;
+						vColor = Color.White;
 					}
 				}
 				vColor = vColor * lightColor;
-				//renderer.FrameBuffer.SetPointColor(x, yIndex, vColor, depth);
 				renderer.FrameBuffer.Putpixel(x, yIndex, vColor, depth);
 			}
 		}
-
-
 	}
 }

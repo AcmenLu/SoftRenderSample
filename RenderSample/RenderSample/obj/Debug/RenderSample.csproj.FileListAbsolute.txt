@@ -21,8 +21,6 @@ F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.Rend
 F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.csproj.GenerateResource.Cache
 F:\OpenGL\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.pdb
 F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\bin\Debug\RenderSample.exe.config
-F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.exe
-F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.pdb
 F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\bin\Debug\RenderSample.exe
 F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\bin\Debug\RenderSample.pdb
 F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\bin\Debug\Common.dll
@@ -31,3 +29,5 @@ F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\obj\Debug\Render
 F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.Properties.Resources.resources
 F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.RenderSample.resources
 F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.csproj.GenerateResource.Cache
+F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.exe
+F:\Sample\SoftRender\SoftRenderSample\RenderSample\RenderSample\obj\Debug\RenderSample.pdb

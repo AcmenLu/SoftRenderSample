@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 
-namespace SampleCommon
+namespace SoftRenderSample
 {
-	public class RenderTexture
+	class RenderTexture
 	{
 		private Bitmap mTexture;
 		private int mWidth;
@@ -17,7 +16,6 @@ namespace SampleCommon
 		{
 			get { return mTexture; }
 		}
-
 
 		/// <summary>
 		/// 构造函数，从本地文件中读取一个文件
@@ -46,9 +44,9 @@ namespace SampleCommon
 		/// </summary>
 		private void FillTextureWithRed()
 		{
-			for (int i = 0; i < mWidth; i ++)
+			for (int i = 0; i < mWidth; i++)
 			{
-				for(int j = 0; j < mHeight; j ++)
+				for (int j = 0; j < mHeight; j++)
 				{
 					mTexture.SetPixel(i, j, System.Drawing.Color.Red);
 				}
@@ -56,44 +54,39 @@ namespace SampleCommon
 		}
 
 		/// <summary>
-		/// 获取图片某个位置的颜色。
+		/// 获取某一位置颜色
 		/// </summary>
 		/// <param name="posX"></param>
 		/// <param name="posY"></param>
 		/// <returns></returns>
-		public Color GetPixelColor(int posX, int posY, ref Color color)
-		{
-			posX = posX > 0 ? posX : 0;
-			posX = posX >= mWidth ? mWidth - 1 : posX;
-
-			posY = posY > 0 ? posY : 0;
-			posY = posY >= mHeight ? mHeight  - 1: posY;
-			System.Drawing.Color scolor = mTexture.GetPixel(posX, posY);
-			color = Color.ConvertSystemColor(scolor);
-			return color;
-		}
-
-		public System.Drawing.Color GetPixelColor(int posX, int posY)
+		public Color GetPixelColor(int posX, int posY)
 		{
 			posX = posX > 0 ? posX : 0;
 			posX = posX >= mWidth ? mWidth - 1 : posX;
 
 			posY = posY > 0 ? posY : 0;
 			posY = posY >= mHeight ? mHeight - 1 : posY;
-			return mTexture.GetPixel(posX, posY);
+			System.Drawing.Color col = mTexture.GetPixel(posX, posY);
+			return new Color(col.R, col.G, col.B);
 		}
 
 		/// <summary>
-		/// 用0···1之间的值获取到一个位置的颜色
+		/// 按照比例获取某一位置颜色
 		/// </summary>
-		/// <param name="factorx"></param>
-		/// <param name="factory"></param>
+		/// <param name="posXrate"></param>
+		/// <param name="posYrate"></param>
 		/// <returns></returns>
-		public Color GetPixelColor(float factorx, float factory, ref Color color)
+		public Color GetPixelColor(float posXrate, float posYrate)
 		{
-			int posX = (int)Math.Round(factorx * mWidth, 0);
-			int posY = (int)Math.Round(factory * mHeight, 0);
-			return GetPixelColor(posX, posY, ref color);
+			int posX = (int)(posXrate * (mWidth - 1));
+			int posY = (int)(posYrate * (mHeight - 1));
+			posX = posX > 0 ? posX : 0;
+			posX = posX >= mWidth ? mWidth - 1 : posX;
+
+			posY = posY > 0 ? posY : 0;
+			posY = posY >= mHeight ? mHeight - 1 : posY;
+			System.Drawing.Color col = mTexture.GetPixel(posX, posY);
+			return new Color(col.R, col.G, col.B);
 		}
 	}
 }
