@@ -33,10 +33,6 @@ namespace SoftRenderSample
 		private int mHeight;
 		private int mWidth;
 		private readonly float[] mDepthBuffer;
-		// 裁剪
-		private Clip mHodgmanclip;
-		// 扫描线
-		private ScanLine mScanline;
 
 		// 裁剪区域定义
 		public Vector4 clipmin = new Vector4(-1, -1, -1, 1);
@@ -60,7 +56,6 @@ namespace SoftRenderSample
 			this.mHeight = bmp.Height;
 			this.mWidth = bmp.Width;
 			this.mDepthBuffer = new float[bmp.Width * bmp.Height];
-			mScanline = new ScanLine(this);
 		}
 
 		/// <summary>
@@ -229,10 +224,8 @@ namespace SoftRenderSample
 		public void Render(Scene scene, BitmapData bmp, Matrix4x4 viewMat, Matrix4x4 proMat)
 		{
 			this.mBmData = bmp;
-			foreach (Mesh msh in scene.Meshs)
-			{
-				msh.Render(scene, this, viewMat, proMat);
-			}
+			if (scene != null)
+				scene.Render(this, viewMat, proMat);
 		}
 
 		/// <summary>

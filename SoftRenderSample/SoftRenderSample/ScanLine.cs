@@ -176,10 +176,13 @@ namespace SoftRenderSample
 						typ = FaceTypes.NONE;
 
 					RenderTexture texture = msh.GetTextureByFace(typ);
-					if (scene.IsUseLight == false || light == null)
-						mUserColor = texture.GetPixelColor(uv.U, uv.V);
-					else
-						mUserColor = texture.GetPixelColor(uv.U, uv.V) * MathUntily.Lerp(lc1, lc2, r3);
+					if (texture != null)
+					{
+						if (scene.IsUseLight == false || light == null)
+							mUserColor = texture.GetPixelColor(uv.U, uv.V);
+						else
+							mUserColor = texture.GetPixelColor(uv.U, uv.V) * MathUntily.Lerp(lc1, lc2, r3);
+					}
 				}
 
 				this.mDevice.DrawPoint(tmppos, mUserColor);

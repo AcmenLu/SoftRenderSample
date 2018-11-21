@@ -270,7 +270,11 @@ namespace SoftRenderSample
 				new Face(12, 15, 3, FaceTypes.BUTTOM),
 				new Face(12, 3, 0, FaceTypes.BUTTOM)
 			};
-			mCube.InitTextureMap();
+			RenderTexture[] textures = new RenderTexture[6];
+			for (int i = 0; i < 6; i++)
+				textures[i] = new RenderTexture(@"env" + i.ToString() + ".bmp");
+			mCube.TextureMaps = textures;
+
 			scene.AddMesh(mCube);
 		}
 

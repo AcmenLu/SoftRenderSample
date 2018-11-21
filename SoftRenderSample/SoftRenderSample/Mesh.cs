@@ -13,11 +13,9 @@ namespace SoftRenderSample
 		private Face[] mFaces;
 		private Material mMaterial;
 		private Matrix4x4 mTransform;
+		private RenderTexture[] mTextureMaps;
 		private Clip mHodgmanclip;
 		private ScanLine mScanline;
-
-		private RenderTexture textureMap;
-		private RenderTexture[] textureMaps;
 
 		/// <summary>
 		/// 模型名称
@@ -63,6 +61,11 @@ namespace SoftRenderSample
 			set { mTransform = value; }
 		}
 
+		public RenderTexture[] TextureMaps
+		{
+			get { return mTextureMaps; }
+			set { mTextureMaps = value; }
+		}
 		/// <summary>
 		/// 顶点数量和名字构造
 		/// </summary>
@@ -97,31 +100,23 @@ namespace SoftRenderSample
 		/// <returns></returns>
 		public RenderTexture GetTextureByFace(FaceTypes types)
 		{
+			if (mTextureMaps.Length == 0)
+				return null;
+
 			if (types == FaceTypes.NONE)
 			{
-				return textureMap;
+				return mTextureMaps[0];
 			}
 			else
 			{
 				int index = (int)types;
-				if (textureMaps.Length == 6 && index >= 0 && index < 6)
-					return textureMaps[index];
+				if (mTextureMaps.Length == 6 && index >= 0 && index < 6)
+					return mTextureMaps[index];
 				else
-					return textureMap;
+					return mTextureMaps[0];
 			}
 		}
-
-		/// <summary>
-		/// 加载所用到的贴图
-		/// </summary>
-		public void InitTextureMap()
-		{
-			textureMap = new RenderTexture(@"env1.bmp");
-			textureMaps = new RenderTexture[6];
-			for (int i = 0; i < 6; i++)
-				textureMaps[i] = new RenderTexture(@"env" + i.ToString() + ".bmp");
-		}
-
+	
 		/// <summary>
 		/// 计算顶点所受的光照的颜色
 		/// </summary>

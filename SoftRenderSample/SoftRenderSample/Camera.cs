@@ -8,8 +8,6 @@ namespace SoftRenderSample
 		private Vector4 mPosition;
 		private Vector4 mTarget;
 		private Vector4 mUp;
-		private float mPitch;
-		private float mYaw;
 
 		/// <summary>
 		/// 相机位置
@@ -36,24 +34,6 @@ namespace SoftRenderSample
 		{
 			get { return mUp; }
 			set { mUp = value; }
-		}
-
-		/// <summary>
-		/// 上下旋转角
-		/// </summary>
-		public float Pitch
-		{
-			get { return mPitch; }
-			set { mPitch = value; }
-		}
-
-		/// <summary>
-		/// 左右旋转角
-		/// </summary>
-		public float Yaw
-		{
-			get { return mYaw; }
-			set { mYaw = value; }
 		}
 
 		/// <summary>
@@ -134,25 +114,6 @@ namespace SoftRenderSample
 		{
 			mPosition = pos;
 		}
-
-		/// <summary>
-		/// 改变相机的上下角度
-		/// </summary>
-		/// <param name="pitch"></param>
-		public void UpdateCameraPitch(float pitch)
-		{
-			mPitch = pitch;
-		}
-
-		/// <summary>
-		/// //改变相机的左右角度
-		/// </summary>
-		/// <param name="yaw"></param>
-		public void UpdateCamerYaw(float yaw)
-		{
-			mYaw = yaw;
-		}
-
 
 		/// <summary>
 		/// 前后移动摄像机

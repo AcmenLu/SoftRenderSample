@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace SoftRenderSample
 {
@@ -44,8 +40,6 @@ namespace SoftRenderSample
 			mCamera.Position = new Vector4(0,0,-5, 1);
 			mCamera.Target = new Vector4(0, 0, 0, 1);
 			mCamera.Up = new Vector4(0, 1, 0, 1);
-			mCamera.Pitch = 0f;
-			mCamera.Yaw = 0f;
 		}
 
 		/// <summary>
@@ -75,6 +69,18 @@ namespace SoftRenderSample
 				mMeshs = new List<Mesh>();
 
 			mMeshs.Add(msh);
+		}
+
+		/// <summary>
+		/// 渲染事件
+		/// </summary>
+		public void Render(Device device, Matrix4x4 viewMat, Matrix4x4 proMat)
+		{
+			// 模型渲染
+			foreach(Mesh msh in mMeshs)
+			{
+				msh.Render(this, device, viewMat, proMat);
+			}
 		}
 	}
 }

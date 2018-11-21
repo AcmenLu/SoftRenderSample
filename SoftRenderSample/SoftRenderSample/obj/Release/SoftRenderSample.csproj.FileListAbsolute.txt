@@ -1,12 +1,12 @@
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\TestEngineDemo\bin\Release\TestEngineDemo.exe.config
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\TestEngineDemo\obj\Release\TestEngineDemo.exe
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\TestEngineDemo\obj\Release\TestEngineDemo.pdb
-F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\bin\Release\SoftRenderSample.exe.config
-F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\bin\Release\SoftRenderSample.exe
-F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\bin\Release\SoftRenderSample.pdb
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.csprojResolveAssemblyReference.cache
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.SoftRenderSample.resources
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.Properties.Resources.resources
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.csproj.GenerateResource.Cache
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\bin\Release\SoftRenderSample.exe.config
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\bin\Release\SoftRenderSample.exe
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\bin\Release\SoftRenderSample.pdb
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.exe
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.pdb
-F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.csprojResolveAssemblyReference.cache
