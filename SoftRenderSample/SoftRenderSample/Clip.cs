@@ -65,7 +65,6 @@ namespace SoftRenderSample
 			Color col = new Color(0, 0, 0);
 			Vector4 normal = new Vector4();
 			Vector2 uv = new Vector2();
-			float colk = 0.0f;
 			switch (face)
 			{
 				case FaceTypes.LEFT:
@@ -73,66 +72,60 @@ namespace SoftRenderSample
 					clipPos.Y = p1.Y + (p2.Y - p1.Y) * k1;
 					clipPos.Z = p1.Z + (p2.Z - p1.Z) * k1;
 					clipPos.W = p1.W + (p2.W - p1.W) * k1;
-					col = MathUntily.Lerp(v1.color, v2.color, k1);
+					col = MathUntily.Lerp(v1.Color, v2.Color, k1);
 					normal = MathUntily.Lerp(v1.Normal, v2.Normal, k1);
 					pos = MathUntily.Lerp(v1.Position, v2.Position, k1);
 					uv = MathUntily.Lerp(v1.UV, v2.UV, k1);
-					colk = MathUntily.Lerp(v1.ColK, v2.ColK, k1);
 					break;
 				case FaceTypes.RIGHT:
 					clipPos.X = wMax.X;
 					clipPos.Y = p1.Y + (p2.Y - p1.Y) * k2;
 					clipPos.Z = p1.Z + (p2.Z - p1.Z) * k2;
 					clipPos.W = p1.W + (p2.W - p1.W) * k2;
-					col = MathUntily.Lerp(v1.color, v2.color, k2);
+					col = MathUntily.Lerp(v1.Color, v2.Color, k2);
 					normal = MathUntily.Lerp(v1.Normal, v2.Normal, k2);
 					pos = MathUntily.Lerp(v1.Position, v2.Position, k2);
 					uv = MathUntily.Lerp(v1.UV, v2.UV, k2);
-					colk = MathUntily.Lerp(v1.ColK, v2.ColK, k2);
 					break;
-				case FaceTypes.TOP:
+				case FaceTypes.BUTTOM:
 					clipPos.Y = wMin.Y;
 					clipPos.X = p1.X + (p2.X - p1.X) * k3;
 					clipPos.Z = p1.Z + (p2.Z - p1.Z) * k3;
 					clipPos.W = p1.W + (p2.W - p1.W) * k3;
-					col = MathUntily.Lerp(v1.color, v2.color, k3);
+					col = MathUntily.Lerp(v1.Color, v2.Color, k3);
 					normal = MathUntily.Lerp(v1.Normal, v2.Normal, k3);
 					pos = MathUntily.Lerp(v1.Position, v2.Position, k3);
 					uv = MathUntily.Lerp(v1.UV, v2.UV, k3);
-					colk = MathUntily.Lerp(v1.ColK, v2.ColK, k3);
 					break;
-				case FaceTypes.BUTTOM:
+				case FaceTypes.TOP:
 					clipPos.Y = wMax.Y;
 					clipPos.X = p1.X + (p2.X - p1.X) * k4;
 					clipPos.Z = p1.Z + (p2.Z - p1.Z) * k4;
 					clipPos.W = p1.W + (p2.W - p1.W) * k4;
-					col = MathUntily.Lerp(v1.color, v2.color, k4);
+					col = MathUntily.Lerp(v1.Color, v2.Color, k4);
 					normal = MathUntily.Lerp(v1.Normal, v2.Normal, k4);
 					pos = MathUntily.Lerp(v1.Position, v2.Position, k4);
 					uv = MathUntily.Lerp(v1.UV, v2.UV, k4);
-					colk = MathUntily.Lerp(v1.ColK, v2.ColK, k4);
 					break;
 				case FaceTypes.NEAR:
 					clipPos.Z = wMin.Z;
 					clipPos.X = p1.X + (p2.X - p1.X) * k5;
 					clipPos.Y = p1.Y + (p2.Y - p1.Y) * k5;
 					clipPos.W = p1.W + (p2.W - p1.W) * k5;
-					col = MathUntily.Lerp(v1.color, v2.color, k5);
+					col = MathUntily.Lerp(v1.Color, v2.Color, k5);
 					normal = MathUntily.Lerp(v1.Normal, v2.Normal, k5);
 					pos = MathUntily.Lerp(v1.Position, v2.Position, k5);
 					uv = MathUntily.Lerp(v1.UV, v2.UV, k5);
-					colk = MathUntily.Lerp(v1.ColK, v2.ColK, k5);
 					break;
 				case FaceTypes.FAR:
 					clipPos.Z = wMax.Z;
 					clipPos.X = p1.X + (p2.X - p1.X) * k6;
 					clipPos.Y = p1.Y + (p2.Y - p1.Y) * k6;
 					clipPos.W = p1.W + (p2.W - p1.W) * k6;
-					col = MathUntily.Lerp(v1.color, v2.color, k6);
+					col = MathUntily.Lerp(v1.Color, v2.Color, k6);
 					normal = MathUntily.Lerp(v1.Normal, v2.Normal, k6);
 					pos = MathUntily.Lerp(v1.Position, v2.Position, k6);
 					uv = MathUntily.Lerp(v1.UV, v2.UV, k6);
-					colk = MathUntily.Lerp(v1.ColK, v2.ColK, k6);
 					break;
 			}
 
@@ -141,8 +134,7 @@ namespace SoftRenderSample
 			vertex.ScreenPosition = this.mDevice.ViewPort(clipPos);
 			vertex.Normal = normal;
 			vertex.UV = uv;
-			vertex.color = col;
-			vertex.ColK = colk;
+			vertex.Color = col;
 			return vertex;
 		}
 
@@ -167,11 +159,11 @@ namespace SoftRenderSample
 					if (p.X > wMax.X)
 						mark = false;
 					break;
-				case FaceTypes.TOP:
+				case FaceTypes.BUTTOM:
 					if (p.Y < wMin.Y)
 						mark = false;
 					break;
-				case FaceTypes.BUTTOM:
+				case FaceTypes.TOP:
 					if (p.Y > wMax.Y)
 						mark = false;
 					break;
@@ -224,5 +216,6 @@ namespace SoftRenderSample
 				s = vertexList[i];
 			}
 		}
+
 	}
 }

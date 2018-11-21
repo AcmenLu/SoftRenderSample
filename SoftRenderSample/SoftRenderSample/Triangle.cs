@@ -94,12 +94,12 @@ namespace SoftRenderSample
 		/// 计算UV坐标
 		/// </summary>
 		/// <returns></returns>
-		public Vector4 GetUV()
+		public Vector2 GetUV()
 		{
 			float u = LerpValue(u1, u2, u3);
 			float v = LerpValue(v1, v2, v3);
 			float w = LerpValue(w1, w2, w3);
-			return new Vector4(u/w, v/w, 0, 0);
+			return new Vector2(u / w, v / w);
 		}
 
 		/// <summary>

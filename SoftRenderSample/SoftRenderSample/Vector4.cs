@@ -13,6 +13,11 @@ namespace SoftRenderSample
 		public float Z;
 		public float W;
 
+		public float Length
+		{
+			get { return (float)Math.Sqrt(X * X + Y * Y + Z * Z); }
+		}
+
 		public Vector4(float x, float y, float z, float w) : this()
 		{
 			this.X = x;
@@ -63,6 +68,21 @@ namespace SoftRenderSample
 		}
 
 		/// <summary>
+		/// 向量和矩阵相乘
+		/// </summary>
+		/// <param name="lhs"></param>
+		/// <param name="rhs"></param>
+		/// <returns></returns>
+		public static Vector4 operator *(Vector4 lhs, Matrix4x4 rhs)
+		{
+			Vector4 v = new Vector4();
+			v.X = lhs.X * rhs[0, 0] + lhs.Y * rhs[1, 0] + lhs.Z * rhs[2, 0] + lhs.W * rhs[3, 0];
+			v.Y = lhs.X * rhs[0, 1] + lhs.Y * rhs[1, 1] + lhs.Z * rhs[2, 1] + lhs.W * rhs[3, 1];
+			v.Z = lhs.X * rhs[0, 2] + lhs.Y * rhs[1, 2] + lhs.Z * rhs[2, 2] + lhs.W * rhs[3, 2];
+			v.W = lhs.X * rhs[0, 3] + lhs.Y * rhs[1, 3] + lhs.Z * rhs[2, 3] + lhs.W * rhs[3, 3];
+			return v;
+		}
+		/// <summary>
 		/// 矢量与值得 除法
 		/// </summary>
 		/// <param name="a"></param>
@@ -106,7 +126,7 @@ namespace SoftRenderSample
 		/// <summary>
 		/// 归一化
 		/// </summary>
-		public void Normalize()
+		public Vector4 Normalize()
 		{
 			float length = (float)Math.Sqrt(this.X * this.X + this.Y * this.Y + this.Z * this.Z);
 			if (length != 0.0f)
@@ -116,6 +136,7 @@ namespace SoftRenderSample
 				this.Y *= inv;
 				this.Z *= inv;
 			}
+			return this;
 		}
 
 		/// <summary>

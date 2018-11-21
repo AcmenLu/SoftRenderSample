@@ -23,7 +23,7 @@ namespace SoftRenderSample
 		/// <param name="triangle"></param>
 		/// <param name="scene"></param>
 		/// <param name="ort"></param>
-		public void ProcessScanLine(Triangle triangle, Scene scene, Triangle ort, FaceTypes types)
+		public void ProcessScanLine(Triangle triangle, Scene scene, Triangle ort, FaceTypes types, Mesh msh)
 		{
 			Vector4 P1 = triangle.vertices[0].ScreenPosition;
 			Vector4 P2 = triangle.vertices[1].ScreenPosition;
@@ -68,7 +68,7 @@ namespace SoftRenderSample
 					Vertex.SwapVertex(ref V1, ref V2);
 				}
 				for (var y = (int)P1.Y; y < (int)P3.Y; y++)
-					ScanLineX(triangle, (int)y, V1, V3, V2, V3, scene, ort, types);
+					ScanLineX(triangle, (int)y, V1, V3, V2, V3, scene, ort, types, msh);
 			}
 
 			Vector4 temp1 = P1;
@@ -80,9 +80,9 @@ namespace SoftRenderSample
 				for (int y = (int)P1.Y; y <= (int)P3.Y; y++)
 				{
 					if (y < P2.Y)
-						ScanLineX(triangle, y, V1, V3, V1, V2, scene, ort, types);
+						ScanLineX(triangle, y, V1, V3, V1, V2, scene, ort, types, msh);
 					else
-						ScanLineX(triangle, y, V1, V3, V2, V3, scene, ort, types);
+						ScanLineX(triangle, y, V1, V3, V2, V3, scene, ort, types, msh);
 				}
 			}
 			else
@@ -90,9 +90,9 @@ namespace SoftRenderSample
 				for (int y = (int)P1.Y; y <= (int)P3.Y; y++)
 				{
 					if (y < P2.Y)
-						ScanLineX(triangle, y, V1, V2, V1, V3, scene, ort, types);
+						ScanLineX(triangle, y, V1, V2, V1, V3, scene, ort, types, msh);
 					else
-						ScanLineX(triangle, y, V2, V3, V1, V3, scene, ort, types);
+						ScanLineX(triangle, y, V2, V3, V1, V3, scene, ort, types, msh);
 				}
 			}
 		}
@@ -109,7 +109,7 @@ namespace SoftRenderSample
 		/// <param name="scene"></param>
 		/// <param name="ort"></param>
 		/// <param name="types"></param>
-		public void ScanLineX(Triangle triangle, int y, Vertex v1, Vertex v2, Vertex v3, Vertex v4, Scene scene, Triangle ort, FaceTypes types)
+		public void ScanLineX(Triangle triangle, int y, Vertex v1, Vertex v2, Vertex v3, Vertex v4, Scene scene, Triangle ort, FaceTypes types, Mesh msh)
 		{
 			Vector4 screen11 = v1.ScreenPosition;
 			Vector4 screen12 = v2.ScreenPosition;
@@ -127,12 +127,12 @@ namespace SoftRenderSample
 			float z1 = MathUntily.Lerp(screen11.Z, screen12.Z, r1);
 			float z2 = MathUntily.Lerp(screen21.Z, screen22.Z, r2);
 
-			Color c1 = MathUntily.Lerp(v1.color, v2.color, r1);
-			Color c2 = MathUntily.Lerp(v3.color, v4.color, r2);
+			Color c1 = MathUntily.Lerp(v1.Color, v2.Color, r1);
+			Color c2 = MathUntily.Lerp(v3.Color, v4.Color, r2);
 			Color c3 = new Color();
 
-			float colk1 = MathUntily.Lerp(v1.ColK, v2.ColK, r1);
-			float colk2 = MathUntily.Lerp(v3.ColK, v4.ColK, r2);
+			Color lc1 = MathUntily.Lerp(v1.LightColor, v2.LightColor, r1);
+			Color lc2 = MathUntily.Lerp(v3.LightColor, v4.LightColor, r2);
 
 			Vector4 pos1 = MathUntily.Lerp(v1.Position, v2.Position, r1);
 			Vector4 pos2 = MathUntily.Lerp(v3.Position, v4.Position, r2);
@@ -161,31 +161,25 @@ namespace SoftRenderSample
 				nor3 = ort.GetNormal();
 
 				Light light = scene.Lights;
-				float d = 0;
 				if (scene.IsUseLight == false || light == null)
-				{
 					c3 = MathUntily.Lerp(c1, c2, r3);
-				}
 				else
-				{
-					d = light.ComputeNormalDot(nor3, nor3);
-					c3 = MathUntily.Lerp(c1, c2, r3) * light.LightColorV(d);
-				}
+					c3 = MathUntily.Lerp(c1, c2, r3) * MathUntily.Lerp(lc1, lc2, r3);
 
 				mUserColor = c3;
 				if (mDevice.renderMode == RenderMode.TEXTURED || mDevice.renderMode == RenderMode.CUBETEXTURED)
 				{
 					ort.CallLerp(new Vector4(x, y, 0, 0));
-					Vector4 uv = ort.GetUV();
+					Vector2 uv = ort.GetUV();
 					FaceTypes typ = types;
 					if (mDevice.renderMode == RenderMode.TEXTURED)
 						typ = FaceTypes.NONE;
 
-					RenderTexture texture = scene.GetTextureByFace(typ);
+					RenderTexture texture = msh.GetTextureByFace(typ);
 					if (scene.IsUseLight == false || light == null)
-						mUserColor = texture.GetPixelColor(uv.X, uv.Y);
+						mUserColor = texture.GetPixelColor(uv.U, uv.V);
 					else
-						mUserColor = texture.GetPixelColor(uv.X, uv.Y) * light.LightColorV(d);
+						mUserColor = texture.GetPixelColor(uv.U, uv.V) * MathUntily.Lerp(lc1, lc2, r3);
 				}
 
 				this.mDevice.DrawPoint(tmppos, mUserColor);

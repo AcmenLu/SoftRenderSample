@@ -8,10 +8,7 @@ namespace SoftRenderSample
 {
 	class Scene
 	{
-		//private Mesh mMesh;
 		private Light mLight;
-		private RenderTexture textureMap;
-		private RenderTexture[] textureMaps;
 		private Camera mCamera;
 
 		private List<Mesh> mMeshs;
@@ -36,7 +33,6 @@ namespace SoftRenderSample
 		public Scene()
 		{
 			InitCarmera();
-			InitTextureMap();
 		}
 
 		/// <summary>
@@ -53,37 +49,6 @@ namespace SoftRenderSample
 		}
 
 		/// <summary>
-		/// 加载所用到的贴图
-		/// </summary>
-		public void InitTextureMap()
-		{
-			textureMap = new RenderTexture(@"env1.bmp");
-			textureMaps = new RenderTexture[6];
-			for(int i = 0; i < 6; i ++)
-				textureMaps[i] = new RenderTexture(@"env" + i.ToString() + ".bmp");
-		}
-
-		/// <summary>
-		/// 根据模型的面的方向返回贴图
-		/// </summary>
-		/// <param name="types"></param>
-		/// <returns></returns>
-		public RenderTexture GetTextureByFace(FaceTypes types)
-		{
-			if (types == FaceTypes.NONE)
-			{
-				return textureMap;
-			}
-			else
-			{
-				int index = (int)types;
-				if (textureMaps.Length == 6 && index >= 0 && index < 6)
-					return textureMaps[index];
-				else
-					return textureMap;
-			}
-		}
-		/// <summary>
 		/// 添加一个光
 		/// </summary>
 		public void AddLight(Light light)
@@ -95,7 +60,7 @@ namespace SoftRenderSample
 		/// 删除光
 		/// </summary>
 		/// <param name="light"></param>
-		public void delLight()
+		public void DelLight()
 		{
 			mLight = null;
 		}

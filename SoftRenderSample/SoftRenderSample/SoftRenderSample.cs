@@ -19,14 +19,13 @@ namespace SoftRenderSample
 		private Graphics mGraphics;
 		private Scene mScene;
 		private PixelFormat mPixelFormat;
-		private Matrix4x4 mMatrix;
 		private BitmapData mData;
-		
-		public int oldX = 0;
-		public int oldY = 0;
-		public int RotionX = 0;
-		public int RotionY = 0;
-		public bool isMouseDown = false;
+
+		private Matrix4x4 mViewMat;
+		private Matrix4x4 mProjectionMat;
+		private Mesh mCube;
+		private bool mIsMouseLeftDown = false;
+		private Vector2 mMouseLeftPos = new Vector2();
 
 
 		public SoftRenderSample()
@@ -57,7 +56,8 @@ namespace SoftRenderSample
 			mBmp = new Bitmap(this.ClientSize.Width, this.ClientSize.Height, PixelFormat.Format24bppRgb);
 			mDevice = new Device(mBmp);
 			mScene = new Scene();
-			mMatrix = mDevice.GetMvpMatrix(mScene.Camera, RotionX, RotionY);
+			mViewMat = mScene.Camera.GetLookAt();
+			mProjectionMat = mScene.Camera.GetProject((float)System.Math.PI * 0.3f, (float)ClientSize.Width / (float)ClientSize.Height, 1f, 100.0f);
 			this.mRect = new Rectangle(0, 0, this.ClientSize.Width, this.ClientSize.Height);
 			this.mPixelFormat = mBmp.PixelFormat;
 			AddCubeToScene(mScene);
@@ -71,7 +71,7 @@ namespace SoftRenderSample
 		{
 			mData = this.mBmp.LockBits(mRect, ImageLockMode.ReadWrite, this.mPixelFormat);
 			this.mDevice.Clear(mData);
-			mDevice.Render(mScene, mData, mMatrix);
+			mDevice.Render(mScene, mData, mViewMat, mProjectionMat);
 			this.mBmp.UnlockBits(mData);
 			mGraphics = pe.Graphics;
 			mGraphics.DrawImage(this.mBmp, new Rectangle(0, 0, mBmp.Width, mBmp.Height));
@@ -103,40 +103,35 @@ namespace SoftRenderSample
 				case Keys.NumPad0:
 				case Keys.Q:
 					mDevice.renderMode = RenderMode.WIREFRAME;
-					this.Invalidate();
 					break;
 				case Keys.NumPad1:
 				case Keys.W:
 					mDevice.renderMode = RenderMode.VERTEXCOLOR;
-					mData = this.mBmp.LockBits(mRect, ImageLockMode.ReadWrite, this.mPixelFormat);
-					this.Invalidate();
-					this.mBmp.UnlockBits(mData);
 					break;
 				case Keys.NumPad2:
 				case Keys.E:
 					mDevice.renderMode = RenderMode.TEXTURED;
-					this.Invalidate();
 					break;
 				case Keys.NumPad3:
 				case Keys.R:
 					mDevice.renderMode = RenderMode.CUBETEXTURED;
-					this.Invalidate();
 					break;
 				case Keys.F1:
 					Light light = new Light(new Vector4(5, 5, -5, 1), new Color(200, 255, 255));
 					mScene.AddLight(light);
 					mScene.IsUseLight = true;
-					this.Invalidate();
 					break;
 				case Keys.F2:
-					mScene.delLight();
+					mScene.DelLight();
 					mScene.IsUseLight = false;
-					this.Invalidate();
 					break;
 				case Keys.Escape:
 					Close();
 					break;
 			}
+
+			if (keyData != Keys.Escape)
+				this.Invalidate();
 
 			return true;
 		}
@@ -148,26 +143,12 @@ namespace SoftRenderSample
 		/// <param name="e"></param>
 		private void OnMouseWheel(object sender, MouseEventArgs e)
 		{
-			float oriX = this.mScene.Camera.Position.X;
-			float oriY = this.mScene.Camera.Position.Y;
-			float oriZ = this.mScene.Camera.Position.Z;
-			float oriz = this.mDevice.ScaleV;
+			if (e.Delta == 0)
+				return;
 
-			if (e.Delta < 0)
-			{
-				if (oriz <= 0.6f)
-					mDevice.ScaleV = 0.6f;
-				else
-					mDevice.ScaleV = oriz - 0.1f;
-				mMatrix = mDevice.GetMvpMatrix(mScene.Camera, new Matrix4x4(1));
-				this.Invalidate();
-			}
-			else
-			{
-				mDevice.ScaleV = oriz + 0.1f;
-				mMatrix = mDevice.GetMvpMatrix(mScene.Camera, new Matrix4x4(1));
-				this.Invalidate();
-			}
+			mScene.Camera.MoveForward(e.Delta / (float)900);
+			mViewMat = mScene.Camera.GetLookAt();
+			this.Invalidate();
 		}
 
 		/// <summary>
@@ -177,23 +158,19 @@ namespace SoftRenderSample
 		/// <param name="e"></param>
 		private void OnMouseMove(object sender, MouseEventArgs e)
 		{
-			if (isMouseDown == false)
+			if (mIsMouseLeftDown == false)
 				return;
 
-			int currentX = 0, currentY = 0;
 			if (e.Button == MouseButtons.Left)
 			{
-				currentX = e.X;
-				currentY = e.Y;
-
-				RotionY = (oldX - currentX) / 5 ;
-				RotionX = (oldY - currentY) / 5 ;
-				mScene.Camera.Pitch = RotionX;
-				mScene.Camera.Yaw = RotionY;
-				Matrix4x4 M = Matrix4x4.RotateX(mScene.Camera.Pitch) * Matrix4x4.RotateY(mScene.Camera.Yaw);
-				mMatrix = mDevice.GetMvpMatrix(mScene.Camera, M);
-				oldX = currentX;
-				oldY = currentY;
+				float x = e.X;
+				float y = e.Y;
+				float dx = mMouseLeftPos.X - x;
+				float dy = mMouseLeftPos.Y - y;
+				mCube.Transform = mCube.Transform * Matrix4x4.RotateY(dx / 5f);
+				mCube.Transform = mCube.Transform * Matrix4x4.RotateX(dy / 5f);
+				mMouseLeftPos.X = x;
+				mMouseLeftPos.Y = y;
 				this.Invalidate();
 			}
 		}
@@ -207,9 +184,9 @@ namespace SoftRenderSample
 		{
 			if (e.Button == MouseButtons.Left)
 			{
-				isMouseDown = true;
-				oldX = e.X;
-				oldY = e.Y;
+				mIsMouseLeftDown = true;
+				mMouseLeftPos.X = e.X;
+				mMouseLeftPos.Y = e.Y;
 			}
 		}
 
@@ -222,9 +199,9 @@ namespace SoftRenderSample
 		{
 			if (e.Button == MouseButtons.Left)
 			{
-				isMouseDown = false;
-				oldX = 0;
-				oldY = 0;
+				mIsMouseLeftDown = false;
+				mMouseLeftPos.X = 0f;
+				mMouseLeftPos.Y = 0f;
 			}
 		}
 
@@ -237,8 +214,8 @@ namespace SoftRenderSample
 			if (scene == null)
 				return;
 
-			Mesh cube = new Mesh("Cube", 8, 12);
-			cube.Vertices = new Vertex[24] {
+			mCube = new Mesh("Cube");
+			mCube.Vertices = new Vertex[24] {
 				new Vertex(new Vector4(-1, -1, -1, 1), new Vector4(-1, -1, -1, 1), new Vector2(0, 0), new Color(0, 0, 0)),
 				new Vertex(new Vector4(-1, -1, -1, 1), new Vector4(-1, -1, -1, 1), new Vector2(1, 0), new Color(0, 0, 0)),
 				new Vertex(new Vector4(-1, -1, -1, 1), new Vector4(-1, -1, -1, 1), new Vector2(0, 0), new Color(0, 0, 0)),
@@ -273,8 +250,28 @@ namespace SoftRenderSample
 
 			};
 
-			cube.MakeFace();
-			scene.AddMesh(cube);
+			mCube.Faces = new Face[] {
+				// 正面
+				new Face(2, 5, 8, FaceTypes.NEAR),
+				new Face(2, 8, 11, FaceTypes.NEAR),
+				// 右面
+				new Face(4, 16, 7, FaceTypes.RIGHT),
+				new Face(16, 19, 7, FaceTypes.RIGHT),
+				// 左面
+				new Face(13, 1, 10, FaceTypes.LEFT),
+				new Face(13, 10, 22, FaceTypes.LEFT),
+				// 背面
+				new Face(17, 14, 23, FaceTypes.FAR),
+				new Face(17, 23, 20, FaceTypes.FAR),
+				// 上面
+				new Face(9, 6, 18, FaceTypes.TOP),
+				new Face(9, 18, 21, FaceTypes.TOP),
+				// 下面
+				new Face(12, 15, 3, FaceTypes.BUTTOM),
+				new Face(12, 3, 0, FaceTypes.BUTTOM)
+			};
+			mCube.InitTextureMap();
+			scene.AddMesh(mCube);
 		}
 
 	}

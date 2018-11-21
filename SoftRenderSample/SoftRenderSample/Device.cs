@@ -33,11 +33,6 @@ namespace SoftRenderSample
 		private int mHeight;
 		private int mWidth;
 		private readonly float[] mDepthBuffer;
-
-		private Camera mCamera;
-		private Matrix4x4 mModel = new Matrix4x4(1);
-		private Matrix4x4 mRotation = new Matrix4x4(1);
-		private Matrix4x4 mView;
 		// 裁剪
 		private Clip mHodgmanclip;
 		// 扫描线
@@ -48,9 +43,7 @@ namespace SoftRenderSample
 		public Vector4 clipmax = new Vector4(1, 1, 1, 1);
 
 		public RenderMode renderMode = RenderMode.WIREFRAME;
-		public Matrix4x4 Mat = new Matrix4x4(1);
-		public float ScaleV = 1.0f;
-
+		
 		public int Height
 		{
 			get { return this.mHeight; }
@@ -211,29 +204,12 @@ namespace SoftRenderSample
 
 			float x = x0;
 			float y = y0;
-			Light light = scene.Lights;
-			float dot1 = 0;
-			float dot2 = 0;
-			if (scene.IsUseLight != false || light != null)
-			{
-				dot1 = light.ComputeNormalDot(v1.Position, v1.Normal);
-				dot2 = light.ComputeNormalDot(v2.Position, v2.Normal);
-			}
-			float dot = 0;
+
 			Color vColor = new Color(128, 128, 128);
 			for (int i = 1; i <= steps; i++)
 			{
 				float dt = (float)(i) / (float)steps;
-				if (!scene.IsUseLight || light == null)
-				{
-					vColor = MathUntily.Lerp(v1.color, v2.color, dt);
-				}
-				else
-				{
-					dot = MathUntily.Lerp(dot1, dot2, dt);
-					vColor = MathUntily.Lerp(v1.color, v2.color, dt) * light.LightColorV(dot);
-				}
-
+				vColor = MathUntily.Lerp(v1.Color, v2.Color, dt);
 				float z = MathUntily.Lerp(point0.Z, point1.Z, dt);
 				if (float.IsNaN(z))
 					return;
@@ -250,116 +226,12 @@ namespace SoftRenderSample
 		/// <param name="scene"></param>
 		/// <param name="bmp"></param>
 		/// <param name="viewMatrix"></param>
-		public void Render(Scene scene, BitmapData bmp, Matrix4x4 viewMatrix)
+		public void Render(Scene scene, BitmapData bmp, Matrix4x4 viewMat, Matrix4x4 proMat)
 		{
 			this.mBmData = bmp;
 			foreach (Mesh msh in scene.Meshs)
 			{
-				foreach (var faces in msh.faces)
-				{
-					Vertex verA = msh.Vertices[faces.A];
-					Vertex verB = msh.Vertices[faces.B];
-					Vertex verC = msh.Vertices[faces.C];
-
-					Vertex verA2 = new Vertex();
-					Vertex verB2 = new Vertex();
-					Vertex verC2 = new Vertex();
-
-					// 转换到齐次坐标
-					verA.ClipPosition = this.ToHomogeneous(verA.Position, viewMatrix);
-					verB.ClipPosition = this.ToHomogeneous(verB.Position, viewMatrix);
-					verC.ClipPosition = this.ToHomogeneous(verC.Position, viewMatrix);
-
-					// 光照和顶点法线之间的夹角的余弦值
-					float cosa = 0;
-					float cosb = 0;
-					float cosc = 0;
-					if (scene.IsUseLight || scene.Lights != null)
-					{
-						cosa = scene.Lights.ComputeNormalDot(this.mModel.LeftApply(verA.Position), this.mModel.LeftApply(verA.Normal));
-						cosb = scene.Lights.ComputeNormalDot(this.mModel.LeftApply(verB.Position), this.mModel.LeftApply(verB.Normal));
-						cosc = scene.Lights.ComputeNormalDot(this.mModel.LeftApply(verC.Position), this.mModel.LeftApply(verC.Normal));
-					}
-
-					verA2.color = verA.color;
-					verB2.color = verB.color;
-					verC2.color = verC.color;
-
-					//对应屏幕坐标 左上角
-					verA.ScreenPosition = this.ViewPort(verA.ClipPosition);
-					verB.ScreenPosition = this.ViewPort(verB.ClipPosition);
-					verC.ScreenPosition = this.ViewPort(verC.ClipPosition);
-
-					verA2.ClipPosition = verA.ClipPosition;
-					verA2.ScreenPosition = verA.ScreenPosition;
-					verA2.Position = this.mModel.LeftApply(verA.Position);
-					verA2.UV = verA.UV;
-					verA2.ColK = cosa;
-
-					verB2.ClipPosition = verB.ClipPosition;
-					verB2.ScreenPosition = verB.ScreenPosition;
-					verB2.Position = this.mModel.LeftApply(verB.Position);
-					verB2.UV = verB.UV;
-					verB2.ColK = cosb;
-
-					verC2.ClipPosition = verC.ClipPosition;
-					verC2.ScreenPosition = verC.ScreenPosition;
-					verC2.Position = this.mModel.LeftApply(verC.Position);
-					verC2.UV = verC.UV;
-					verC2.ColK = cosc;
-
-					if (scene.IsUseLight)
-					{
-						verA2.Normal = verA.Normal;
-						verB2.Normal = verB.Normal;
-						verC2.Normal = verC.Normal;
-					}
-					else
-					{
-						verA2.Normal = this.mModel.LeftApply(verA.Normal);
-						verB2.Normal = this.mModel.LeftApply(verB.Normal);
-						verC2.Normal = this.mModel.LeftApply(verC.Normal);
-					}
-
-					List<Vertex> list = new List<Vertex>();
-					list.Add(verA2);
-					list.Add(verB2);
-					list.Add(verC2);
-					Triangle triang1 = new Triangle(verA2, verB2, verC2);
-					//进行裁剪
-					List<Vertex> triangleVertex = new List<Vertex>();
-					//放在构造函数中初始化引起list 集合累加
-
-					for (FaceTypes face = FaceTypes.LEFT; face <= FaceTypes.FAR; face++)
-					{
-						if (list.Count == 0) break;
-						mHodgmanclip = new Clip(this);
-						mHodgmanclip.HodgmanPolygonClip(face, clipmin, clipmax, list.ToArray());
-						list = mHodgmanclip.OutputList;
-					}
-
-					List<Triangle> tringleList = GetDrawTriangleList(list);
-					if (renderMode == RenderMode.WIREFRAME)
-					{
-						for (int i = 0; i < tringleList.Count; i++)
-						{
-							if (!IsInBack(tringleList[i]))
-							{
-								DrawLine(this.ViewPort(tringleList[i].vertices[0].ClipPosition), this.ViewPort(tringleList[i].vertices[1].ClipPosition), scene, tringleList[i].vertices[0], tringleList[i].vertices[1]);
-								DrawLine(this.ViewPort(tringleList[i].vertices[1].ClipPosition), this.ViewPort(tringleList[i].vertices[2].ClipPosition), scene, tringleList[i].vertices[1], tringleList[i].vertices[2]);
-								DrawLine(this.ViewPort(tringleList[i].vertices[2].ClipPosition), this.ViewPort(tringleList[i].vertices[0].ClipPosition), scene, tringleList[i].vertices[2], tringleList[i].vertices[0]);
-							}
-						}
-					}
-					else
-					{
-						for (int i = 0; i < tringleList.Count; i++)
-						{
-							if (!this.IsInBack(tringleList[i]))
-								this.mScanline.ProcessScanLine(tringleList[i], scene, triang1, faces.FaceType);
-						}
-					}
-				}
+				msh.Render(scene, this, viewMat, proMat);
 			}
 		}
 
@@ -437,55 +309,5 @@ namespace SoftRenderSample
 			return new Color(red, green, blue);
 		}
 
-		/// <summary>
-		/// 获取mvp
-		/// </summary>
-		/// <param name="mCamera"></param>
-		/// <param name="Rox"></param>
-		/// <param name="Roy"></param>
-		/// <returns></returns>
-		public Matrix4x4 GetMvpMatrix(Camera camera, int Rox, int Roy)
-		{
-			this.mCamera = camera;
-			Matrix4x4 translate = new Matrix4x4(1);
-			translate.TranslateM(0, 0, 0);
-			Matrix4x4 scale = new Matrix4x4(1);
-			scale.ScaleM(ScaleV, ScaleV, ScaleV);
-			mRotation *= Matrix4x4.RotateY(Roy) * Matrix4x4.RotateX(Rox);
-			mModel = scale * mRotation * translate;
-
-			Matrix4x4 view = this.mCamera.GetLookAt();
-			Matrix4x4 projection = this.mCamera.GetProject((float)System.Math.PI * 0.3f, (float)mWidth / (float)mHeight, 1f, 100.0f);
-			return mModel * view * projection;
-		}
-
-		/// <summary>
-		/// 世界矩阵
-		/// </summary>
-		/// <returns></returns>
-		public Matrix4x4 GetWorldMatrix()
-		{
-			Matrix4x4 translate = new Matrix4x4(1);
-			translate.TranslateM(0, 0, 0);
-			Matrix4x4 scale = new Matrix4x4(1);
-			scale *= scale.ScaleM(ScaleV, ScaleV, ScaleV);
-			mModel = scale * mRotation * translate;
-			return mModel;
-		}
-
-		/// <summary>
-		/// 获取mvp举证
-		/// </summary>
-		/// <param name="mCamera"></param>
-		/// <param name="M"></param>
-		/// <returns></returns>
-		public Matrix4x4 GetMvpMatrix(Camera mCamera, Matrix4x4 M)
-		{
-			this.mCamera = mCamera;
-			Mat *= M;
-			mView = Mat * this.mCamera.GetLookAt();
-			Matrix4x4 projection = this.mCamera.GetProject((float)System.Math.PI * 0.3f, (float)mWidth / (float)mHeight, 1f, 100.0f);
-			return GetWorldMatrix() * mView * projection;
-		}
 	}
 }

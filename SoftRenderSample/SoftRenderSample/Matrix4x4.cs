@@ -12,7 +12,19 @@ namespace SoftRenderSample
 		//用数组表示4x4矩阵的表示
 		public float[,] matrix;
 
-		public Matrix4x4(int x):this()
+		/// <summary>
+		/// 直接访问某个位置的值
+		/// </summary>
+		/// <param name="i"></param>
+		/// <param name="j"></param>
+		/// <returns></returns>
+		public float this[int i, int j]
+		{
+			get { return matrix[i, j]; }
+			set { matrix[i, j] = value; }
+		}
+	
+		public Matrix4x4(int x): this()
 		{
 			matrix = new float[4, 4];
 			this.Identity();

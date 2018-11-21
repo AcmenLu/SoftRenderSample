@@ -153,5 +153,41 @@ namespace SoftRenderSample
 			mYaw = yaw;
 		}
 
+
+		/// <summary>
+		/// 前后移动摄像机
+		/// </summary>
+		/// <param name="distance">移动的距离</param>
+		public void MoveForward(float distance)
+		{
+			Vector4 dir = (mTarget - mPosition);
+			float w = mPosition.W;
+			if (distance > 0 && dir.Length < 1.5f)
+				return;
+
+			if (distance < 0 && dir.Length > 30)
+				return;
+
+			mPosition = mPosition + (dir.Normalize() * distance);
+			mPosition.W = w;
+		}
+
+		/// <summary>
+		/// 绕X轴旋转
+		/// </summary>
+		/// <param name="r"></param>
+		public void MoveTheta(float r)
+		{
+			mPosition = mPosition * Matrix4x4.RotateX(r);
+		}
+
+		/// <summary>
+		/// 绕y轴旋转
+		/// </summary>
+		/// <param name="r"></param>
+		public void MovePhi(float r)
+		{
+			mPosition = mPosition * Matrix4x4.RotateY(r);
+		}
 	}
 }
