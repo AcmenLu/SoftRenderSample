@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace SoftRenderSample
 {
-	//矢量
 	struct Vector4
 	{
 		public float X;
@@ -38,7 +37,7 @@ namespace SoftRenderSample
 		/// <returns></returns>
 		public static Vector4 operator +(Vector4 a,Vector4 b)
 		{
-			return new Vector4(a.X+b.X,a.Y+b.Y,a.Z+b.Z,1);
+			return new Vector4(a.X + b.X, a.Y + b.Y, a.Z + b.Z, 1);
 		}
 
 		/// <summary>
@@ -49,7 +48,7 @@ namespace SoftRenderSample
 		/// <returns></returns>
 		public static Vector4 operator -(Vector4 a,Vector4 b)
 		{
-			return new Vector4(a.X-b.X,a.Y-b.Y,a.Z-b.Z,1);
+			return new Vector4(a.X - b.X, a.Y - b.Y, a.Z - b.Z, 1);
 		}
 
 		/// <summary>
@@ -60,7 +59,7 @@ namespace SoftRenderSample
 		/// <returns></returns>
 		public static Vector4 operator *(Vector4 a, float b)
 		{
-		   return new Vector4(a.X*b,a.Y*b,a.Z*b,1);
+			return new Vector4(a.X * b, a.Y * b, a.Z * b, 1);
 		}
 
 		/// <summary>
@@ -73,7 +72,7 @@ namespace SoftRenderSample
 		{
 			if (b != 0)
 			{
-				return new Vector4(a.X / b,a.Y/b,a.Z/b,1);
+				return new Vector4(a.X / b, a.Y / b, a.Z / b, 1);
 			}
 			return a;
 		}
@@ -118,5 +117,18 @@ namespace SoftRenderSample
 				this.Z *= inv;
 			}
 		}
+
+		/// <summary>
+		/// 交换两个Vector4
+		/// </summary>
+		/// <param name="p1"></param>
+		/// <param name="p2"></param>
+		public static void SwapVector4(ref Vector4 p1, ref Vector4 p2)
+		{
+			var tmp = p1;
+			p1 = p2;
+			p2 = tmp;
+		}
+	
 	}
 }

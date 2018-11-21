@@ -36,6 +36,12 @@ namespace SoftRenderSample
 				v1.W+(v2.W-v1.W)*k);
 		}
 
+		public static Vector2 Lerp(Vector2 v1, Vector2 v2, float k)
+		{
+			return new Vector2(
+				v1.X + (v2.X - v1.X) * k,
+				v1.Y + (v2.Y - v1.Y) * k);
+		}
 
 		/// <summary>
 		/// 颜色线性插值
@@ -46,9 +52,9 @@ namespace SoftRenderSample
 		/// <returns></returns>
 		public static Color Lerp(Color c1,Color c2,float k)
 		{
-			byte r = (byte)(c1.X + (c2.X - c1.X) * k);
-			byte g = (byte)(c1.Y + (c2.Y - c1.Y) * k);
-			byte b = (byte)(c1.Z + (c2.Z - c1.Z) * k);
+			byte r = (byte)(c1.R + (c2.R - c1.R) * k);
+			byte g = (byte)(c1.G + (c2.G - c1.G) * k);
+			byte b = (byte)(c1.B + (c2.B - c1.B) * k);
 			return new Color(r,g,b);
 		}
 	}

@@ -11,7 +11,7 @@ namespace SoftRenderSample
 		public Vertex[] vertices;
 		public float Weight1;
 		public float Weight2;
-		private int a, b, c, d, dn1, dn2;
+		private int a, b, c, d, dn1, dn2; //差值计算
 		private float u1, v1;
 		private float u2, v2;
 		private float u3, v3;
@@ -25,7 +25,10 @@ namespace SoftRenderSample
 			this.vertices = new Vertex []{ a, b, c };
 		}
 
-		public void PreCallWeight()
+		/// <summary>
+		/// 三角形顶点之间差值计算
+		/// </summary>
+		public void PreCallLerp()
 		{
 			//p = a*p0+b*p1+c*p2;
 			// a+b+c = 1;
@@ -42,12 +45,12 @@ namespace SoftRenderSample
 			dn1 = (b * c - a * d);
 			dn2 = (a * d - b * c);
 
-			u1 = vertices[0].UV.X / vertices[0].ClipPosition.W;
-			u2 = vertices[1].UV.X / vertices[1].ClipPosition.W;
-			u3 = vertices[2].UV.X / vertices[2].ClipPosition.W;
-			v1 = vertices[0].UV.Y / vertices[0].ClipPosition.W;
-			v2 = vertices[1].UV.Y / vertices[1].ClipPosition.W;
-			v3 = vertices[2].UV.Y / vertices[2].ClipPosition.W;
+			u1 = vertices[0].UV.U / vertices[0].ClipPosition.W;
+			u2 = vertices[1].UV.U / vertices[1].ClipPosition.W;
+			u3 = vertices[2].UV.U / vertices[2].ClipPosition.W;
+			v1 = vertices[0].UV.V / vertices[0].ClipPosition.W;
+			v2 = vertices[1].UV.V / vertices[1].ClipPosition.W;
+			v3 = vertices[2].UV.V / vertices[2].ClipPosition.W;
 			w1 = 1f / vertices[0].ClipPosition.W;
 			w2 = 1f / vertices[1].ClipPosition.W;
 			w3 = 1f / vertices[2].ClipPosition.W;
@@ -62,17 +65,17 @@ namespace SoftRenderSample
 			z3 = vertices[2].Normal.Z / vertices[2].ClipPosition.W;
 		}
 
-		public void CallWeight(Vector4 p)
+		/// <summary>
+		/// 计算 x1 y1 的值与 x   y 的差值 计算 b c
+		/// </summary>
+		/// <param name="p"></param>
+		public void CallLerp(Vector4 p)
 		{
-			//计算 x1 y1 的值与 x   y 的差值 计算 b c 
 			Vector4 p1 = this.vertices[0].ScreenPosition;
-
-			float m = p.X - p1.X;
-			float n = p.Y - p1.Y;
-
-			Weight1 = (float)(b * n - d * m) / (float)dn1;
-			Weight2 = (float)(a * n - c * m) / (float)dn2;
-
+			float dx = p.X - p1.X;
+			float dy = p.Y - p1.Y;
+			Weight1 = (float)(b * dy - d * dx) / (float)dn1;
+			Weight2 = (float)(a * dy - c * dx) / (float)dn2;
 		}
 		
 		/// <summary>
@@ -82,7 +85,7 @@ namespace SoftRenderSample
 		/// <param name="b"></param>
 		/// <param name="c"></param>
 		/// <returns></returns>
-		public float LerpValue(float a,float b,float c)
+		public float LerpValue(float a, float b, float c)
 		{
 			return (1 - Weight1 - Weight2) * a + Weight1 * b + Weight2 * c;
 		}

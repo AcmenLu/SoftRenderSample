@@ -13,36 +13,27 @@ namespace SoftRenderSample
 		private byte mG;
 		private byte mB;
 
-		public byte X
-		{
-			get { return mR; }
-			set { mR = value; }
-		}
-
-		public byte Y
-		{
-			get { return mG; }
-			set { mG = value; }
-		}
-
-		public byte Z
-		{
-			get { return mB; }
-			set { mB = value; }
-		}
-
+		/// <summary>
+		/// 红色分量
+		/// </summary>
 		public byte R
 		{
 			get { return mR; }
 			set { mR = value; }
 		}
 
+		/// <summary>
+		/// 绿色分量
+		/// </summary>
 		public byte G
 		{
 			get { return mG; }
 			set { mG = value; }
 		}
 
+		/// <summary>
+		/// 蓝色分量
+		/// </summary>
 		public byte B
 		{
 			get { return mB; }
@@ -70,9 +61,9 @@ namespace SoftRenderSample
 		/// <returns></returns>
 		public static Color operator *(Color c1, Color c2)
 		{
-			float r = (c1.X / 255f) * (c2.X / 255f);
-			float g = (c1.Y / 255f) * (c2.Y / 255f);
-			float b = (c1.Z / 255f) * (c2.Z / 255f);
+			float r = (c1.R / 255f) * (c2.R / 255f);
+			float g = (c1.G / 255f) * (c2.G / 255f);
+			float b = (c1.B / 255f) * (c2.B / 255f);
 			return new Color((byte)(r * 255), (byte)(g * 255), (byte)(b * 255));
 		}
 
@@ -84,9 +75,9 @@ namespace SoftRenderSample
 		/// <returns></returns>
 		public static Color operator *(Color c1, float t)
 		{
-			byte r = (byte)Math.Min((c1.X * t), 255);
-			byte g = (byte)Math.Min((c1.Y * t), 255);
-			byte b = (byte)Math.Min((c1.Z * t), 255);
+			byte r = (byte)Math.Min((c1.R * t), 255);
+			byte g = (byte)Math.Min((c1.G * t), 255);
+			byte b = (byte)Math.Min((c1.B * t), 255);
 			return new Color(r, g, b);
 		}
 
@@ -98,9 +89,9 @@ namespace SoftRenderSample
 		/// <returns></returns>
 		public static Color operator +(Color c1, Color c2)
 		{
-			byte r = (byte)Math.Min(c1.X + c2.X, 255);
-			byte g = (byte)Math.Min(c1.Y + c2.Y, 255);
-			byte b = (byte)Math.Min(c1.Z + c2.Z, 255);
+			byte r = (byte)Math.Min(c1.R + c2.R, 255);
+			byte g = (byte)Math.Min(c1.G + c2.G, 255);
+			byte b = (byte)Math.Min(c1.B + c2.B, 255);
 			return new Color(r, g, b);
 		}
 	}

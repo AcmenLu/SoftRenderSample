@@ -8,11 +8,13 @@ namespace SoftRenderSample
 {
 	class Scene
 	{
-		private Mesh mMesh;
+		//private Mesh mMesh;
 		private Light mLight;
 		private RenderTexture textureMap;
 		private RenderTexture[] textureMaps;
 		private Camera mCamera;
+
+		private List<Mesh> mMeshs;
 
 		public bool IsUseLight = false;
 
@@ -21,9 +23,9 @@ namespace SoftRenderSample
 			get { return mLight; }
 		}
 
-		public Mesh SubMesh
+		public List<Mesh> Meshs
 		{
-			get { return mMesh; }
+			get { return mMeshs; }
 		}
 
 		public Camera Camera
@@ -34,7 +36,6 @@ namespace SoftRenderSample
 		public Scene()
 		{
 			InitCarmera();
-			InitMesh();
 			InitTextureMap();
 		}
 
@@ -49,44 +50,6 @@ namespace SoftRenderSample
 			mCamera.Up = new Vector4(0, 1, 0, 1);
 			mCamera.Pitch = 0f;
 			mCamera.Yaw = 0f;
-		}
-
-		/// <summary>
-		/// 旋转摄像机
-		/// </summary>
-		/// <param name="position"></param>
-		/// <param name="x"></param>
-		/// <param name="y"></param>
-		public void CameraRotate(Vector4 position, float x, float y)
-		{
-			this.mCamera.Position = (Matrix4x4.RotateX(x) * Matrix4x4.RotateY(y)).LeftApply(position);
-		}
-
-		/// <summary>
-		/// 改变相机的位置
-		/// </summary>
-		/// <param name="pos"></param>
-		public void UpdateCameraPos(Vector4 pos)
-		{
-			this.mCamera.Position = pos;
-		}
-
-		/// <summary>
-		/// 改变相机的上下角度
-		/// </summary>
-		/// <param name="pitch"></param>
-		public void UpdateCameraPitch(float pitch)
-		{
-			this.mCamera.Pitch = pitch;
-		}
-
-		/// <summary>
-		/// //改变相机的左右角度
-		/// </summary>
-		/// <param name="yaw"></param>
-		public void UpdateCamerYaw(float yaw)
-		{
-			this.mCamera.Yaw = yaw;
 		}
 
 		/// <summary>
@@ -105,9 +68,9 @@ namespace SoftRenderSample
 		/// </summary>
 		/// <param name="types"></param>
 		/// <returns></returns>
-		public RenderTexture GetTextureByFace(FancType types)
+		public RenderTexture GetTextureByFace(FaceTypes types)
 		{
-			if (types == FancType.NONE)
+			if (types == FaceTypes.NONE)
 			{
 				return textureMap;
 			}
@@ -138,47 +101,15 @@ namespace SoftRenderSample
 		}
 
 		/// <summary>
-		/// 初始化一个正方体
+		/// 增加一个渲染的模型
 		/// </summary>
-		public void InitMesh()
+		/// <param name="msh"></param>
+		public void AddMesh(Mesh msh)
 		{
-			mMesh = new Mesh("Cube", 8, 12);
-			mMesh.Vertices = new Vertex[24] {
-				new Vertex(new Vector4(-1, -1, -1, 1), new Vector4(-1, -1, -1, 1), new Vector4(0, 0, 0, 0), new Color(0, 0, 0)),
-				new Vertex(new Vector4(-1, -1, -1, 1), new Vector4(-1, -1, -1, 1), new Vector4(1, 0, 0, 0), new Color(0, 0, 0)),
-				new Vertex(new Vector4(-1, -1, -1, 1), new Vector4(-1, -1, -1, 1), new Vector4(0, 0, 0, 0), new Color(0, 0, 0)),
+			if (mMeshs == null)
+				mMeshs = new List<Mesh>();
 
-				new Vertex(new Vector4(1, -1, -1, 1), new Vector4(1, -1, -1, 1), new Vector4(1, 0, 0, 0), new Color(255, 0, 0)),
-				new Vertex(new Vector4(1, -1, -1, 1), new Vector4(1, -1, -1, 1),  new Vector4(0, 0, 0, 0), new Color(255, 0, 0)),
-				new Vertex(new Vector4(1, -1, -1, 1), new Vector4(1, -1, -1, 1), new Vector4(1, 0, 0, 0), new Color(255, 0, 0)),
-
-				new Vertex(new Vector4(1, 1, -1, 1), new Vector4(1, 1, -1, 1), new Vector4(1, 0, 0, 0), new Color(255, 255, 0)),
-				new Vertex(new Vector4(1, 1, -1, 1), new Vector4(1, 1, -1, 1), new Vector4(0, 1, 0, 0), new Color(255, 255, 0)),
-				new Vertex(new Vector4(1, 1, -1, 1), new Vector4(1, 1, -1, 1), new Vector4(1, 1, 0, 0), new Color(255, 255, 0)),
-
-				new Vertex(new Vector4(-1, 1, -1, 1), new Vector4(-1, 1, -1, 1), new Vector4(0, 0, 0, 0), new Color(0, 255, 0)),
-				new Vertex(new Vector4(-1, 1, -1, 1), new Vector4(-1, 1, -1, 1), new Vector4(1, 1, 0, 0), new Color(0, 255, 0)),
-				new Vertex(new Vector4(-1, 1, -1, 1), new Vector4(-1, 1, -1, 1), new Vector4(0, 1, 0, 0), new Color(0, 255, 0)),
-
-				new Vertex(new Vector4(-1, -1, 1, 1), new Vector4(-1, -1, 1, 1), new Vector4(0, 1, 0, 0), new Color(0, 0, 255)),
-				new Vertex(new Vector4(-1, -1, 1, 1), new Vector4(-1, -1, 1, 1), new Vector4(0, 0, 0, 0), new Color(0, 0, 255)),
-				new Vertex(new Vector4(-1, -1, 1, 1), new Vector4(-1, -1, 1, 1), new Vector4(0, 0, 0, 0), new Color(0, 0, 255)),
-
-				new Vertex(new Vector4(1, -1, 1, 1), new Vector4(1, -1, 1, 1), new Vector4(1, 1, 0, 0), new Color(255, 0, 255)),
-				new Vertex(new Vector4(1, -1, 1, 1), new Vector4(1, -1, 1, 1), new Vector4(1, 0, 0, 0), new Color(255, 0, 255)),
-				new Vertex(new Vector4(1, -1, 1, 1), new Vector4(1, -1, 1, 1), new Vector4(1, 0, 0, 0), new Color(255, 0, 255)),
-
-				new Vertex(new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), new Vector4(1, 1, 0, 0), new Color(255, 255, 255)),
-				new Vertex(new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), new Vector4(1, 1, 0, 0), new Color(255, 255, 255)),
-				new Vertex(new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), new Vector4(1, 1, 0, 0), new Color(255, 255, 255)),
-
-				new Vertex(new Vector4(-1, 1, 1, 1), new Vector4(-1, 1, 1, 1), new Vector4(0, 1, 0, 0), new Color(0, 255, 255)),
-				new Vertex(new Vector4(-1, 1, 1, 1), new Vector4(-1, 1, 1, 1), new Vector4(0, 1, 0, 0), new Color(0, 255, 255)),
-				new Vertex(new Vector4(-1, 1, 1, 1), new Vector4(-1, 1, 1, 1), new Vector4(0, 1, 0, 0), new Color(0, 255, 255)),
-
-			};
-
-			mMesh.MakeFace();
+			mMeshs.Add(msh);
 		}
 	}
 }

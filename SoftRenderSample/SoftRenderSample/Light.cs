@@ -26,7 +26,7 @@ namespace SoftRenderSample
 		/// <param name="pos"></param>
 		/// <param name="normal"></param>
 		/// <returns></returns>
-		public float ComputeNDotL(Vector4 pos, Vector4 normal)
+		public float ComputeNormalDot(Vector4 pos, Vector4 normal)
 		{
 			var lightDirection = this.LightPos ;
 			normal.Normalize();

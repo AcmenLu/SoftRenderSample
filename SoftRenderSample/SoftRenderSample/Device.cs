@@ -27,29 +27,26 @@ namespace SoftRenderSample
 
 	class Device
 	{
-		//画像素
+		// 渲染缓冲相关
 		private Bitmap mBmp;
 		private BitmapData mBmData;
 		private int mHeight;
 		private int mWidth;
 		private readonly float[] mDepthBuffer;
-		private Camera mCamera;
 
+		private Camera mCamera;
 		private Matrix4x4 mModel = new Matrix4x4(1);
 		private Matrix4x4 mRotation = new Matrix4x4(1);
 		private Matrix4x4 mView;
 		// 裁剪
 		private Clip mHodgmanclip;
-
-		//扫描线
+		// 扫描线
 		private ScanLine mScanline;
 
-		//裁剪
-		public Vector4 clipmin = new Vector4(-1,-1,-1,1);
-		public Vector4 clipmax = new Vector4(1,1,1,1);
-		public bool IsOpen { get; set; }
+		// 裁剪区域定义
+		public Vector4 clipmin = new Vector4(-1, -1, -1, 1);
+		public Vector4 clipmax = new Vector4(1, 1, 1, 1);
 
-		//设置 变量控制 选项
 		public RenderMode renderMode = RenderMode.WIREFRAME;
 		public Matrix4x4 Mat = new Matrix4x4(1);
 		public float ScaleV = 1.0f;
@@ -69,9 +66,8 @@ namespace SoftRenderSample
 			this.mBmp = bmp;
 			this.mHeight = bmp.Height;
 			this.mWidth = bmp.Width;
-			this.mDepthBuffer = new float[bmp.Width*bmp.Height];
+			this.mDepthBuffer = new float[bmp.Width * bmp.Height];
 			mScanline = new ScanLine(this);
-			IsOpen = false;
 		}
 
 		/// <summary>
@@ -80,14 +76,14 @@ namespace SoftRenderSample
 		/// <param name="data"></param>
 		public void Clear(BitmapData data)
 		{
-			for (int index = 0;index <mDepthBuffer.Length;index++)
+			for (int index = 0; index < mDepthBuffer.Length; index++)
 			{
 				mDepthBuffer[index] = float.MaxValue;
 			}
 			unsafe
 			{
 				byte* ptr = (byte*)(data.Scan0);
-				for (int i = 0; i<data.Height;i++)
+				for (int i = 0; i < data.Height; i++)
 				{
 					for (int j = 0; j < data.Width; j++)
 					{
@@ -101,9 +97,15 @@ namespace SoftRenderSample
 				}
 			}
 		}
-		
-		//自定义一个方法绘画像素到屏幕上的方法
-		public void Putpixel(int x ,int y,float z,Color color)
+
+		/// <summary>
+		/// 绘画某个位置的像素
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="y"></param>
+		/// <param name="z"></param>
+		/// <param name="color"></param>
+		public void Putpixel(int x, int y, float z, Color color)
 		{
 			int index = (x + y * Width);
 			if (mDepthBuffer[index] < z)
@@ -113,39 +115,48 @@ namespace SoftRenderSample
 			{
 				byte* ptr = (byte*)(this.mBmData.Scan0);
 				byte* row = ptr + (y * this.mBmData.Stride);
-				row[x * 3] = color.Z;
-				row[x * 3 + 1] = color.Y;
-				row[x * 3 + 2] = color.X;
+				row[x * 3] = color.B;
+				row[x * 3 + 1] = color.G;
+				row[x * 3 + 2] = color.R;
 			}
 		}
 
-		//真正意义上的透视投影过程由两步组成：(1)乘以投影矩阵   (2)透视除法
-		//变换左边点  三维转换为二维的
-		public Vector4 Projection(Vector4 vector,Matrix4x4 mvp)
+		/// <summary>
+		/// 透视投影.
+		/// 过程由两步组成：(1)乘以投影矩阵 (2)透视除法
+		/// </summary>
+		/// <param name="vector"></param>
+		/// <param name="mvp"></param>
+		/// <returns></returns>
+		public Vector4 Projection(Vector4 vector, Matrix4x4 mvp)
 		{
 			Vector4 point = mvp.LeftApply(vector);
-			Vector4 viewpoint = Homogenize(point);
+			Vector4 viewpoint = ProjectionDev(point);
 			return viewpoint;
 		}
 
-		public Vector4 ClipS(Vector4 x,Matrix4x4 M)
+		/// <summary>
+		/// 变换到齐次坐标
+		/// </summary>
+		/// <param name="x"></param>
+		/// <param name="M"></param>
+		/// <returns></returns>
+		public Vector4 ToHomogeneous(Vector4 x, Matrix4x4 M)
 		{
 			Vector4 val = M.LeftApply(x);
 			float rh = 1.0f / val.W;
 			val.X = val.X * rh;
 			val.Y = val.Y * rh;
 			val.Z = val.Z * rh;
-			val.W = val.W;
-			//变为齐次坐标方便裁剪
 			return val;
 		}
-		
+
 		/// <summary>
-		/// 规范化
+		/// 透视除法
 		/// </summary>
 		/// <param name="x"></param>
 		/// <returns></returns>
-		private Vector4 Homogenize(Vector4 x)
+		private Vector4 ProjectionDev(Vector4 x)
 		{
 			Vector4 val = new Vector4();
 			float rhw = 1.0f / x.W;
@@ -155,20 +166,21 @@ namespace SoftRenderSample
 			val.W = 1.0f;
 			return val;
 		}
-		
+
 		/// <summary>
 		/// 画一个点
 		/// </summary>
 		/// <param name="point"></param>
 		/// <param name="c"></param>
-		public void DrawPoint(Vector4 point,Color c)
+		public void DrawPoint(Vector4 point, Color c)
 		{
-			if (point.X >= 0&& point.Y>=0 && point.X <= Width && point.Y <= Height)
+			if (point.X >= 0 && point.Y >= 0 && point.X <= Width && point.Y <= Height)
 			{
 				if (point.X == Width)
 					point.X = point.X - 1;
-				if(point.Y == Height)
+				if (point.Y == Height)
 					point.Y = point.Y - 1;
+
 				Putpixel((int)point.X, (int)point.Y, point.Z, c);
 			}
 		}
@@ -204,12 +216,12 @@ namespace SoftRenderSample
 			float dot2 = 0;
 			if (scene.IsUseLight != false || light != null)
 			{
-				dot1 = light.ComputeNDotL(v1.Position, v1.Normal);
-				dot2 = light.ComputeNDotL(v2.Position, v2.Normal);
+				dot1 = light.ComputeNormalDot(v1.Position, v1.Normal);
+				dot2 = light.ComputeNormalDot(v2.Position, v2.Normal);
 			}
 			float dot = 0;
 			Color vColor = new Color(128, 128, 128);
-			for (int i = 1; i<= steps;i++)
+			for (int i = 1; i <= steps; i++)
 			{
 				float dt = (float)(i) / (float)steps;
 				if (!scene.IsUseLight || light == null)
@@ -232,124 +244,134 @@ namespace SoftRenderSample
 			}
 		}
 
+		/// <summary>
+		/// 设备渲染事件
+		/// </summary>
+		/// <param name="scene"></param>
+		/// <param name="bmp"></param>
+		/// <param name="viewMatrix"></param>
 		public void Render(Scene scene, BitmapData bmp, Matrix4x4 viewMatrix)
 		{
 			this.mBmData = bmp;
-			foreach (var faces in scene.SubMesh.faces)
+			foreach (Mesh msh in scene.Meshs)
 			{
-				Vertex verA = scene.SubMesh.Vertices[faces.A];
-				Vertex verB = scene.SubMesh.Vertices[faces.B];
-				Vertex verC = scene.SubMesh.Vertices[faces.C];
-
-				Vertex verA2 = new Vertex();
-				Vertex verB2 = new Vertex();
-				Vertex verC2 = new Vertex();
-
-				//齐次坐标
-				verA.ClipPosition = this.ClipS(verA.Position, viewMatrix);
-				verB.ClipPosition = this.ClipS(verB.Position, viewMatrix);
-				verC.ClipPosition = this.ClipS(verC.Position, viewMatrix);
-
-				float ca = 0;
-				float cb = 0;
-				float cc = 0;
-				if (scene.IsUseLight || scene.Lights != null)
+				foreach (var faces in msh.faces)
 				{
-					ca = scene.Lights.ComputeNDotL(this.mModel.LeftApply(verA.Position), this.mModel.LeftApply(verA.Normal));
-					cb = scene.Lights.ComputeNDotL(this.mModel.LeftApply(verB.Position), this.mModel.LeftApply(verB.Normal));
-					cc = scene.Lights.ComputeNDotL(this.mModel.LeftApply(verC.Position), this.mModel.LeftApply(verC.Normal));
-				}
-				verA2.color = verA.color ;
-				verB2.color = verB.color ;
-				verC2.color = verC.color ;
-				
-				//对应屏幕坐标 左上角
-				verA.ScreenPosition = this.ViewPort(verA.ClipPosition);
-				verB.ScreenPosition = this.ViewPort(verB.ClipPosition);
-				verC.ScreenPosition = this.ViewPort(verC.ClipPosition);
- 
-				verA2.ClipPosition = verA.ClipPosition;
-				verA2.ScreenPosition = verA.ScreenPosition;
-				verA2.Position = this.mModel.LeftApply(verA.Position);
-				verA2.UV = verA.UV;
-				verA2.ColK = ca;
+					Vertex verA = msh.Vertices[faces.A];
+					Vertex verB = msh.Vertices[faces.B];
+					Vertex verC = msh.Vertices[faces.C];
 
-				verB2.ClipPosition = verB.ClipPosition;
-				verB2.ScreenPosition = verB.ScreenPosition;
-				verB2.Position = this.mModel.LeftApply(verB.Position);
-				verB2.UV = verB.UV;
-				verB2.ColK = cb;
+					Vertex verA2 = new Vertex();
+					Vertex verB2 = new Vertex();
+					Vertex verC2 = new Vertex();
 
-				verC2.ClipPosition = verC.ClipPosition;
-				verC2.ScreenPosition = verC.ScreenPosition;
-				verC2.Position = this.mModel.LeftApply(verC.Position);
-				verC2.UV = verC.UV;
-				verC2.ColK = cc;
+					// 转换到齐次坐标
+					verA.ClipPosition = this.ToHomogeneous(verA.Position, viewMatrix);
+					verB.ClipPosition = this.ToHomogeneous(verB.Position, viewMatrix);
+					verC.ClipPosition = this.ToHomogeneous(verC.Position, viewMatrix);
 
-				if (scene.IsUseLight)
-				{
-					verA2.Normal = verA.Normal;
-					verB2.Normal = verB.Normal;
-					verC2.Normal = verC.Normal;
-				}
-				else
-				{
-					verA2.Normal = this.mModel.LeftApply(verA.Normal);
-					verB2.Normal = this.mModel.LeftApply(verB.Normal);
-					verC2.Normal = this.mModel.LeftApply(verC.Normal);
-				}
-
-
-				List<Vertex> list = new List<Vertex>();
-				list.Add(verA2);
-				list.Add(verB2);
-				list.Add(verC2);
-				Triangle triang1 = new Triangle(verA2, verB2, verC2);
-				//进行裁剪
-				List<Vertex> triangleVertex = new List<Vertex>();
-				//放在构造函数中初始化引起list 集合累加
-		   
-				for (int face = 0; face<6; face++)
-				{
-					if (list.Count == 0) break;
-						mHodgmanclip = new Clip(this);
-					mHodgmanclip.HodgmanPolygonClip(face,clipmin,clipmax,list.ToArray());
-					list = mHodgmanclip.OutputList;
-				}
-		 
-				List < Triangle > tringleList= GetDrawTriangleList(list);
-				if (renderMode == RenderMode.WIREFRAME)
-				{
-					for (int i = 0; i < tringleList.Count; i++)
+					// 光照和顶点法线之间的夹角的余弦值
+					float cosa = 0;
+					float cosb = 0;
+					float cosc = 0;
+					if (scene.IsUseLight || scene.Lights != null)
 					{
-						if (!IsInBack(tringleList[i]))
+						cosa = scene.Lights.ComputeNormalDot(this.mModel.LeftApply(verA.Position), this.mModel.LeftApply(verA.Normal));
+						cosb = scene.Lights.ComputeNormalDot(this.mModel.LeftApply(verB.Position), this.mModel.LeftApply(verB.Normal));
+						cosc = scene.Lights.ComputeNormalDot(this.mModel.LeftApply(verC.Position), this.mModel.LeftApply(verC.Normal));
+					}
+
+					verA2.color = verA.color;
+					verB2.color = verB.color;
+					verC2.color = verC.color;
+
+					//对应屏幕坐标 左上角
+					verA.ScreenPosition = this.ViewPort(verA.ClipPosition);
+					verB.ScreenPosition = this.ViewPort(verB.ClipPosition);
+					verC.ScreenPosition = this.ViewPort(verC.ClipPosition);
+
+					verA2.ClipPosition = verA.ClipPosition;
+					verA2.ScreenPosition = verA.ScreenPosition;
+					verA2.Position = this.mModel.LeftApply(verA.Position);
+					verA2.UV = verA.UV;
+					verA2.ColK = cosa;
+
+					verB2.ClipPosition = verB.ClipPosition;
+					verB2.ScreenPosition = verB.ScreenPosition;
+					verB2.Position = this.mModel.LeftApply(verB.Position);
+					verB2.UV = verB.UV;
+					verB2.ColK = cosb;
+
+					verC2.ClipPosition = verC.ClipPosition;
+					verC2.ScreenPosition = verC.ScreenPosition;
+					verC2.Position = this.mModel.LeftApply(verC.Position);
+					verC2.UV = verC.UV;
+					verC2.ColK = cosc;
+
+					if (scene.IsUseLight)
+					{
+						verA2.Normal = verA.Normal;
+						verB2.Normal = verB.Normal;
+						verC2.Normal = verC.Normal;
+					}
+					else
+					{
+						verA2.Normal = this.mModel.LeftApply(verA.Normal);
+						verB2.Normal = this.mModel.LeftApply(verB.Normal);
+						verC2.Normal = this.mModel.LeftApply(verC.Normal);
+					}
+
+					List<Vertex> list = new List<Vertex>();
+					list.Add(verA2);
+					list.Add(verB2);
+					list.Add(verC2);
+					Triangle triang1 = new Triangle(verA2, verB2, verC2);
+					//进行裁剪
+					List<Vertex> triangleVertex = new List<Vertex>();
+					//放在构造函数中初始化引起list 集合累加
+
+					for (FaceTypes face = FaceTypes.LEFT; face <= FaceTypes.FAR; face++)
+					{
+						if (list.Count == 0) break;
+						mHodgmanclip = new Clip(this);
+						mHodgmanclip.HodgmanPolygonClip(face, clipmin, clipmax, list.ToArray());
+						list = mHodgmanclip.OutputList;
+					}
+
+					List<Triangle> tringleList = GetDrawTriangleList(list);
+					if (renderMode == RenderMode.WIREFRAME)
+					{
+						for (int i = 0; i < tringleList.Count; i++)
 						{
-							DrawLine(this.ViewPort(tringleList[i].vertices[0].ClipPosition), this.ViewPort(tringleList[i].vertices[1].ClipPosition), scene, tringleList[i].vertices[0], tringleList[i].vertices[1]);
-							DrawLine(this.ViewPort(tringleList[i].vertices[1].ClipPosition), this.ViewPort(tringleList[i].vertices[2].ClipPosition), scene, tringleList[i].vertices[1], tringleList[i].vertices[2]);
-							DrawLine(this.ViewPort(tringleList[i].vertices[2].ClipPosition), this.ViewPort(tringleList[i].vertices[0].ClipPosition), scene, tringleList[i].vertices[2], tringleList[i].vertices[0]);
+							if (!IsInBack(tringleList[i]))
+							{
+								DrawLine(this.ViewPort(tringleList[i].vertices[0].ClipPosition), this.ViewPort(tringleList[i].vertices[1].ClipPosition), scene, tringleList[i].vertices[0], tringleList[i].vertices[1]);
+								DrawLine(this.ViewPort(tringleList[i].vertices[1].ClipPosition), this.ViewPort(tringleList[i].vertices[2].ClipPosition), scene, tringleList[i].vertices[1], tringleList[i].vertices[2]);
+								DrawLine(this.ViewPort(tringleList[i].vertices[2].ClipPosition), this.ViewPort(tringleList[i].vertices[0].ClipPosition), scene, tringleList[i].vertices[2], tringleList[i].vertices[0]);
+							}
 						}
 					}
-				}
-				else
-				{
-					for (int i = 0; i < tringleList.Count; i++)
+					else
 					{
-						if (!this.IsInBack(tringleList[i]))
-							this.mScanline.ProcessScanLine(tringleList[i], scene,triang1, faces.FaceType);
+						for (int i = 0; i < tringleList.Count; i++)
+						{
+							if (!this.IsInBack(tringleList[i]))
+								this.mScanline.ProcessScanLine(tringleList[i], scene, triang1, faces.FaceType);
+						}
 					}
 				}
 			}
 		}
 
 		/// <summary>
-		/// 获取要画的三角形
+		/// 获取要画的三角形列表
 		/// </summary>
 		/// <param name="vertex"></param>
 		/// <returns></returns>
 		public List<Triangle> GetDrawTriangleList(List<Vertex> vertex)
 		{
 			List<Triangle> t = new List<Triangle>();
-			for (int i = 0; i<vertex.Count-2;i++)
+			for (int i = 0; i < vertex.Count - 2; i++)
 			{
 				t.Add(new Triangle(vertex[0], vertex[i + 1], vertex[i + 2]));
 			}
@@ -366,7 +388,7 @@ namespace SoftRenderSample
 			Vector4 val = new Vector4();
 			val.X = (1.0f + x.X) * Width * 0.5f;
 			val.Y = (1.0f - x.Y) * Height * 0.5f;
-			val.Z = x.Z;//保存z点坐标
+			val.Z = x.Z;
 			val.W = 1.0f;
 			return val;
 		}
@@ -394,10 +416,10 @@ namespace SoftRenderSample
 		/// <param name="v"></param>
 		/// <param name="texture"></param>
 		/// <returns></returns>
-		public Color GetPixelColor(float u,float v,TextureMap texture)
+		public Color GetPixelColor(float u, float v, TextureMap texture)
 		{
-			int x = Math.Abs((int)((1f-u) * texture.GetWidth()) % texture.GetWidth());
-			int y = Math.Abs((int)((1f-v) * texture.GetHeight()) % texture.GetHeight());
+			int x = Math.Abs((int)((1f - u) * texture.GetWidth()) % texture.GetWidth());
+			int y = Math.Abs((int)((1f - v) * texture.GetHeight()) % texture.GetHeight());
 
 			byte red = 0;
 			byte green = 0;
@@ -406,13 +428,13 @@ namespace SoftRenderSample
 			{
 				byte* ptr = (byte*)(texture.data.Scan0);
 				byte* row = ptr + (y * texture.data.Stride);
-			 
-				red = row[x * 3+2];
+
+				red = row[x * 3 + 2];
 				green = row[x * 3 + 1];
-				blue = row[x * 3 ];
+				blue = row[x * 3];
 			}
 
-			return new Color(red,green,blue);
+			return new Color(red, green, blue);
 		}
 
 		/// <summary>
@@ -422,26 +444,26 @@ namespace SoftRenderSample
 		/// <param name="Rox"></param>
 		/// <param name="Roy"></param>
 		/// <returns></returns>
-		public Matrix4x4 GetMvpMatrix(Camera mCamera,int Rox,int Roy)
+		public Matrix4x4 GetMvpMatrix(Camera camera, int Rox, int Roy)
 		{
-			this.mCamera = mCamera;
+			this.mCamera = camera;
 			Matrix4x4 translate = new Matrix4x4(1);
 			translate.TranslateM(0, 0, 0);
 			Matrix4x4 scale = new Matrix4x4(1);
 			scale.ScaleM(ScaleV, ScaleV, ScaleV);
-			mRotation *=  Matrix4x4.RotateY(Roy) * Matrix4x4.RotateX(Rox);
+			mRotation *= Matrix4x4.RotateY(Roy) * Matrix4x4.RotateX(Rox);
 			mModel = scale * mRotation * translate;
-		
-			Matrix4x4 view = this.mCamera.LookAt();
-			Matrix4x4 projection = this.mCamera.Project((float)System.Math.PI * 0.3f, (float)mWidth / (float)mHeight, 1f, 100.0f);
+
+			Matrix4x4 view = this.mCamera.GetLookAt();
+			Matrix4x4 projection = this.mCamera.GetProject((float)System.Math.PI * 0.3f, (float)mWidth / (float)mHeight, 1f, 100.0f);
 			return mModel * view * projection;
 		}
-		
+
 		/// <summary>
 		/// 世界矩阵
 		/// </summary>
 		/// <returns></returns>
-		public Matrix4x4 getWorldMatrix()
+		public Matrix4x4 GetWorldMatrix()
 		{
 			Matrix4x4 translate = new Matrix4x4(1);
 			translate.TranslateM(0, 0, 0);
@@ -461,10 +483,9 @@ namespace SoftRenderSample
 		{
 			this.mCamera = mCamera;
 			Mat *= M;
-			mView = Mat * this.mCamera.LookAt();
-			Matrix4x4 projection = this.mCamera.Project((float)System.Math.PI * 0.3f, (float)mWidth / (float)mHeight, 1f, 100.0f);
-			return getWorldMatrix()* mView * projection;
+			mView = Mat * this.mCamera.GetLookAt();
+			Matrix4x4 projection = this.mCamera.GetProject((float)System.Math.PI * 0.3f, (float)mWidth / (float)mHeight, 1f, 100.0f);
+			return GetWorldMatrix() * mView * projection;
 		}
 	}
-
 }

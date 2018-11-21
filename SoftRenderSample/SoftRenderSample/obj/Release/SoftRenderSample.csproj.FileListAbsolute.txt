@@ -9,3 +9,4 @@ F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Rele
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.csproj.GenerateResource.Cache
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.exe
 F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.pdb
+F:\Sample\SoftRender\SoftRenderSample\SoftRenderSample\SoftRenderSample\obj\Release\SoftRenderSample.csprojResolveAssemblyReference.cache

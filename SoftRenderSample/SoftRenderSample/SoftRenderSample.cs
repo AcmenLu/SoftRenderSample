@@ -21,7 +21,7 @@ namespace SoftRenderSample
 		private PixelFormat mPixelFormat;
 		private Matrix4x4 mMatrix;
 		private BitmapData mData;
-
+		
 		public int oldX = 0;
 		public int oldY = 0;
 		public int RotionX = 0;
@@ -57,10 +57,10 @@ namespace SoftRenderSample
 			mBmp = new Bitmap(this.ClientSize.Width, this.ClientSize.Height, PixelFormat.Format24bppRgb);
 			mDevice = new Device(mBmp);
 			mScene = new Scene();
-			mMatrix = new Matrix4x4(1);
 			mMatrix = mDevice.GetMvpMatrix(mScene.Camera, RotionX, RotionY);
 			this.mRect = new Rectangle(0, 0, this.ClientSize.Width, this.ClientSize.Height);
 			this.mPixelFormat = mBmp.PixelFormat;
+			AddCubeToScene(mScene);
 		}
 
 		/// <summary>
@@ -186,17 +186,16 @@ namespace SoftRenderSample
 				currentX = e.X;
 				currentY = e.Y;
 
-				RotionY = -(currentX - oldX)/3 ;
-				RotionX = -(currentY - oldY)/3 ;
+				RotionY = (oldX - currentX) / 5 ;
+				RotionX = (oldY - currentY) / 5 ;
 				mScene.Camera.Pitch = RotionX;
 				mScene.Camera.Yaw = RotionY;
-				Matrix4x4 M = Matrix4x4.RotateX(mScene.Camera.Pitch)* Matrix4x4.RotateY(mScene.Camera.Yaw);
-
+				Matrix4x4 M = Matrix4x4.RotateX(mScene.Camera.Pitch) * Matrix4x4.RotateY(mScene.Camera.Yaw);
 				mMatrix = mDevice.GetMvpMatrix(mScene.Camera, M);
 				oldX = currentX;
 				oldY = currentY;
+				this.Invalidate();
 			}
-			this.Invalidate();
 		}
 
 		/// <summary>
@@ -206,9 +205,12 @@ namespace SoftRenderSample
 		/// <param name="e"></param>
 		private void OnMouseDown(object sender, MouseEventArgs e)
 		{
-			isMouseDown = true;
-			oldX = e.X;
-			oldY = e.Y;
+			if (e.Button == MouseButtons.Left)
+			{
+				isMouseDown = true;
+				oldX = e.X;
+				oldY = e.Y;
+			}
 		}
 
 		/// <summary>
@@ -218,9 +220,62 @@ namespace SoftRenderSample
 		/// <param name="e"></param>
 		private void OnMouseUp(object sender, MouseEventArgs e)
 		{
-			isMouseDown = false;
-			oldX = 0;
-			oldY = 0;
+			if (e.Button == MouseButtons.Left)
+			{
+				isMouseDown = false;
+				oldX = 0;
+				oldY = 0;
+			}
 		}
+
+		/// <summary>
+		/// 添加一个立方体到场景中
+		/// </summary>
+		/// <param name="scene"></param>
+		private void AddCubeToScene(Scene scene)
+		{
+			if (scene == null)
+				return;
+
+			Mesh cube = new Mesh("Cube", 8, 12);
+			cube.Vertices = new Vertex[24] {
+				new Vertex(new Vector4(-1, -1, -1, 1), new Vector4(-1, -1, -1, 1), new Vector2(0, 0), new Color(0, 0, 0)),
+				new Vertex(new Vector4(-1, -1, -1, 1), new Vector4(-1, -1, -1, 1), new Vector2(1, 0), new Color(0, 0, 0)),
+				new Vertex(new Vector4(-1, -1, -1, 1), new Vector4(-1, -1, -1, 1), new Vector2(0, 0), new Color(0, 0, 0)),
+
+				new Vertex(new Vector4(1, -1, -1, 1), new Vector4(1, -1, -1, 1), new Vector2(1, 0), new Color(255, 0, 0)),
+				new Vertex(new Vector4(1, -1, -1, 1), new Vector4(1, -1, -1, 1),  new Vector2(0, 0), new Color(255, 0, 0)),
+				new Vertex(new Vector4(1, -1, -1, 1), new Vector4(1, -1, -1, 1), new Vector2(1, 0), new Color(255, 0, 0)),
+
+				new Vertex(new Vector4(1, 1, -1, 1), new Vector4(1, 1, -1, 1), new Vector2(1, 0), new Color(255, 255, 0)),
+				new Vertex(new Vector4(1, 1, -1, 1), new Vector4(1, 1, -1, 1), new Vector2(0, 1), new Color(255, 255, 0)),
+				new Vertex(new Vector4(1, 1, -1, 1), new Vector4(1, 1, -1, 1), new Vector2(1, 1), new Color(255, 255, 0)),
+
+				new Vertex(new Vector4(-1, 1, -1, 1), new Vector4(-1, 1, -1, 1), new Vector2(0, 0), new Color(0, 255, 0)),
+				new Vertex(new Vector4(-1, 1, -1, 1), new Vector4(-1, 1, -1, 1), new Vector2(1, 1), new Color(0, 255, 0)),
+				new Vertex(new Vector4(-1, 1, -1, 1), new Vector4(-1, 1, -1, 1), new Vector2(0, 1), new Color(0, 255, 0)),
+
+				new Vertex(new Vector4(-1, -1, 1, 1), new Vector4(-1, -1, 1, 1), new Vector2(0, 1), new Color(0, 0, 255)),
+				new Vertex(new Vector4(-1, -1, 1, 1), new Vector4(-1, -1, 1, 1), new Vector2(0, 0), new Color(0, 0, 255)),
+				new Vertex(new Vector4(-1, -1, 1, 1), new Vector4(-1, -1, 1, 1), new Vector2(0, 0), new Color(0, 0, 255)),
+
+				new Vertex(new Vector4(1, -1, 1, 1), new Vector4(1, -1, 1, 1), new Vector2(1, 1), new Color(255, 0, 255)),
+				new Vertex(new Vector4(1, -1, 1, 1), new Vector4(1, -1, 1, 1), new Vector2(1, 0), new Color(255, 0, 255)),
+				new Vertex(new Vector4(1, -1, 1, 1), new Vector4(1, -1, 1, 1), new Vector2(1, 0), new Color(255, 0, 255)),
+
+				new Vertex(new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), new Vector2(1, 1), new Color(255, 255, 255)),
+				new Vertex(new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), new Vector2(1, 1), new Color(255, 255, 255)),
+				new Vertex(new Vector4(1, 1, 1, 1), new Vector4(1, 1, 1, 1), new Vector2(1, 1), new Color(255, 255, 255)),
+
+				new Vertex(new Vector4(-1, 1, 1, 1), new Vector4(-1, 1, 1, 1), new Vector2(0, 1), new Color(0, 255, 255)),
+				new Vertex(new Vector4(-1, 1, 1, 1), new Vector4(-1, 1, 1, 1), new Vector2(0, 1), new Color(0, 255, 255)),
+				new Vertex(new Vector4(-1, 1, 1, 1), new Vector4(-1, 1, 1, 1), new Vector2(0, 1), new Color(0, 255, 255)),
+
+			};
+
+			cube.MakeFace();
+			scene.AddMesh(cube);
+		}
+
 	}
 }
