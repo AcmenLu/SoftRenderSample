@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SoftRenderSample
 {
@@ -11,6 +8,7 @@ namespace SoftRenderSample
 		private string mName;
 		private Vertex[] mVertices;
 		private Face[] mFaces;
+
 		private Material mMaterial;
 		private Matrix4x4 mTransform;
 		private RenderTexture[] mTextureMaps;
@@ -61,6 +59,9 @@ namespace SoftRenderSample
 			set { mTransform = value; }
 		}
 
+		/// <summary>
+		/// 贴图
+		/// </summary>
 		public RenderTexture[] TextureMaps
 		{
 			get { return mTextureMaps; }
@@ -127,10 +128,10 @@ namespace SoftRenderSample
 		public Color GetLightColor(Vector4 position, Vector4 normal, Light light)
 		{
 			// 环境光
-			Color ambient = light.LightColor * mMaterial.AmbientStregth;
+			Color ambient = light.Color * mMaterial.AmbientStregth;
 			// 漫反射
 			Vector4 nor = normal * mTransform;
-			Vector4 lightdir = (light.LightPos - position).Normalize();
+			Vector4 lightdir = (light.Position - position).Normalize();
 			float diff = Math.Max(Vector4.Dot(normal.Normalize(), lightdir), 0);
 			Color diffuse = mMaterial.Diffuse * diff;
 			return ambient + diffuse;
@@ -208,20 +209,20 @@ namespace SoftRenderSample
 				{
 					if (list.Count == 0) break;
 					mHodgmanclip = new Clip(device);
-					mHodgmanclip.HodgmanPolygonClip(face, device.clipmin, device.clipmax, list.ToArray());
+					mHodgmanclip.HodgmanPolygonClip(face, Device.sClipmin, Device.sClipmax, list.ToArray());
 					list = mHodgmanclip.OutputList;
 				}
 
 				List<Triangle> tringleList = GetDrawTriangleList(list);
-				if (device.renderMode == RenderMode.WIREFRAME)
+				if (device.RenderMode == RenderMode.WIREFRAME)
 				{
 					for (int i = 0; i < tringleList.Count; i++)
 					{
 						if (!device.IsInBack(tringleList[i]))
 						{
-							device.DrawLine(device.ViewPort(tringleList[i].vertices[0].ClipPosition), device.ViewPort(tringleList[i].vertices[1].ClipPosition), scene, tringleList[i].vertices[0], tringleList[i].vertices[1]);
-							device.DrawLine(device.ViewPort(tringleList[i].vertices[1].ClipPosition), device.ViewPort(tringleList[i].vertices[2].ClipPosition), scene, tringleList[i].vertices[1], tringleList[i].vertices[2]);
-							device.DrawLine(device.ViewPort(tringleList[i].vertices[2].ClipPosition), device.ViewPort(tringleList[i].vertices[0].ClipPosition), scene, tringleList[i].vertices[2], tringleList[i].vertices[0]);
+							device.DrawLine(device.ViewPort(tringleList[i].Vertices[0].ClipPosition), device.ViewPort(tringleList[i].Vertices[1].ClipPosition), scene, tringleList[i].Vertices[0], tringleList[i].Vertices[1]);
+							device.DrawLine(device.ViewPort(tringleList[i].Vertices[1].ClipPosition), device.ViewPort(tringleList[i].Vertices[2].ClipPosition), scene, tringleList[i].Vertices[1], tringleList[i].Vertices[2]);
+							device.DrawLine(device.ViewPort(tringleList[i].Vertices[2].ClipPosition), device.ViewPort(tringleList[i].Vertices[0].ClipPosition), scene, tringleList[i].Vertices[2], tringleList[i].Vertices[0]);
 						}
 					}
 				}

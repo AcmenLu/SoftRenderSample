@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace SoftRenderSample
 {
 	public enum FaceTypes
@@ -17,7 +12,7 @@ namespace SoftRenderSample
 		NONE,
 	}
 
-	class Face
+	struct Face
 	{
 		public int A;
 		public int B;

@@ -1,44 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SoftRenderSample
 {
 	// rgb 0-255
 	public struct Color
 	{
-		private byte mR;
-		private byte mG;
-		private byte mB;
-
-		/// <summary>
-		/// 红色分量
-		/// </summary>
-		public byte R
-		{
-			get { return mR; }
-			set { mR = value; }
-		}
-
-		/// <summary>
-		/// 绿色分量
-		/// </summary>
-		public byte G
-		{
-			get { return mG; }
-			set { mG = value; }
-		}
-
-		/// <summary>
-		/// 蓝色分量
-		/// </summary>
-		public byte B
-		{
-			get { return mB; }
-			set { mB = value; }
-		}
+		public byte R;
+		public byte G;
+		public byte B;
 
 		/// <summary>
 		/// 用rgb构造一个颜色
@@ -48,9 +17,9 @@ namespace SoftRenderSample
 		/// <param name="blue"></param>
 		public Color(byte red, byte green, byte blue): this()
 		{
-			this.mR = red;
-			this.mG = green;
-			this.mB = blue;
+			this.R = red;
+			this.G = green;
+			this.B = blue;
 		}
 
 		/// <summary>

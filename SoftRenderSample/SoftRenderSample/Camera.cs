@@ -82,15 +82,15 @@ namespace SoftRenderSample
 		/// <param name="zn">近裁剪 平面到原点的距离</param>
 		/// <param name="zf">远裁剪 平面到原点的距离</param>
 		/// <returns></returns>
-		public Matrix4x4 GetProject(float fov,float aspect,float zn,float zf)
+		public Matrix4x4 GetProject(float fov, float aspect, float zn, float zf)
 		{
 			Matrix4x4 project = new Matrix4x4(1);
 			project.SetZero();
 			project.matrix[0, 0] = 1 / ((float)Math.Tan(fov * 0.5f) * aspect);
-			project.matrix[1, 1] = 1 / (float)Math.Tan(fov*0.5f);
-			project.matrix[2, 2] = (zf+zn) / (zf - zn);
+			project.matrix[1, 1] = 1 / (float)Math.Tan(fov * 0.5f);
+			project.matrix[2, 2] = (zf + zn) / (zf - zn);
 			project.matrix[2, 3] = 1.0f;
-			project.matrix[3, 2] = 2*(zn*zf) / (zn-zf);
+			project.matrix[3, 2] = 2 * (zn * zf) / (zn - zf);
 
 			return project;
 		}

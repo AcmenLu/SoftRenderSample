@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace SoftRenderSample
 {
 	class ScanLine
@@ -25,13 +20,13 @@ namespace SoftRenderSample
 		/// <param name="ort"></param>
 		public void ProcessScanLine(Triangle triangle, Scene scene, Triangle ort, FaceTypes types, Mesh msh)
 		{
-			Vector4 P1 = triangle.vertices[0].ScreenPosition;
-			Vector4 P2 = triangle.vertices[1].ScreenPosition;
-			Vector4 P3 = triangle.vertices[2].ScreenPosition;
+			Vector4 P1 = triangle.Vertices[0].ScreenPosition;
+			Vector4 P2 = triangle.Vertices[1].ScreenPosition;
+			Vector4 P3 = triangle.Vertices[2].ScreenPosition;
 
-			Vertex V1 = triangle.vertices[0];
-			Vertex V2 = triangle.vertices[1];
-			Vertex V3 = triangle.vertices[2];
+			Vertex V1 = triangle.Vertices[0];
+			Vertex V2 = triangle.Vertices[1];
+			Vertex V3 = triangle.Vertices[2];
 
 			// 根据y从小到大排序
 			if (P1.Y > P2.Y)
@@ -167,21 +162,21 @@ namespace SoftRenderSample
 					c3 = MathUntily.Lerp(c1, c2, r3) * MathUntily.Lerp(lc1, lc2, r3);
 
 				mUserColor = c3;
-				if (mDevice.renderMode == RenderMode.TEXTURED || mDevice.renderMode == RenderMode.CUBETEXTURED)
+				if (mDevice.RenderMode == RenderMode.TEXTURED || mDevice.RenderMode == RenderMode.CUBETEXTURED)
 				{
 					ort.CallLerp(new Vector4(x, y, 0, 0));
 					Vector2 uv = ort.GetUV();
 					FaceTypes typ = types;
-					if (mDevice.renderMode == RenderMode.TEXTURED)
+					if (mDevice.RenderMode == RenderMode.TEXTURED)
 						typ = FaceTypes.NONE;
 
 					RenderTexture texture = msh.GetTextureByFace(typ);
 					if (texture != null)
 					{
 						if (scene.IsUseLight == false || light == null)
-							mUserColor = texture.GetPixelColor(uv.U, uv.V);
+							mUserColor = texture.GetPixelColor(uv.X, uv.Y);
 						else
-							mUserColor = texture.GetPixelColor(uv.U, uv.V) * MathUntily.Lerp(lc1, lc2, r3);
+							mUserColor = texture.GetPixelColor(uv.X, uv.Y) * MathUntily.Lerp(lc1, lc2, r3);
 					}
 				}
 

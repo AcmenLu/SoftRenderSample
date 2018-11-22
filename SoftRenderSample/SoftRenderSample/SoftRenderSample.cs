@@ -102,19 +102,19 @@ namespace SoftRenderSample
 			{
 				case Keys.NumPad0:
 				case Keys.Q:
-					mDevice.renderMode = RenderMode.WIREFRAME;
+					mDevice.RenderMode = RenderMode.WIREFRAME;
 					break;
 				case Keys.NumPad1:
 				case Keys.W:
-					mDevice.renderMode = RenderMode.VERTEXCOLOR;
+					mDevice.RenderMode = RenderMode.VERTEXCOLOR;
 					break;
 				case Keys.NumPad2:
 				case Keys.E:
-					mDevice.renderMode = RenderMode.TEXTURED;
+					mDevice.RenderMode = RenderMode.TEXTURED;
 					break;
 				case Keys.NumPad3:
 				case Keys.R:
-					mDevice.renderMode = RenderMode.CUBETEXTURED;
+					mDevice.RenderMode = RenderMode.CUBETEXTURED;
 					break;
 				case Keys.F1:
 					Light light = new Light(new Vector4(5, 5, -5, 1), new Color(200, 255, 255));

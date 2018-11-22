@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SoftRenderSample
 {
@@ -91,9 +87,7 @@ namespace SoftRenderSample
 		public static Vector4 operator /(Vector4 a, float b)
 		{
 			if (b != 0)
-			{
 				return new Vector4(a.X / b, a.Y / b, a.Z / b, 1);
-			}
 			return a;
 		}
 

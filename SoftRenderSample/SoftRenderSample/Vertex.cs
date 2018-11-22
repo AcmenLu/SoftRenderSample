@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace SoftRenderSample
 {
 	class Vertex
@@ -13,10 +8,9 @@ namespace SoftRenderSample
 		private Vector2 mUV;
 		private Color mColor;
 		private Color mLightColor;
-
 		//进行扫描线算法的时候用到的 
-		public Vector4 ScreenPosition;
-		public Vector4 ClipPosition;
+		private Vector4 mScreenPosition;
+		private Vector4 mClipPosition;
 
 		/// <summary>
 		/// 顶点位置
@@ -61,6 +55,24 @@ namespace SoftRenderSample
 		{
 			get { return mLightColor; }
 			set { mLightColor = value; }
+		}
+
+		/// <summary>
+		/// 屏幕上的位置
+		/// </summary>
+		public Vector4 ScreenPosition
+		{
+			get { return mScreenPosition; }
+			set { mScreenPosition = value; }
+		}
+
+		/// <summary>
+		/// 裁剪位置
+		/// </summary>
+		public Vector4 ClipPosition
+		{
+			get { return mClipPosition; }
+			set { mClipPosition = value; }
 		}
 
 		public Vertex()

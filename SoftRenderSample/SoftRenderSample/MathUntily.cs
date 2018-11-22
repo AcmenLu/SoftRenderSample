@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace SoftRenderSample
 {
 	class MathUntily
@@ -36,6 +31,13 @@ namespace SoftRenderSample
 				v1.W+(v2.W-v1.W)*k);
 		}
 
+		/// <summary>
+		/// 计算两个Vector2之间的差值
+		/// </summary>
+		/// <param name="v1"></param>
+		/// <param name="v2"></param>
+		/// <param name="k"></param>
+		/// <returns></returns>
 		public static Vector2 Lerp(Vector2 v1, Vector2 v2, float k)
 		{
 			return new Vector2(

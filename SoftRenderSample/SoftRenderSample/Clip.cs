@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Drawing;
-using SoftRenderSample;
 
 namespace SoftRenderSample
 {
@@ -48,17 +46,17 @@ namespace SoftRenderSample
 			Vector4 p2 = v2.ClipPosition;
 
 			if (p1.X != p2.X)
-			{ k1 = (wMin.X - p1.X) / (p2.X - p1.X); k2 = (wMax.X - p1.X) / (p2.X - p1.X); }
+				{ k1 = (wMin.X - p1.X) / (p2.X - p1.X); k2 = (wMax.X - p1.X) / (p2.X - p1.X); }
 			else
-			{ k1 = k2 = 1; }
+				{ k1 = k2 = 1; }
 			if (p1.Y != p2.Y)
-			{ k3 = (wMin.Y - p1.Y) / (p2.Y - p1.Y); k4 = (wMax.Y - p1.Y) / (p2.Y - p1.Y); }
+				{ k3 = (wMin.Y - p1.Y) / (p2.Y - p1.Y); k4 = (wMax.Y - p1.Y) / (p2.Y - p1.Y); }
 			else
-			{ k3 = k4 = 1; }
+				{ k3 = k4 = 1; }
 			if (p1.Z != p2.Z)
-			{ k5 = (wMin.Z - p1.Z) / (p2.Z - p1.Z); k6 = (wMax.Z - p1.Z) / (p2.Z - p1.Z); }
+				{ k5 = (wMin.Z - p1.Z) / (p2.Z - p1.Z); k6 = (wMax.Z - p1.Z) / (p2.Z - p1.Z); }
 			else
-			{ k5 = k6 = 1; }
+				{ k5 = k6 = 1; }
 
 			Vector4 clipPos = new Vector4();
 			Vector4 pos = new Vector4();

@@ -6,28 +6,45 @@ namespace SoftRenderSample
 	{
 		private Light mLight;
 		private Camera mCamera;
-
 		private List<Mesh> mMeshs;
+		private bool mUseLight;
 
-		public bool IsUseLight = false;
-
+		/// <summary>
+		/// 光照
+		/// </summary>
 		public Light Lights
 		{
 			get { return mLight; }
 		}
 
+		/// <summary>
+		/// 场景中的模型
+		/// </summary>
 		public List<Mesh> Meshs
 		{
 			get { return mMeshs; }
 		}
 
+		/// <summary>
+		/// 场景摄像机
+		/// </summary>
 		public Camera Camera
 		{
 			get { return mCamera; }
 		}
-	
+
+		/// <summary>
+		/// 光照开关
+		/// </summary>
+		public bool IsUseLight
+		{
+			get { return mUseLight; }
+			set { mUseLight = value; }
+		}
+
 		public Scene()
 		{
+			mUseLight = false;
 			InitCarmera();
 		}
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace SoftRenderSample
 {
@@ -88,5 +87,6 @@ namespace SoftRenderSample
 			System.Drawing.Color col = mTexture.GetPixel(posX, posY);
 			return new Color(col.R, col.G, col.B);
 		}
+
 	}
 }

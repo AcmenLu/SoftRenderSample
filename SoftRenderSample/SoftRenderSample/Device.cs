@@ -27,28 +27,42 @@ namespace SoftRenderSample
 
 	class Device
 	{
+		public static Vector4 sClipmin = new Vector4(-1, -1, -1, 1);
+		public static Vector4 sClipmax = new Vector4(1, 1, 1, 1);
+
 		// 渲染缓冲相关
 		private Bitmap mBmp;
 		private BitmapData mBmData;
 		private int mHeight;
 		private int mWidth;
 		private readonly float[] mDepthBuffer;
-
-		// 裁剪区域定义
-		public Vector4 clipmin = new Vector4(-1, -1, -1, 1);
-		public Vector4 clipmax = new Vector4(1, 1, 1, 1);
-
-		public RenderMode renderMode = RenderMode.WIREFRAME;
+		private RenderMode mRenderMode;
 		
+		/// <summary>
+		/// 高
+		/// </summary>
 		public int Height
 		{
 			get { return this.mHeight; }
 		}
 
+		/// <summary>
+		/// 宽
+		/// </summary>
 		public int Width
 		{
 			get { return this.mWidth; }
 		}
+
+		/// <summary>
+		/// 渲染模式
+		/// </summary>
+		public RenderMode RenderMode
+		{
+			get { return mRenderMode; }
+			set { mRenderMode = value; }
+		}
+
 
 		public Device(Bitmap bmp)
 		{
@@ -56,6 +70,7 @@ namespace SoftRenderSample
 			this.mHeight = bmp.Height;
 			this.mWidth = bmp.Width;
 			this.mDepthBuffer = new float[bmp.Width * bmp.Height];
+			mRenderMode = RenderMode.WIREFRAME;
 		}
 
 		/// <summary>
@@ -98,6 +113,7 @@ namespace SoftRenderSample
 			int index = (x + y * Width);
 			if (mDepthBuffer[index] < z)
 				return;
+
 			mDepthBuffer[index] = z;
 			unsafe
 			{
@@ -265,9 +281,9 @@ namespace SoftRenderSample
 		/// <returns></returns>
 		public bool IsInBack(Triangle tri)
 		{
-			Vector4 v1 = tri.vertices[0].ScreenPosition;
-			Vector4 v2 = tri.vertices[1].ScreenPosition;
-			Vector4 v3 = tri.vertices[2].ScreenPosition;
+			Vector4 v1 = tri.Vertices[0].ScreenPosition;
+			Vector4 v2 = tri.Vertices[1].ScreenPosition;
+			Vector4 v3 = tri.Vertices[2].ScreenPosition;
 			v1.Z = v2.Z = v3.Z = 0;
 			Vector4 v1v2 = v2 - v1;
 			Vector4 v1v3 = v3 - v1;
